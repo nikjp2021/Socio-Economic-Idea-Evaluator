@@ -162,7 +162,10 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 4096
+          maxOutputTokens: 4096,
+          thinkingConfig: {
+            thinkingBudget: 0
+          }
         }
       })
     });
