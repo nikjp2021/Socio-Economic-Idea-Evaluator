@@ -3,7 +3,7 @@
  * Calls Gemini API with a structured prompt, returns evaluation JSON.
  */
 
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -164,7 +164,7 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
           temperature: 0.7,
           maxOutputTokens: 4096,
           thinkingConfig: {
-            thinkingBudget: 0
+            thinkingLevel: "minimal"
           }
         }
       })
