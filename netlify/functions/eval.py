@@ -12,6 +12,33 @@ import traceback
 from pathlib import Path
 from urllib.parse import parse_qs
 
+# Resolve paths — evaluator.py and data are bundled alongside this function
+FUNCTION_DIR = Path(__file__).parent.resolve()
+
+# In Netlify's runtime, bundled files are in the function directory
+# Try function dir first, then project root
+EVALUATOR_PATH = None
+for candidate in [FUNCTION_DIR, FUNCTION_DIR.parent.parent]:
+    if (candidate / "evaluator.py").exists():
+        EVALUATOR_PATH = candidate
+        break
+
+if EVALUATOR_PATH:
+    sys.path.insert(0, str(EVALUATOR_PATH))
+
+try:
+    from evaluator import (
+        parse_idea, load_country_data, run_three_tests,
+        run_cultural_analysis, run_education_analysis,
+        run_bootstrapper_score, find_case_study, generate_verdict,
+        map_to_sdgs, assess_fad_risk, calculate_impact_score
+    )
+    IMPORT_OK = True
+    IMPORT_ERROR = None
+except ImportError as e:
+    IMPORT_OK = False
+    IMPORT_ERROR = str(e)
+
 
 def handler(event, context):
     """Netlify Function entry point."""
@@ -25,50 +52,20 @@ def handler(event, context):
     if len(idea) > 5000:
         return _response(400, {"error": "Idea too long. Maximum 5000 characters."})
 
+    if not IMPORT_OK:
+        return _response(500, {
+            "error": f"Module import failed: {IMPORT_ERROR}",
+            "function_dir": str(FUNCTION_DIR),
+            "evaluator_path": str(EVALUATOR_PATH),
+            "cwd": os.getcwd(),
+            "files": os.listdir(str(FUNCTION_DIR))[:20],
+        })
+
     # Read optional API key from header
     headers = event.get("headers") or {}
     api_key = headers.get("x-api-key", "")
 
     try:
-        # Import evaluator here so we can catch import errors
-        try:
-            # Try multiple path strategies
-            function_dir = Path(__file__).parent.resolve()
-            project_root = function_dir.parent.parent.resolve()
-
-            # Also check /var/task (Netlify's bundled function root)
-            candidates = [project_root, Path("/var/task"), Path("/var/task/..")]
-            for candidate in candidates:
-                if (candidate / "evaluator.py").exists():
-                    project_root = candidate
-                    break
-
-            sys.path.insert(0, str(project_root))
-            from evaluator import (
-                parse_idea, load_country_data, run_three_tests,
-                run_cultural_analysis, run_education_analysis,
-                run_bootstrapper_score, find_case_study, generate_verdict,
-                map_to_sdgs, assess_fad_risk, calculate_impact_score
-            )
-        except ImportError as ie:
-            # Return diagnostic info if import fails
-            diagnostic = {
-                "error": f"Import failed: {str(ie)}",
-                "function_dir": str(function_dir),
-                "project_root": str(project_root),
-                "evaluator_exists": (project_root / "evaluator.py").exists(),
-                "data_exists": (project_root / "data").exists(),
-                "sys_path": sys.path[:5],
-                "cwd": os.getcwd(),
-                "files_in_cwd": os.listdir(".") if os.path.isdir(".") else [],
-                "var_task_exists": os.path.isdir("/var/task"),
-            }
-            try:
-                diagnostic["var_task_files"] = os.listdir("/var/task") if os.path.isdir("/var/task") else []
-            except:
-                pass
-            return _response(500, diagnostic)
-
         # Run full 7-layer evaluation
         parsed_idea = parse_idea(idea)
         country_code = parsed_idea["country"]

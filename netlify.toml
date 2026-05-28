@@ -6,7 +6,7 @@
   PYTHON_VERSION = "3.11"
 
 [functions]
-  # Include evaluator.py and data files in the function bundle
+  # Bundle evaluator.py and data files with the function
   included_files = ["evaluator.py", "data/**", "case-studies/**"]
 
 # API route → Netlify Function
@@ -15,7 +15,7 @@
   to = "/.netlify/functions/eval"
   status = 200
 
-# SPA fallback
+# SPA fallback — must come last
 [[redirects]]
   from = "/*"
   to = "/index.html"

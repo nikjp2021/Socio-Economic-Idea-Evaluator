@@ -1,0 +1,2 @@
+# No external dependencies — Python stdlib only
+# This file helps Netlify detect this as a Python function
