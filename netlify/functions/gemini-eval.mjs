@@ -146,9 +146,13 @@ Use real Hofstede scores for the country. Be honest — not every idea deserves 
 For the elevator_pitch: use the person's actual words. Start with their idea in quotes. Then give specific scores and a concrete next step. Write like a co-founder, not a consultant.`;
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000); // 25s timeout
+
     const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         system_instruction: {
           parts: [{ text: systemPrompt }]
@@ -158,11 +162,12 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 8192,
-          responseMimeType: "application/json"
+          maxOutputTokens: 4096
         }
       })
     });
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const err = await response.text();
@@ -217,9 +222,10 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
     return Response.json(result, { headers: corsHeaders });
 
   } catch (e) {
-    console.error("Gemini function error:", e.message, e.stack);
+    console.error("Gemini function error:", e.message, e.name);
+    const msg = e.name === 'AbortError' ? 'Evaluation timed out. Try a shorter idea.' : `Evaluation failed: ${e.message}`;
     return Response.json(
-      { error: `Evaluation failed: ${e.message}`, type: e.name },
+      { error: msg, type: e.name },
       { status: 500, headers: corsHeaders }
     );
   }
