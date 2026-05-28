@@ -37,7 +37,7 @@ def evaluate_idea(
 
 
 def rating_band(score: float) -> str:
-    """Map score to rating: >=8.5 Excellent, >=7.0 Strong, >=5.5 Moderate."""
+    """Map score to rating: >=8.5 Excellent, >=7.0 Strong, >=5.5 Moderate, else Needs Improvement."""
     if score >= 8.5:
         return "Excellent"
     if score >= 7.0:
@@ -49,11 +49,27 @@ def rating_band(score: float) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Socio-Economic Idea Evaluator")
-    parser.add_argument("--social-impact", type=float, required=True)
-    parser.add_argument("--economic-feasibility", type=float, required=True)
-    parser.add_argument("--inclusivity", type=float, required=True)
-    parser.add_argument("--sustainability", type=float, required=True)
-    parser.add_argument("--cost-efficiency", type=float, required=True)
+    parser.add_argument(
+        "--social-impact", type=float, required=True, help="Social impact score (0-10)"
+    )
+    parser.add_argument(
+        "--economic-feasibility",
+        type=float,
+        required=True,
+        help="Economic feasibility score (0-10)",
+    )
+    parser.add_argument(
+        "--inclusivity", type=float, required=True, help="Inclusivity score (0-10)"
+    )
+    parser.add_argument(
+        "--sustainability", type=float, required=True, help="Sustainability score (0-10)"
+    )
+    parser.add_argument(
+        "--cost-efficiency",
+        type=float,
+        required=True,
+        help="Cost efficiency score (0-10)",
+    )
     args = parser.parse_args()
 
     score = evaluate_idea(

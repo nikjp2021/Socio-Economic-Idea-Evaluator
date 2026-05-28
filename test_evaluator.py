@@ -16,8 +16,13 @@ class EvaluatorTests(unittest.TestCase):
 
     def test_rating_band_maps_scores_to_correct_bands(self):
         self.assertEqual(rating_band(8.5), "Excellent")
+        self.assertEqual(rating_band(8.49), "Strong")
+        self.assertEqual(rating_band(7.0), "Strong")
         self.assertEqual(rating_band(7.2), "Strong")
+        self.assertEqual(rating_band(6.9), "Moderate")
+        self.assertEqual(rating_band(5.5), "Moderate")
         self.assertEqual(rating_band(5.6), "Moderate")
+        self.assertEqual(rating_band(5.49), "Needs Improvement")
         self.assertEqual(rating_band(5.4), "Needs Improvement")
 
     def test_invalid_score_raises_value_error(self):
