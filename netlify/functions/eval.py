@@ -8,20 +8,9 @@ Netlify Python functions use the handler(event, context) signature.
 import sys
 import os
 import json
+import traceback
 from pathlib import Path
 from urllib.parse import parse_qs
-
-# Add project root to path so evaluator.py can be imported
-FUNCTION_DIR = Path(__file__).parent
-PROJECT_ROOT = FUNCTION_DIR.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from evaluator import (
-    parse_idea, load_country_data, run_three_tests,
-    run_cultural_analysis, run_education_analysis,
-    run_bootstrapper_score, find_case_study, generate_verdict,
-    map_to_sdgs, assess_fad_risk, calculate_impact_score
-)
 
 
 def handler(event, context):
@@ -41,6 +30,45 @@ def handler(event, context):
     api_key = headers.get("x-api-key", "")
 
     try:
+        # Import evaluator here so we can catch import errors
+        try:
+            # Try multiple path strategies
+            function_dir = Path(__file__).parent.resolve()
+            project_root = function_dir.parent.parent.resolve()
+
+            # Also check /var/task (Netlify's bundled function root)
+            candidates = [project_root, Path("/var/task"), Path("/var/task/..")]
+            for candidate in candidates:
+                if (candidate / "evaluator.py").exists():
+                    project_root = candidate
+                    break
+
+            sys.path.insert(0, str(project_root))
+            from evaluator import (
+                parse_idea, load_country_data, run_three_tests,
+                run_cultural_analysis, run_education_analysis,
+                run_bootstrapper_score, find_case_study, generate_verdict,
+                map_to_sdgs, assess_fad_risk, calculate_impact_score
+            )
+        except ImportError as ie:
+            # Return diagnostic info if import fails
+            diagnostic = {
+                "error": f"Import failed: {str(ie)}",
+                "function_dir": str(function_dir),
+                "project_root": str(project_root),
+                "evaluator_exists": (project_root / "evaluator.py").exists(),
+                "data_exists": (project_root / "data").exists(),
+                "sys_path": sys.path[:5],
+                "cwd": os.getcwd(),
+                "files_in_cwd": os.listdir(".") if os.path.isdir(".") else [],
+                "var_task_exists": os.path.isdir("/var/task"),
+            }
+            try:
+                diagnostic["var_task_files"] = os.listdir("/var/task") if os.path.isdir("/var/task") else []
+            except:
+                pass
+            return _response(500, diagnostic)
+
         # Run full 7-layer evaluation
         parsed_idea = parse_idea(idea)
         country_code = parsed_idea["country"]
@@ -155,7 +183,10 @@ def handler(event, context):
         return _response(200, result)
 
     except Exception as e:
-        return _response(500, {"error": f"Evaluation failed: {str(e)}"})
+        return _response(500, {
+            "error": f"Evaluation failed: {str(e)}",
+            "traceback": traceback.format_exc(),
+        })
 
 
 def _response(status, body):
