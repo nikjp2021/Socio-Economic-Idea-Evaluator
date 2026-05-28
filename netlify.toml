@@ -1,7 +1,14 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
 
-# SPA fallback
+# API route → Gemini evaluation function
+[[redirects]]
+  from = "/api/eval"
+  to = "/.netlify/functions/gemini-eval"
+  status = 200
+
+# SPA fallback — must come last
 [[redirects]]
   from = "/*"
   to = "/index.html"
