@@ -1,0 +1,195 @@
+{
+  "metadata": {
+    "source": "Hofstede Insights, World Bank, UNDP",
+    "last_updated": "2026-05-28",
+    "dimensions": ["power_distance", "individualism", "masculinity", "uncertainty_avoidance", "long_term_orientation", "indulgence"],
+    "economic_tiers": {
+      "T1": "Smartphone + data + disposable income",
+      "T2": "Basic phone + occasional airtime",
+      "T3": "Shared phone per village/community",
+      "T4": "No phone, no electricity, no road"
+    }
+  },
+  "countries": {
+    "JP": {
+      "name": "Japan",
+      "name_local": "日本",
+      "region": "East Asia",
+      "income_level": "High",
+      "economic_tier": "T1",
+      "hofstede": {"power_distance":54,"individualism":46,"masculinity":95,"uncertainty_avoidance":92,"long_term_orientation":88,"indulgence":42},
+      "cultural_profile": {
+        "dominant_barrier": "Masculinity (95) — admitting need is weakness. High UAI — needs institutional trust.",
+        "trust_layer": "Institutions, formal associations (chonaikai), PTA",
+        "volunteer_motivation": "Social obligation, duty, reciprocity",
+        "key_community_types": ["chonaikai (neighborhood assoc)", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA", "PTA"],
+        "what_works": ["Voice AI (removes human judgment)", "Institutional framing", "Anonymous channels", "Technology-mediated help"],
+        "what_fails": ["Asking strangers for help", "Public vulnerability", "Informal networks without structure"]
+      },
+      "funding_sources": ["MEXT", "JSPS", "JST SPRING", "Nagayoshi Lab"]
+    },
+    "IN": {
+      "name": "India",
+      "name_local": "भारत",
+      "region": "South Asia",
+      "income_level": "Lower-middle",
+      "economic_tier": "T2-T3",
+      "hofstede": {"power_distance":77,"individualism":48,"masculinity":56,"uncertainty_avoidance":40,"long_term_orientation":51,"indulgence":26},
+      "cultural_profile": {
+        "dominant_barrier": "Restraint (26) — shame in expressing needs. Power Distance (77) — can't challenge authority.",
+        "trust_layer": "Caste, family, religious community, ASHA workers, SHGs",
+        "volunteer_motivation": "Religious duty (dharma), community reciprocity, family obligation",
+        "key_community_types": ["Self-help groups (SHGs)", "Temple committees", "Mosque committees", "ASHA workers", "Anganwadi workers", "Mothers' groups", "Farming cooperatives", "WhatsApp neighborhood groups"],
+        "what_works": ["ASHA-style community health workers", "WhatsApp groups", "Religious community networks", "Women's self-help groups"],
+        "what_fails": ["Direct requests from women (shame)", "Challenging authority publicly", "Individual action without family approval"]
+      },
+      "funding_sources": ["Government schemes (PMJDAY, MUDRA)", "Microfinance institutions", "CSR funds", "Ashoka", "Echoing Green"]
+    },
+    "BD": {
+      "name": "Bangladesh",
+      "name_local": "বাংলাদেশ",
+      "region": "South Asia",
+      "income_level": "Lower-middle",
+      "economic_tier": "T2-T3",
+      "hofstede": {"power_distance":80,"individualism":20,"masculinity":55,"uncertainty_avoidance":60,"long_term_orientation":47,"indulgence":20},
+      "cultural_profile": {
+        "dominant_barrier": "Restraint (20) — extremely low indulgence, shame in expressing needs",
+        "trust_layer": "Family, village, mosque, BRAC network",
+        "volunteer_motivation": "Religious duty (zakat), village reciprocity, BRAC-trained community roles",
+        "key_community_types": ["BRAC Shasthya Shebika", "Mosque committees", "Village councils (shalish)", "Women's groups", "Garment worker networks"],
+        "what_works": ["BRAC model (local women on bicycles)", "CLTS (shame + pride)", "SMS on basic phones", "Group lending (Grameen)"],
+        "what_fails": ["Individual requests (collectivist)", "Smartphone-dependent solutions", "Outside orgs without local trust"]
+      },
+      "funding_sources": ["BRAC", "Grameen Bank", "PKSF", "World Bank Bangladesh", "NLnet"]
+    },
+    "KE": {
+      "name": "Kenya",
+      "name_local": "Kenya",
+      "region": "East Africa",
+      "income_level": "Lower-middle",
+      "economic_tier": "T2-T3",
+      "hofstede": {"power_distance":70,"individualism":25,"masculinity":60,"uncertainty_avoidance":50,"long_term_orientation":50,"indulgence":44},
+      "cultural_profile": {
+        "dominant_barrier": "Power Distance (70) — respect for authority, but moderate",
+        "trust_layer": "Church, family, ethnic community, market women, chama groups",
+        "volunteer_motivation": "Religious duty, community reciprocity, entrepreneurship culture",
+        "key_community_types": ["Church groups", "Chama (women's savings)", "Market women associations", "Youth groups", "Community health volunteers", "M-Pesa agent networks"],
+        "what_works": ["M-Pesa (mobile money)", "Ushahidi (citizen reporting)", "Church networks", "SMS on basic phones"],
+        "what_fails": ["Formal institutional approaches", "Long-term projects (need quick wins)", "Solutions without mobile money"]
+      },
+      "funding_sources": ["M-Pesa Foundation", "Kenya Community Development Foundation", "Ashoka East Africa", "HIF"]
+    },
+    "CD": {
+      "name": "Democratic Republic of Congo",
+      "name_local": "République Démocratique du Congo",
+      "region": "Central Africa",
+      "income_level": "Low",
+      "economic_tier": "T3-T4",
+      "hofstede": {"power_distance":85,"individualism":15,"masculinity":65,"uncertainty_avoidance":55,"long_term_orientation":20,"indulgence":15},
+      "cultural_profile": {
+        "dominant_barrier": "Structural — conflict, displacement, no infrastructure. Cultural — extreme restraint (15), high PDI (85).",
+        "trust_layer": "Family ONLY. Community structures shattered by conflict.",
+        "volunteer_motivation": "Family obligation, survival reciprocity, religious faith",
+        "key_community_types": ["Family networks", "Church communities", "Displaced persons committees", "Market women"],
+        "what_works": ["Family-based networks only", "Church communities", "Word of mouth", "Physical presence"],
+        "what_fails": ["Anything requiring infrastructure", "Volunteer networks (everyone is surviving)", "Apps, SMS, any technology", "Long-term planning"]
+      },
+      "funding_sources": ["UNHCR", "ICRC", "MSF", "OCHA", "World Food Programme"]
+    },
+    "NG": {
+      "name": "Nigeria",
+      "name_local": "Nigeria",
+      "region": "West Africa",
+      "income_level": "Lower-middle",
+      "economic_tier": "T2-T3",
+      "hofstede": {"power_distance":80,"individualism":30,"masculinity":60,"uncertainty_avoidance":55,"long_term_orientation":13,"indulgence":84},
+      "cultural_profile": {
+        "dominant_barrier": "Power Distance (80) — hierarchy strong. BUT Indulgence (84) — people WILL express needs freely.",
+        "trust_layer": "Ethnic community, church/mosque, family, market associations",
+        "volunteer_motivation": "Religious duty, entrepreneurship, community recognition",
+        "key_community_types": ["Church groups", "Mosque committees", "Market women associations", "Town unions", "WhatsApp groups"],
+        "what_works": ["WhatsApp groups", "Church/mosque networks", "Market women cooperatives", "Mobile money", "Expressive culture"],
+        "what_fails": ["Challenging traditional authority", "Long-term planning (LTO 13)", "Formal institutional approaches"]
+      },
+      "funding_sources": ["Tony Elumelu Foundation", "Ashoka West Africa", "Government SME funds", "NLnet"]
+    },
+    "PH": {
+      "name": "Philippines",
+      "name_local": "Pilipinas",
+      "region": "Southeast Asia",
+      "income_level": "Lower-middle",
+      "economic_tier": "T2",
+      "hofstede": {"power_distance":94,"individualism":32,"masculinity":64,"uncertainty_avoidance":44,"long_term_orientation":27,"indulgence":42},
+      "cultural_profile": {
+        "dominant_barrier": "Power Distance (94) — HIGHEST. Extreme hierarchy. Cannot challenge authority.",
+        "trust_layer": "Family (pamamilya), barangay, church, OFW networks",
+        "volunteer_motivation": "Family obligation, religious duty, bayanihan (community spirit)",
+        "key_community_types": ["Barangay councils", "Catholic church groups", "OFW family networks", "Mothers' groups", "Sari-sari store networks"],
+        "what_works": ["Barangay-level coordination", "Catholic church networks", "OFW remittance channels", "Bayanihan spirit", "SMS on basic phones"],
+        "what_fails": ["Challenging authority (PDI 94)", "Individual action without family approval", "Long-term projects (LTO 27)"]
+      },
+      "funding_sources": ["Philippine Social Development Foundation", "Gawad Kalinga", "Ashoka Philippines", "DOST grants"]
+    },
+    "DE": {
+      "name": "Germany",
+      "name_local": "Deutschland",
+      "region": "Western Europe",
+      "income_level": "High",
+      "economic_tier": "T1",
+      "hofstede": {"power_distance":35,"individualism":67,"masculinity":66,"uncertainty_avoidance":65,"long_term_orientation":83,"indulgence":40},
+      "cultural_profile": {
+        "dominant_barrier": "Uncertainty Avoidance (65) — needs rules, structure, institutional trust",
+        "trust_layer": "Institutions, Verein (associations), formal organizations",
+        "volunteer_motivation": "Verein culture, civic duty, structured volunteering",
+        "key_community_types": ["Verein (associations)", "Church communities", "Sports clubs", "Refugee support groups"],
+        "what_works": ["Formal volunteer organizations", "Institutional partnerships", "Structured programs", "Long-term projects (LTO 83)"],
+        "what_fails": ["Informal, unstructured approaches", "'Just figure it out' mentality", "Low-formality community organizing"]
+      },
+      "funding_sources": ["BMBF", "DAAD", "EU Horizon Europe", "NLnet"]
+    },
+    "US": {
+      "name": "United States",
+      "name_local": "United States",
+      "region": "North America",
+      "income_level": "High",
+      "economic_tier": "T1",
+      "hofstede": {"power_distance":40,"individualism":91,"masculinity":62,"uncertainty_avoidance":46,"long_term_orientation":26,"indulgence":68},
+      "cultural_profile": {
+        "dominant_barrier": "Individualism (91) — 'I'll do it myself' mentality. Low community obligation.",
+        "trust_layer": "Individual networks, professional connections, online communities",
+        "volunteer_motivation": "Personal fulfillment, tax benefits, professional networking, religious faith",
+        "key_community_types": ["Church groups", "Neighborhood associations (Nextdoor)", "Online communities", "Mutual aid groups"],
+        "what_works": ["Online communities", "Individual empowerment framing", "Religious networks", "Mutual aid groups", "GoFundMe-style crowdfunding"],
+        "what_fails": ["Collectivist framing ('community obligation')", "Long-term commitment without clear ROI", "Formal hierarchical structures"]
+      },
+      "funding_sources": ["Echoing Green", "Ashoka", "Skoll Foundation", "Google.org", "OpenAI grants", "Mozilla MOSS"]
+    },
+    "SS": {
+      "name": "South Sudan",
+      "name_local": "South Sudan",
+      "region": "East Africa",
+      "income_level": "Low",
+      "economic_tier": "T4",
+      "hofstede": {"power_distance":85,"individualism":15,"masculinity":60,"uncertainty_avoidance":50,"long_term_orientation":20,"indulgence":15},
+      "cultural_profile": {
+        "dominant_barrier": "Structural — active conflict, displacement, no infrastructure. Everything is a barrier.",
+        "trust_layer": "Ethnic group, family, clan. No institutional trust.",
+        "volunteer_motivation": "Clan obligation, survival reciprocity, religious faith",
+        "key_community_types": ["Ethnic/clan networks", "Church communities", "Displaced persons committees", "Women's groups in camps"],
+        "what_works": ["Family/clan networks only", "Church communities", "Word of mouth", "Physical presence"],
+        "what_fails": ["Literally anything with technology", "Volunteer networks", "Long-term planning", "Formal institutions"]
+      },
+      "funding_sources": ["UNHCR", "ICRC", "WFP", "OCHA", "South Sudan Humanitarian Fund"]
+    }
+  },
+  "quick_lookup": {
+    "high_masculinity": ["JP"],
+    "high_restraint": ["IN", "BD", "CD", "SS"],
+    "high_power_distance": ["PH", "IN", "BD", "CD", "NG", "SS"],
+    "high_individualism": ["US", "DE"],
+    "tier_1": ["JP", "DE", "US"],
+    "tier_2": ["IN", "BD", "KE", "NG", "PH"],
+    "tier_3": ["IN-rural", "BD-rural", "KE-rural", "CD-urban"],
+    "tier_4": ["CD-rural", "SS"]
+  }
+}

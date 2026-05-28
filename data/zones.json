@@ -1,0 +1,109 @@
+{
+  "metadata": {
+    "description": "10 global zones grouped by cultural/economic similarity using Hofstede dimensions",
+    "grouping_logic": "Countries with similar PDI, IDV, MAS, UAI, LTO, IVR scores are grouped together",
+    "last_updated": "2026-05-28"
+  },
+  "zones": {
+    "east_asia": {
+      "name": "East Asia",
+      "countries": ["JP", "KR", "TW", "MN"],
+      "hofstede_profile": "High MAS (70-95), High UAI (85-92), High LTO (75-88), Medium IDV (18-46)",
+      "economic_range": "T1 (Japan, Korea) to T2 (Mongolia)",
+      "dominant_cultural_traits": ["Masculinity — achievement-oriented, help = weakness", "High UAI — institutional trust", "High LTO — invest in slow change", "Collectivist but formal"],
+      "trust_layer": "Institutions, formal associations, government",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "southeast_asia": {
+      "name": "Southeast Asia",
+      "countries": ["PH", "ID", "VN", "TH", "MM", "KH", "MY", "SG"],
+      "hofstede_profile": "High PDI (64-94), Low-Medium IDV (14-39), Medium MAS (45-64), Low-Medium UAI (12-44)",
+      "economic_range": "T1 (Singapore) to T3 (Myanmar, Cambodia)",
+      "dominant_cultural_traits": ["High PDI — hierarchy accepted", "Collectivist — family/community oriented", "Bayanihan/gotong royong — mutual aid traditions", "Religious influence (Catholic, Buddhist, Muslim)"],
+      "trust_layer": "Family, religious community, village, barangay",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "south_asia": {
+      "name": "South Asia",
+      "countries": ["IN", "BD", "PK", "LK", "NP", "AF"],
+      "hofstede_profile": "High PDI (70-80), Low IDV (14-48), Medium MAS (50-56), Low IVR/Restrained (20-26)",
+      "economic_range": "T2 (urban) to T3-T4 (rural, conflict zones)",
+      "dominant_cultural_traits": ["High PDI — authority accepted", "Restrained — shame in expressing needs", "Collectivist — family/caste/village", "Religious duty (dharma, zakat)"],
+      "trust_layer": "Family, caste, religious community, village, ASHA/BRAC workers",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "central_asia": {
+      "name": "Central Asia",
+      "countries": ["KZ", "UZ", "KG", "TJ", "TM"],
+      "hofstede_profile": "High PDI (75-95), Low IDV (10-25), High MAS (50-65), High UAI (60-85)",
+      "economic_range": "T2 (Kazakhstan) to T3 (Tajikistan, Turkmenistan)",
+      "dominant_cultural_traits": ["Post-Soviet institutional structures", "High PDI — government authority strong", "Collectivist — clan/tribal networks", "Limited NGO/social enterprise ecosystem"],
+      "trust_layer": "Government, clan, family, traditional authority",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "mena": {
+      "name": "Middle East & North Africa",
+      "countries": ["JO", "EG", "LB", "MA", "TN", "IQ", "YE", "PS"],
+      "hofstede_profile": "High PDI (65-80), Low IDV (25-38), Medium MAS (45-65), High UAI (60-85), Low IVR (20-40)",
+      "economic_range": "T1 (Jordan urban) to T3-T4 (Yemen, Palestine)",
+      "dominant_cultural_traits": ["High PDI — authority respected", "Restrained — modesty, social control", "Family-centric — extended family as safety net", "Islamic charitable tradition (zakat, sadaqah)"],
+      "trust_layer": "Family, mosque, tribal/community leaders, government",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "east_africa": {
+      "name": "East Africa",
+      "countries": ["KE", "UG", "TZ", "RW", "ET", "BI", "SS"],
+      "hofstede_profile": "Medium-High PDI (60-85), Low IDV (15-25), Medium MAS (55-65), Medium UAI (45-55), Low IVR (25-44)",
+      "economic_range": "T2 (Kenya urban) to T4 (South Sudan)",
+      "dominant_cultural_traits": ["Collectivist — community-first", "Church/mosque networks strong", "Mobile money infrastructure (M-Pesa)", "Entrepreneurial culture (Kenya)"],
+      "trust_layer": "Church, family, ethnic community, market women, chama groups",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "west_africa": {
+      "name": "West Africa",
+      "countries": ["NG", "GH", "SN", "CI", "ML", "BF", "NE", "CM"],
+      "hofstede_profile": "High PDI (70-80), Low-Medium IDV (20-30), Medium MAS (55-65), Medium UAI (45-55), High IVR (60-84 in Nigeria)",
+      "economic_range": "T2 (Nigeria, Ghana) to T3-T4 (Niger, Mali, Burkina Faso)",
+      "dominant_cultural_traits": ["Nigeria's high indulgence (84) — people express needs freely", "Market women's associations strong", "Ethnic/trade networks", "Religious influence (Christian, Muslim)"],
+      "trust_layer": "Ethnic community, church/mosque, market associations, trade guilds",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "central_south_africa": {
+      "name": "Central & Southern Africa",
+      "countries": ["CD", "ZA", "MZ", "ZM", "ZW", "AO", "MW"],
+      "hofstede_profile": "High PDI (75-85), Very Low IDV (15-25), Medium-High MAS (55-65), Medium UAI (45-55), Very Low IVR (15-20)",
+      "economic_range": "T2 (South Africa) to T4 (DRC conflict zones)",
+      "dominant_cultural_traits": ["Post-conflict structures (DRC)", "Extreme restraint (IVR 15-20)", "Family as only trust layer in conflict zones", "South Africa has stronger institutions"],
+      "trust_layer": "Family, clan, church (DRC); Institutions, community orgs (South Africa)",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "latin_america": {
+      "name": "Latin America",
+      "countries": ["BR", "MX", "CO", "PE", "AR", "CL", "GT", "BO"],
+      "hofstede_profile": "High PDI (60-80), Low-Medium IDV (12-46), Medium-High MAS (50-65), Medium UAI (60-100), High IVR (40-68)",
+      "economic_range": "T1 (Chile urban) to T3 (Bolivia, Guatemala rural)",
+      "dominant_cultural_traits": ["Favela/barrio community structures", "High indulgence — people express needs", "Social enterprise ecosystem growing", "Indigenous communities with distinct needs"],
+      "trust_layer": "Family, neighborhood, church, social enterprise networks",
+      "case_studies_count": 10,
+      "figures_count": 5
+    },
+    "europe": {
+      "name": "Europe",
+      "countries": ["DE", "GB", "FR", "ES", "PL", "SE", "NL", "IT"],
+      "hofstede_profile": "Low-Medium PDI (35-55), High IDV (67-89), Medium MAS (42-66), Medium-High UAI (55-86), Medium-High LTO (55-83)",
+      "economic_range": "T1 (all)",
+      "dominant_cultural_traits": ["Verein/association culture", "Institutional trust high", "Long-term orientation", "Refugee integration as new challenge"],
+      "trust_layer": "Institutions, formal organizations, government, Verein/associations",
+      "case_studies_count": 10,
+      "figures_count": 5
+    }
+  }
+}
