@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 The Socio-Economic Idea Evaluator
-"Virtual Shark Tank for Social Impact" — by Nikhil & Claude
+"A Rigorous Evaluator for Social Impact Ideas" — by Nikhil & Claude
 
 Usage:
     python3 evaluator.py "Your idea here"
@@ -113,7 +113,7 @@ def detect_idea_type(text: str) -> str:
         "mental_health": ["mental", "depression", "anxiety", "trauma", "grief", "addiction", "suicide", "lonely", "loneliness"],
         "disaster": ["disaster", "flood", "earthquake", "cyclone", "crisis", "emergency", "displace", "refugee"],
         "health": ["health", "medical", "hospital", "doctor", "medicine", "maternal", "birth", "vaccine", "triage", "sick", "disease", "malaria", "pneumonia"],
-        "food": ["food", "hunger", "hungry", "meal", "cook", "nutrition", "malnutrition", "stunt"],
+        "food": ["food", "hunger", "hungry", "meal", "cook", "nutrition", "malnutrition", "stunt", "farmer", "crop", "agriculture", "harvest", "famine"],
         "water": ["water", "sanitation", "toilet", "latrine", "handwash", "diarrhea"],
         "financial": ["financial", "bank", "loan", "savings", "remittance", "microfinance", "poverty"],
         "work": ["work", "job", "employ", "wage", "labor", "skill", "income", "gig"],
@@ -914,32 +914,31 @@ def generate_personalized_verdict(total_score, parsed, all_analysis) -> tuple:
     if total_score >= 8:
         verdict = "GO"
         verdict_detail = (
-            f"Your {idea_type} idea in {country_name} has strong foundations. "
+            f"Your {idea_type} idea in {country_name} scored {total_score} out of 10. "
             f"The community is ready ({three_tests['community_viability_score']}/10), "
             f"the culture fits ({cultural['cultural_compatibility_score']}/10), "
             f"and you can start with {tier} technology. "
-            f"This is ready to test. Start today."
+            f"This is worth testing. Here is your Day 1."
         )
     elif total_score >= 6:
         verdict = "GO WITH EDUCATION"
-        # Identify what's holding it back
         holdbacks = []
         if cultural["cultural_compatibility_score"] < 7:
-            holdbacks.append(f"cultural barriers ({dominant})")
+            holdbacks.append(f"cultural barriers around {dominant.lower()}")
         if education["score_after_education"] < 35:
             holdbacks.append("education gaps in your market")
         if bs_score < 6:
-            holdbacks.append("bootstrapper complexity")
+            holdbacks.append("the starting complexity")
         holdback_text = " and ".join(holdbacks) if holdbacks else "some gaps"
 
         verdict_detail = (
-            f"Your {idea_type} idea in {country_name} is close — but {holdback_text} are keeping it from being ready. "
-            f"The good news: {edu_delta} points can be recovered through awareness campaigns. "
-            f"Run a 2-week education sprint first, then launch."
+            f"Your {idea_type} idea in {country_name} scored {total_score} out of 10. "
+            f"It has real potential, but {holdback_text} are holding it back. "
+            f"Fix the main barrier first — that alone could add {edu_delta} points. "
+            f"Then test it."
         )
     elif total_score >= 4:
         verdict = "PIVOT"
-        # What specifically needs to change
         pivots = []
         if cultural["cultural_compatibility_score"] < 5:
             pivots.append(f"the cultural context ({dominant})")
@@ -950,19 +949,19 @@ def generate_personalized_verdict(total_score, parsed, all_analysis) -> tuple:
         pivot_text = " and ".join(pivots) if pivots else "the approach"
 
         verdict_detail = (
-            f"Your {idea_type} idea has potential, but {pivot_text} need adjustment for {country_name}. "
-            f"The core concept is sound — you need to adapt it to local realities. "
-            f"Consider: what would this look like if it worked on a $10 phone with one volunteer?"
+            f"Your {idea_type} idea scored {total_score} out of 10. "
+            f"The problem is real, but {pivot_text} need adjustment for {country_name}. "
+            f"Ask yourself: what would this look like on a $10 phone with one volunteer? "
+            f"Start there."
         )
     else:
         verdict = "SHELVE"
         verdict_detail = (
-            f"Your {idea_type} idea faces significant structural barriers in {country_name}. "
-            f"This isn't about your effort — it's about the context. "
-            f"The combination of {dominant}, {tier} technology limits, and community readiness "
-            f"makes this very hard right now. "
-            f"That said: every 'impossible' idea was impossible until someone proved it wasn't. "
-            f"Revisit in 6 months with a different angle."
+            f"Your {idea_type} idea scored {total_score} out of 10. "
+            f"The barriers in {country_name} are high right now: {dominant}, {tier} technology limits, "
+            f"and community readiness. "
+            f"This is not failure — it is information. "
+            f"Learn from the case studies above. Revisit in 6 months with a different angle."
         )
 
     return verdict, verdict_detail
@@ -983,12 +982,11 @@ def generate_verdict(parsed: dict, all_analysis: dict) -> dict:
     impact_score = impact_scores.get(parsed["idea_type"], 6)
 
     total_score = round(
-        (community_score * 0.20) +
+        (community_score * 0.30) +
         (cultural_score * 0.15) +
         (education_score * 0.15) +
         (bootstrapper_score * 0.20) +
-        (impact_score * 0.20) +
-        (community_score * 0.10),  # Education impact placeholder
+        (impact_score * 0.20),
         1
     )
 
@@ -1084,32 +1082,31 @@ def generate_verdict(parsed: dict, all_analysis: dict) -> dict:
 
     if verdict == "GO":
         elevator_pitch = (
-            f"\"{hook}\" — this is ready to test. "
-            f"Your community scores {three_tests['community_viability_score']}/10, cultural fit is {cultural_score}/10. "
+            f"\"{hook}\" — this scored {total_score}/10. "
+            f"Your community is ready ({three_tests['community_viability_score']}/10), cultural fit is {cultural_score}/10. "
             f"This week: {first_step} "
-            f"Serve 10 people in 14 days. If 7 say \"I'd tell a friend about this\" — you have proof. Ship it."
+            f"Serve 10 people in 14 days. If 7 say \"I'd tell a friend about this\" — keep going. If fewer than 4 say it, change your approach."
         )
     elif verdict == "GO WITH EDUCATION":
         elevator_pitch = (
-            f"\"{hook}\" — you're closer than you think. "
-            f"The gap is {barrier_phrase}. That's the one thing between you and launch. "
-            f"Run a 2-week education sprint: {first_step} "
-            f"Then re-evaluate. You're not starting from zero — there's {edu_delta} points of upside waiting."
+            f"\"{hook}\" — this scored {total_score}/10. "
+            f"One thing is stopping it from working: {barrier_phrase}. "
+            f"Fix that first. {first_step} "
+            f"Then test it again. The barrier is worth {edu_delta} points."
         )
     elif verdict == "PIVOT":
         elevator_pitch = (
-            f"\"{hook}\" — the core insight is real, but the approach needs to change for {country_name}. "
+            f"\"{hook}\" — this scored {total_score}/10. "
+            f"The problem is real, but the approach needs to change for {country_name}. "
             f"Ask yourself: what does this look like on a $10 phone with one volunteer? "
-            f"That constraint isn't a limitation — it's your competitive advantage. "
             f"Start there. {first_step}"
         )
     else:
         elevator_pitch = (
-            f"\"{hook}\" — I won't sugarcoat it. "
-            f"The structural barriers in {country_name} ({barrier_phrase}, {tier} infrastructure) are real. "
-            f"That's not failure — it's information. "
-            f"Park this, learn from the case studies above, and revisit in 6 months with a different angle. "
-            f"Every \"impossible\" idea was impossible until someone proved it wasn't."
+            f"\"{hook}\" — this scored {total_score}/10. "
+            f"The barriers in {country_name} ({barrier_phrase}, {tier} infrastructure) are high right now. "
+            f"This is not failure — it is information. "
+            f"Learn from the case studies above. Revisit in 6 months with a different angle."
         )
 
     return {
@@ -1123,11 +1120,139 @@ def generate_verdict(parsed: dict, all_analysis: dict) -> dict:
     }
 
 # ─────────────────────────────────────────────────────────
+# PRACTICAL ADVICE & SCORE-AWARE FUNDING
+# ─────────────────────────────────────────────────────────
+
+HOFSTEDE_ADVICE = {
+    ("PDI", "HIGH"): {
+        "meaning": "People here don't challenge authority. Leaders decide, others follow.",
+        "workaround": "Partner with a local authority figure — a community leader, religious figure, or respected elder."
+    },
+    ("PDI", "LOW"): {
+        "meaning": "People here question authority and expect to be consulted.",
+        "workaround": "Build consensus. Run a community vote or pilot group before launching."
+    },
+    ("IDV", "HIGH"): {
+        "meaning": "People look out for themselves first. Community obligation is low.",
+        "workaround": "Frame benefits individually — 'what's in it for you' — not collectively."
+    },
+    ("IDV", "LOW"): {
+        "meaning": "Community bonds are strong. People help each other.",
+        "workaround": "Leverage existing community networks. Word-of-mouth will spread this fast."
+    },
+    ("MAS", "HIGH"): {
+        "meaning": "Asking for help is seen as weakness. People suffer in silence.",
+        "workaround": "Make it private. Use anonymous channels or trusted intermediaries."
+    },
+    ("MAS", "LOW"): {
+        "meaning": "Asking for help is normal. People are open about their needs.",
+        "workaround": "Direct outreach works. People will tell you what they need."
+    },
+    ("UAI", "HIGH"): {
+        "meaning": "People won't trust a stranger. They need institutional backing.",
+        "workaround": "Get endorsed by a trusted institution — a school, clinic, or local government."
+    },
+    ("UAI", "LOW"): {
+        "meaning": "People are comfortable with new things. Less institutional gatekeeping.",
+        "workaround": "You can launch without institutional backing. Start small, prove it works."
+    },
+    ("LTO", "HIGH"): {
+        "meaning": "People plan long-term. They'll invest in something that pays off later.",
+        "workaround": "Show the long-term vision. This culture values patience and persistence."
+    },
+    ("LTO", "LOW"): {
+        "meaning": "People want quick wins. If they don't see results fast, they move on.",
+        "workaround": "Start with a 2-week pilot that shows immediate results. Don't ask for long-term commitment yet."
+    },
+    ("IVR", "HIGH"): {
+        "meaning": "People express their needs freely. No shame in asking for help.",
+        "workaround": "Direct outreach works. People will tell you what they need."
+    },
+    ("IVR", "LOW"): {
+        "meaning": "There's shame in expressing needs. People won't ask for help publicly.",
+        "workaround": "Use private, discreet channels. Trusted intermediaries are essential."
+    },
+}
+
+# Score-aware funding tiers
+FUNDING_TIERS = {
+    "GO": {
+        "label": "Full funding sources",
+        "sources": [
+            {"source": "Echoing Green Fellowship", "amount": "$80K-90K", "likelihood": "MEDIUM"},
+            {"source": "Ashoka Fellowship", "amount": "Living stipend + network", "likelihood": "LOW"},
+            {"source": "Skoll Foundation", "amount": "$500K+", "likelihood": "LOW"},
+        ]
+    },
+    "GO WITH EDUCATION": {
+        "label": "Seed funding and incubators",
+        "sources": [
+            {"source": "Unreasonable Institute", "amount": "Accelerator + mentorship", "likelihood": "MEDIUM"},
+            {"source": "Acumen Fund", "amount": "$50K-200K (patient capital)", "likelihood": "MEDIUM"},
+            {"source": "Local incubator programs", "amount": "$5K-25K", "likelihood": "HIGH"},
+        ]
+    },
+    "PIVOT": {
+        "label": "Prototyping grants and pitch competitions",
+        "sources": [
+            {"source": "Hult Prize", "amount": "$1M (competition)", "likelihood": "LOW"},
+            {"source": "Social enterprise pitch competitions", "amount": "$1K-10K", "likelihood": "MEDIUM"},
+            {"source": "University innovation grants", "amount": "$2K-10K", "likelihood": "MEDIUM"},
+        ]
+    },
+    "SHELVE": {
+        "label": "Research grants and academic partnerships",
+        "sources": [
+            {"source": "Research collaboration with university", "amount": "Access to data + credibility", "likelihood": "HIGH"},
+            {"source": "Small innovation grants", "amount": "$500-2K", "likelihood": "MEDIUM"},
+            {"source": "Revisit in 6 months with refined approach", "amount": "N/A", "likelihood": "N/A"},
+        ]
+    },
+}
+
+# Country-specific funding additions
+COUNTRY_FUNDING = {
+    "JP": [{"source": "MEXT/JSPS Research Grants", "amount": "¥150K-200K/month", "likelihood": "MEDIUM"}],
+    "IN": [{"source": "PMJDAY/MUDRA Government Schemes", "amount": "₹50K-10L", "likelihood": "MEDIUM"}, {"source": "CSR Funds (Tata, Infosys)", "amount": "₹1L-10L", "likelihood": "MEDIUM"}],
+    "BD": [{"source": "BRAC Social Innovation Fund", "amount": "Partnership + mentorship", "likelihood": "MEDIUM"}, {"source": "PKSF Micro-finance", "amount": "Small loans", "likelihood": "HIGH"}],
+    "KE": [{"source": "M-Pesa Foundation", "amount": "KES 100K-1M", "likelihood": "MEDIUM"}, {"source": "Ashoka East Africa", "amount": "Fellowship", "likelihood": "LOW"}],
+    "US": [{"source": "Echoing Green", "amount": "$100K/18mo", "likelihood": "LOW"}, {"source": "Mozilla MOSS", "amount": "$50K", "likelihood": "MEDIUM"}],
+    "PH": [{"source": "Gawad Kalinga Social Innovation", "amount": "Partnership", "likelihood": "MEDIUM"}],
+    "NG": [{"source": "Tony Elumelu Foundation", "amount": "$5K + mentorship", "likelihood": "MEDIUM"}],
+    "GH": [{"source": "MEST Africa", "amount": "Incubation + $100K", "likelihood": "LOW"}],
+    "CO": [{"source": "Innpulsa Colombia", "amount": "Accelerator + funding", "likelihood": "MEDIUM"}],
+    "MX": [{"source": "Socialab Mexico", "amount": "Incubation + seed funding", "likelihood": "MEDIUM"}],
+}
+
+
+def get_funding_by_score(country_code: str, country_name: str, total_score: float) -> list:
+    """Return funding sources matched to score level + country."""
+    # Determine score tier
+    if total_score >= 8.0:
+        tier = "GO"
+    elif total_score >= 6.0:
+        tier = "GO WITH EDUCATION"
+    elif total_score >= 4.0:
+        tier = "PIVOT"
+    else:
+        tier = "SHELVE"
+
+    # Base funding from score tier
+    funding = list(FUNDING_TIERS[tier]["sources"])
+
+    # Add country-specific sources if available
+    country_specific = COUNTRY_FUNDING.get(country_code, [])
+    funding.extend(country_specific)
+
+    return funding
+
+
+# ─────────────────────────────────────────────────────────
 # REPORT FORMATTER
 # ─────────────────────────────────────────────────────────
 
 def format_report(parsed: dict, all_analysis: dict) -> str:
-    """Format the complete evaluation as a readable report."""
+    """Format the complete evaluation as an 8-section report."""
     country_data = all_analysis["country_data"]
     three_tests = all_analysis["three_tests"]
     cultural = all_analysis["cultural_analysis"]
@@ -1135,139 +1260,262 @@ def format_report(parsed: dict, all_analysis: dict) -> str:
     bootstrapper = all_analysis["bootstrapper_score"]
     case_study = all_analysis["case_study"]
     verdict = all_analysis["verdict"]
+    sdgs = all_analysis.get("sdgs", {})
+    fad_risk = all_analysis.get("fad_risk", {})
+    impact = all_analysis.get("impact_score", {})
+
+    country_name = country_data.get("name", parsed["country"])
+    tier = parsed["community"]["economic_tier"]
+    total_score = verdict["total_score"]
+
+    # Dimension name mapping (lowercase → abbreviation)
+    dim_abbrev = {
+        "power_distance": "PDI",
+        "individualism": "IDV",
+        "masculinity": "MAS",
+        "uncertainty_avoidance": "UAI",
+        "long_term_orientation": "LTO",
+        "indulgence": "IVR",
+    }
+
+    # Verdict label mapping (plain language)
+    verdict_labels = {
+        "GO": "READY TO TEST",
+        "GO WITH EDUCATION": "GOOD, BUT FIX ONE THING FIRST",
+        "PIVOT": "CHANGE YOUR APPROACH",
+        "SHELVE": "HIGH BARRIERS RIGHT NOW",
+    }
+
+    # Funding likelihood mapping (plain language)
+    likelihood_map = {"HIGH": "likely", "MEDIUM": "possible", "LOW": "hard to get"}
 
     report = []
     report.append("=" * 60)
     report.append("SOCIO-ECONOMIC IDEA EVALUATION")
-    report.append(f"The Shizuoka Method × V3 Framework")
-    report.append("By Nikhil Tiwari & Claude")
+    report.append("The Shizuoka Method")
     report.append("=" * 60)
     report.append("")
-    report.append(f"IDEA: {parsed['raw_input'][:200]}")
-    report.append(f"COUNTRY: {country_data.get('name', 'Unknown')} ({parsed['country']})")
-    report.append(f"TYPE: {parsed['idea_type']}")
-    report.append(f"ECONOMIC TIER: {parsed['community']['economic_tier']}")
-    report.append("")
 
-    # Layer 1
-    report.append("-" * 60)
-    report.append("LAYER 1: SHIZUOKA METHOD (Problem + Goal + Constraints)")
-    report.append("-" * 60)
-    report.append(f"Problem: {parsed['problem']}")
-    report.append(f"Goal: {parsed['goal']}")
-    report.append(f"Constraints: {json.dumps(parsed['constraints'], indent=2)}")
-    report.append("")
-
-    # Layer 2
-    report.append("-" * 60)
-    report.append("LAYER 2: THREE TESTS (Community Viability)")
-    report.append("-" * 60)
-    fb = three_tests["facebook_group_test"]
-    report.append(f"Facebook Group Test: {'PASS' if fb['pass'] else 'FAIL'} — {fb['analysis']}")
-    ten = three_tests["ten_for_ten_test"]
-    report.append(f"10-for-10 Test: {'PASS' if ten['pass'] else 'FAIL'} — Volunteers from: {ten['supply_source']}")
-    wa = three_tests["whatsapp_only_test"]
-    report.append(f"WhatsApp-Only Test: {'PASS' if wa['pass'] else 'FAIL'} — Min tech: {wa['min_tech']}")
-    report.append(f"Community Viability Score: {three_tests['community_viability_score']}/10")
-    report.append("")
-
-    # Layer 3
-    report.append("-" * 60)
-    report.append("LAYER 3: CULTURAL MATRIX (Hofstede)")
-    report.append("-" * 60)
-    for dim_name, dim_data in cultural["hofstede_analysis"].items():
-        report.append(f"  {dim_name}: {dim_data['score']} — {dim_data['barrier']} — {dim_data['impact']}")
-    report.append(f"Cultural Compatibility Score: {cultural['cultural_compatibility_score']}/10")
-    report.append(f"Dominant Barrier: {cultural['dominant_barrier']}")
-    report.append("")
-
-    # Layer 4
-    report.append("-" * 60)
-    report.append("LAYER 4: EDUCATION LEVER (Barrier Analysis)")
-    report.append("-" * 60)
-    for barrier in education["barriers"]:
-        trainable_str = "YES" if barrier["trainable"] == True else "PARTIAL" if barrier["trainable"] == "partial" else "NO"
-        report.append(f"  {barrier['name']}: {barrier['type']} — Trainable: {trainable_str} — Timeline: {barrier['timeline']}")
-    report.append(f"Score TODAY: {education['score_today']}/50")
-    report.append(f"Score AFTER EDUCATION: {education['score_after_education']}/50")
-    report.append(f"Delta: +{education['delta']} — Education ROI: {education['education_roi']}")
-    report.append("")
-
-    # Layer 5
-    report.append("-" * 60)
-    report.append("LAYER 5: BOOTSTRAPPER SCORE")
-    report.append("-" * 60)
-    report.append(f"Easy: {bootstrapper['easy']['score']}/10 — {bootstrapper['easy']['reasoning']}")
-    report.append(f"Feasible: {bootstrapper['feasible']['score']}/10 — {bootstrapper['feasible']['reasoning']}")
-    report.append(f"Efforts: {bootstrapper['efforts']['score']}/10 — {bootstrapper['efforts']['reasoning']}")
-    report.append(f"Bootstrapper Score: {bootstrapper['bootstrapper_score']}/10")
-    report.append(f"Nikhil's Take: {bootstrapper['nikhils_take']}")
-    report.append("")
-
-    # Layer 6
-    report.append("-" * 60)
-    report.append("LAYER 6: CASE STUDY + EXPERT INSIGHT")
-    report.append("-" * 60)
-
-    source_type = case_study.get("sourceType", "real")
-    if source_type == "hypothetical":
-        report.append("[sourceType: hypothetical — grounded in real evidence]")
+    # ── Section 1: YOUR IDEA ──
+    report.append("━" * 60)
+    report.append("YOUR IDEA")
+    report.append("━" * 60)
+    problem = parsed.get("problem", "")
+    goal = parsed.get("goal", "")
+    has_problem = problem and problem != "Inferred from context"
+    has_goal = goal and goal != "Inferred from context"
+    report.append(f"  The problem you want to solve:  {problem if has_problem else '(you did not describe this)'}")
+    report.append(f"  What you want to achieve:       {goal if has_goal else '(you did not describe this)'}")
+    report.append(f"  Where:                          {country_name}")
+    budget = parsed.get("constraints", {}).get("budget", "")
+    report.append(f"  Your budget:                    {budget if budget else '(you did not say)'}")
+    constraints = parsed.get("constraints", {})
+    constraint_parts = []
+    if constraints.get("team_size"):
+        constraint_parts.append(constraints["team_size"])
+    if constraints.get("time_horizon"):
+        constraint_parts.append(constraints["time_horizon"])
+    report.append(f"  Your limits:                    {', '.join(constraint_parts) if constraint_parts else '(you did not say)'}")
+    if not has_problem and not has_goal:
         report.append("")
-
-    narrative = case_study.get("narrative", "")
-    if narrative:
-        report.append(narrative)
-    else:
-        cs = case_study.get("case_study", {})
-        report.append(f"Case Study: {cs.get('title', 'N/A')}")
-        report.append(f"  {cs.get('text', cs.get('summary', cs.get('the_model', 'N/A')))[:300]}")
-        report.append(f"  Key Lesson: {cs.get('key_lesson', cs.get('key_takeaway', 'N/A'))}")
-
-    exp = case_study.get("expert_insight", {})
-    exp_source = exp.get("sourceType", "real")
-    exp_text = exp.get("text", exp.get("quote", "N/A"))
-    exp_attr = exp.get("attribution", exp.get("name", "N/A"))
-    if exp_text and exp_text != "N/A":
-        report.append(f"Expert Insight [{exp_source}]: \"{exp_text}\" — {exp_attr}")
+        report.append("  Note: You gave us only one sentence. We did our best with what we have.")
+        report.append("  For a better check next time, tell us: What is the problem? What do you")
+        report.append("  want to happen? Where are you? What do you have to work with?")
     report.append("")
 
-    # Layer 7
-    report.append("=" * 60)
-    report.append("LAYER 7: VERDICT & YOUR PITCH")
-    report.append("=" * 60)
-    report.append(f"TOTAL SCORE: {verdict['total_score']}/10")
-    report.append(f"VERDICT: {verdict['verdict']}")
+    # ── Section 2: YOUR SCORE ──
+    report.append("━" * 60)
+    report.append(f"YOUR SCORE: {total_score} out of 10")
+    report.append("━" * 60)
+    plain_verdict = verdict_labels.get(verdict["verdict"], verdict["verdict"])
+    report.append(f"  Result: {plain_verdict}")
+    report.append("")
     report.append(f"  {verdict['verdict_detail']}")
     report.append("")
-
-    # Co-founder pitch — the user's own idea, reframed
-    report.append("-" * 60)
-    report.append("YOUR PITCH (co-founder briefing)")
-    report.append("-" * 60)
-    report.append(verdict['elevator_pitch'])
+    report.append(f"  {verdict['elevator_pitch']}")
     report.append("")
 
-    report.append("PROOF-OF-WORK (2-week test with $0):")
+    # ── Section 3: WHO YOU HELP ──
+    report.append("━" * 60)
+    report.append("WHO YOU HELP")
+    report.append("━" * 60)
+    if sdgs:
+        primary = sdgs.get("primary", {})
+        secondary = sdgs.get("secondary", {})
+        report.append(f"  This idea helps with:   {primary.get('name', 'Unknown')}")
+        report.append(f"  Specifically:           {primary.get('target_text', '')}")
+        report.append(f"  Also helps with:        {secondary.get('name', 'Unknown')}")
+    if impact:
+        report.append(f"  How much impact:        {impact.get('score', 0)} out of 100")
+        interp = impact.get("interpretation", "")
+        reach = impact.get("estimated_reach", 0)
+        report.append(f"  If you serve {reach} people, your impact is {interp}.")
+    report.append("")
+
+    # ── Section 4: IS THIS A REAL PROBLEM? ──
+    report.append("━" * 60)
+    report.append("IS THIS A REAL PROBLEM?")
+    report.append("━" * 60)
+    if fad_risk:
+        level = fad_risk.get("level", "UNKNOWN")
+        level_plain = {"LOW": "REAL PROBLEM", "MEDIUM": "REAL, BUT WATCH THE TREND", "HIGH": "COULD BE A TREND"}.get(level, level)
+        report.append(f"  Is this a trend or a real problem?  {level_plain}")
+        report.append(f"  {fad_risk.get('text', '')}")
+        report.append(f"  {fad_risk.get('signal', '')}")
+    report.append("")
+
+    # ── Section 5: YOUR STRENGTHS ──
+    report.append("━" * 60)
+    report.append("YOUR STRENGTHS")
+    report.append("━" * 60)
+    report.append("  What is already working for you:")
+    report.append("")
+    fb = three_tests["facebook_group_test"]
+    ten = three_tests["ten_for_ten_test"]
+    wa = three_tests["whatsapp_only_test"]
+    strength_num = 0
+    if fb["pass"]:
+        strength_num += 1
+        report.append(f"  {strength_num}. Your community already works together.")
+        report.append(f"     {fb['analysis']}")
+        report.append("")
+    if ten["pass"]:
+        strength_num += 1
+        report.append(f"  {strength_num}. You can reach 10 people quickly.")
+        report.append(f"     Your idea does not need a big team or a lot of money to reach the")
+        report.append(f"     first 10 people.")
+        report.append("")
+    if wa["pass"]:
+        strength_num += 1
+        report.append(f"  {strength_num}. You only need a phone.")
+        report.append(f"     Your idea works with WhatsApp. No website. No app. No computer.")
+        report.append(f"     Just one phone and one person who can send messages.")
+        report.append("")
+    for dim_name, dim_data in cultural["hofstede_analysis"].items():
+        if dim_data["barrier"] == "LOW" or dim_data["barrier"] == "NO BARRIER":
+            abbrev = dim_abbrev.get(dim_name, dim_name)
+            if abbrev in ("LTO", "IVR"):
+                advice = HOFSTEDE_ADVICE.get((abbrev, "HIGH"), HOFSTEDE_ADVICE.get((abbrev, "LOW"), {}))
+            else:
+                advice = HOFSTEDE_ADVICE.get((abbrev, "LOW"), HOFSTEDE_ADVICE.get((abbrev, "HIGH"), {}))
+            meaning = advice.get("meaning", "")
+            if meaning:
+                strength_num += 1
+                report.append(f"  {strength_num}. {meaning}")
+                report.append("")
+    report.append("")
+
+    # ── Section 6: WHAT IS IN YOUR WAY ──
+    report.append("━" * 60)
+    report.append("WHAT IS IN YOUR WAY")
+    report.append("━" * 60)
+    barrier_count = sum(1 for d in cultural["hofstede_analysis"].values() if d["barrier"] != "LOW" and d["barrier"] != "NO BARRIER")
+    if barrier_count > 0:
+        report.append(f"  {barrier_count} thing{'s' if barrier_count > 1 else ''} could stop this idea. Here is what to do about {'each one' if barrier_count > 1 else 'it'}.")
+        report.append("")
+    barrier_num = 0
+    for dim_name, dim_data in cultural["hofstede_analysis"].items():
+        if dim_data["barrier"] != "LOW" and dim_data["barrier"] != "NO BARRIER":
+            barrier_num += 1
+            abbrev = dim_abbrev.get(dim_name, dim_name)
+            if abbrev in ("LTO", "IVR"):
+                advice = HOFSTEDE_ADVICE.get((abbrev, "LOW"), HOFSTEDE_ADVICE.get((abbrev, "HIGH"), {}))
+            else:
+                advice = HOFSTEDE_ADVICE.get((abbrev, "HIGH"), HOFSTEDE_ADVICE.get((abbrev, "LOW"), {}))
+            meaning = advice.get("meaning", dim_data.get("impact", ""))
+            workaround = advice.get("workaround", "Address this barrier directly.")
+            trainable = "NO"
+            for barrier in education["barriers"]:
+                if dim_name in barrier.get("name", "") or barrier.get("name", "") in dim_name:
+                    trainable = "YES" if barrier["trainable"] == True else "PARTIAL" if barrier["trainable"] == "partial" else "NO"
+                    break
+            report.append(f"  {barrier_num}. {meaning}")
+            report.append(f"     What to do: {workaround}")
+            trainable_plain = {"YES": "Yes — training can help", "PARTIAL": "Partially — training helps a little", "NO": "No — this is how your community works"}.get(trainable, trainable)
+            report.append(f"     Can training fix this? {trainable_plain}")
+            report.append("")
+    report.append(f"  Your starting score is {round(education['score_today']/5, 1)} out of 10.")
+    if education["delta"] > 0:
+        report.append(f"  With the changes above, you could reach {round(education['score_after_education']/5, 1)}.")
+    gap = round(8.0 - total_score, 1)
+    if gap > 0:
+        report.append(f"  To reach 8, you need +{gap} more points.")
+    report.append("")
+
+    # ── Section 7: CAN YOU START WITH NOTHING? ──
+    report.append("━" * 60)
+    report.append("CAN YOU START WITH NOTHING?")
+    report.append("━" * 60)
+    report.append(f"  How easy is this to start?     {bootstrapper['easy']['score']} out of 10")
+    report.append(f"  Can you actually do it?        {bootstrapper['feasible']['score']} out of 10")
+    report.append(f"  How much ongoing work?         {bootstrapper['efforts']['score']} out of 10 (higher = less work)")
+    report.append(f"  Overall starting score:        {bootstrapper['bootstrapper_score']} out of 10")
+    report.append("")
+    report.append(f"  Our honest opinion:")
+    report.append(f"  {bootstrapper['nikhils_take']}")
+    report.append("")
+
+    # Case study — full text, no truncation
+    source_type = case_study.get("sourceType", "real")
+    source_label = {"real": "A REAL EXAMPLE", "hypothetical": "A SIMILAR EXAMPLE (based on real data)", "none": "NO CLOSE EXAMPLE FOUND"}.get(source_type, "AN EXAMPLE")
+    report.append(f"  {source_label}:")
+    narrative = case_study.get("narrative", "")
+    if narrative:
+        report.append(f"  {narrative}")
+    else:
+        cs = case_study.get("case_study", {})
+        title = cs.get("title", "")
+        if title:
+            report.append(f"  {title}")
+        model = cs.get("text", cs.get("summary", cs.get("the_model", "")))
+        if model:
+            report.append(f"  {model}")
+        what_worked = cs.get("what_worked", [])
+        if what_worked:
+            report.append(f"  What worked: {', '.join(what_worked) if isinstance(what_worked, list) else what_worked}")
+        what_didnt = cs.get("what_didnt_work", [])
+        if what_didnt:
+            report.append(f"  What did not work: {', '.join(what_didnt) if isinstance(what_didnt, list) else what_didnt}")
+        key_lesson = cs.get("key_lesson", cs.get("key_takeaway", ""))
+        if key_lesson:
+            report.append(f"  The lesson: {key_lesson}")
+    exp = case_study.get("expert_insight", {})
+    exp_text = exp.get("text", exp.get("quote", ""))
+    exp_attr = exp.get("attribution", exp.get("name", ""))
+    if exp_text and exp_text != "N/A":
+        report.append(f"  \"{exp_text}\" — {exp_attr}")
+    report.append("")
+
+    # ── Section 8: YOUR FIRST 14 DAYS ──
+    report.append("━" * 60)
+    report.append("YOUR FIRST 14 DAYS")
+    report.append("━" * 60)
     proof = verdict["proof_of_work"]
-    report.append(f"  Week 1:")
-    report.append(f"    Day 1-2: {proof['week_1']['day_1_2']}")
-    report.append(f"    Day 3-4: {proof['week_1']['day_3_4']}")
-    report.append(f"    Day 5-7: {proof['week_1']['day_5_7']}")
-    report.append(f"  Week 2:")
-    report.append(f"    Day 8-10: {proof['week_2']['day_8_10']}")
-    report.append(f"    Day 11-12: {proof['week_2']['day_11_12']}")
-    report.append(f"    Day 13-14: {proof['week_2']['day_13_14']}")
-    report.append(f"  Success: {proof['success_criteria']}")
+    report.append(f"  Days 1-2:  {proof['week_1']['day_1_2']}")
+    report.append(f"  Days 3-4:  {proof['week_1']['day_3_4']}")
+    report.append(f"  Days 5-7:  {proof['week_1']['day_5_7']}")
+    report.append(f"  Days 8-10: {proof['week_2']['day_8_10']}")
+    report.append(f"  Days 11-12: {proof['week_2']['day_11_12']}")
+    report.append(f"  Days 13-14: {proof['week_2']['day_13_14']}")
     report.append("")
-    report.append("FUNDING PATHWAY:")
-    for fund in verdict["funding_pathway"]:
-        report.append(f"  - {fund['source']}: {fund['amount']} (Likelihood: {fund['likelihood']})")
+    report.append(f"  How do you know if it is working?")
+    report.append(f"  {proof['success_criteria']}")
     report.append("")
-    report.append(f"FIRST STEP: {verdict['first_step']}")
+
+    # Score-aware funding
+    report.append("  WHERE TO FIND MONEY:")
+    funding = get_funding_by_score(parsed["country"], country_name, total_score)
+    for fund in funding:
+        likelihood_plain = likelihood_map.get(fund.get("likelihood", ""), fund.get("likelihood", ""))
+        report.append(f"    - {fund['source']}: {fund['amount']} ({likelihood_plain})")
     report.append("")
+    report.append(f"  YOUR FIRST STEP TODAY:")
+    report.append(f"  {verdict['first_step']}")
+    report.append("")
+
+    # ── Footer ──
     report.append("=" * 60)
     report.append("秩序と創造 — Order and Creation")
-    report.append("By Nikhil Tiwari & Claude | 2026-05-28")
     report.append("=" * 60)
 
     return "\n".join(report)

@@ -1,5 +1,5 @@
 # Socio-Economic Idea Evaluator — MVP PRD
-## "Virtual Shark Tank for Social Impact"
+## "A Rigorous Evaluator for Social Impact Ideas"
 
 **Version:** 1.0 MVP
 **Date:** 2026-05-28
@@ -11,7 +11,7 @@
 
 A CLI tool that evaluates any social impact idea through 7 layers of analysis — combining the Shizuoka Method, Hofstede cultural dimensions, real-world case studies, and bootstrapper scoring. Returns a complete evaluation with verdict, proof-of-work protocol, and funding pathway.
 
-**Tagline:** Harvard knowledge for social problems. Free. For everyone.
+**Tagline:** Research-backed evaluation for social problems. Free. For everyone.
 
 ---
 

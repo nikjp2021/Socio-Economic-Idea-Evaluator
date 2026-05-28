@@ -1,5 +1,5 @@
 # SEE — Experience Design Document
-## "Virtual Shark Tank for Social Impact"
+## "A Rigorous Evaluator for Social Impact Ideas"
 ### By Nikhil Tiwari & Claude | 2026-05-28
 
 ---
@@ -74,13 +74,13 @@ Not academic. Not corporate. Like talking to a smart friend who's been there.
 
 ### 3.3 The Report — 7 Sections
 
-#### Section 1: THE VERDICT (Top — this is what they came for)
+#### Section 1: YOUR SCORE (Top — this is what they came for)
 - Score (X/10)
 - One-line headline based on score level
 - Personalized paragraph explaining WHY this score
 - Tone changes by score level (see 2.3)
 
-#### Section 2: YOUR PITCH (echo back what they told us)
+#### Section 2: YOUR IDEA (echo back what they told us)
 - Problem (their words)
 - Goal (their words)
 - Where, Budget, Constraints
@@ -105,7 +105,7 @@ Not academic. Not corporate. Like talking to a smart friend who's been there.
 
 #### Section 6: CAN YOU START ALONE?
 - Easy / Feasible / Effort scores
-- Nikhil's Take — direct advice
+- Our Honest Opinion — direct advice
 - Someone Who Did Something Similar — real case study
 
 #### Section 7: YOUR 2-WEEK PLAN

@@ -20,7 +20,8 @@ from evaluator import (
     parse_idea, load_country_data, run_three_tests,
     run_cultural_analysis, run_education_analysis,
     run_bootstrapper_score, find_case_study, generate_verdict,
-    map_to_sdgs, assess_fad_risk, calculate_impact_score
+    map_to_sdgs, assess_fad_risk, calculate_impact_score,
+    HOFSTEDE_ADVICE, get_funding_by_score
 )
 
 
@@ -106,6 +107,24 @@ class handler(BaseHTTPRequestHandler):
                         k: {"score": v["score"], "barrier": v["barrier"]}
                         for k, v in cultural_analysis["hofstede_analysis"].items()
                     },
+                    "practical_advice": [
+                        {
+                            "dimension": k,
+                            "score": v["score"],
+                            "barrier": v["barrier"],
+                            "meaning": HOFSTEDE_ADVICE.get(
+                                ({"power_distance":"PDI","individualism":"IDV","masculinity":"MAS","uncertainty_avoidance":"UAI","long_term_orientation":"LTO","indulgence":"IVR"}.get(k, k),
+                                 "LOW" if k in ("long_term_orientation","indulgence") and v["score"] < 40 else "HIGH"),
+                                {}
+                            ).get("meaning", v.get("impact", "")),
+                            "workaround": HOFSTEDE_ADVICE.get(
+                                ({"power_distance":"PDI","individualism":"IDV","masculinity":"MAS","uncertainty_avoidance":"UAI","long_term_orientation":"LTO","indulgence":"IVR"}.get(k, k),
+                                 "LOW" if k in ("long_term_orientation","indulgence") and v["score"] < 40 else "HIGH"),
+                                {}
+                            ).get("workaround", ""),
+                        }
+                        for k, v in cultural_analysis["hofstede_analysis"].items()
+                    ],
                 },
                 "education": {
                     "score_today": education_analysis["score_today"],
@@ -143,7 +162,7 @@ class handler(BaseHTTPRequestHandler):
                     "elevator_pitch": verdict["elevator_pitch"],
                     "first_step": verdict["first_step"],
                     "proof_of_work": verdict["proof_of_work"],
-                    "funding": verdict["funding_pathway"],
+                    "funding": get_funding_by_score(parsed_idea["country"], country_data.get("name", parsed_idea["country"]), verdict["total_score"]),
                 },
                 "sdgs": sdgs,
                 "fad_risk": fad_risk,

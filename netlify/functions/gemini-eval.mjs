@@ -5,21 +5,32 @@
 
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type, X-API-Key",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+};
+
 export default async (request, context) => {
+  // Handle CORS preflight
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+
   const url = new URL(request.url);
   const idea = url.searchParams.get("idea") || "";
 
   if (!idea || idea.trim().length < 10) {
     return Response.json(
       { error: "Please describe your idea in at least 10 characters." },
-      { status: 400 }
+      { status: 400, headers: corsHeaders }
     );
   }
 
   if (idea.length > 5000) {
     return Response.json(
       { error: "Idea too long. Maximum 5000 characters." },
-      { status: 400 }
+      { status: 400, headers: corsHeaders }
     );
   }
 
@@ -27,7 +38,7 @@ export default async (request, context) => {
   if (!apiKey) {
     return Response.json(
       { error: "API key not configured. Set GEMINI_API_KEY in Netlify environment variables." },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 
@@ -146,7 +157,7 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 4096,
+          maxOutputTokens: 8192,
           responseMimeType: "application/json"
         }
       })
@@ -156,7 +167,7 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
       const err = await response.text();
       return Response.json(
         { error: `Gemini API error: ${response.status}`, detail: err },
-        { status: 502 }
+        { status: 502, headers: corsHeaders }
       );
     }
 
@@ -166,7 +177,7 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
     if (!text) {
       return Response.json(
         { error: "Gemini returned empty response" },
-        { status: 502 }
+        { status: 502, headers: corsHeaders }
       );
     }
 
@@ -176,13 +187,23 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
       result = JSON.parse(text);
     } catch {
       // Try to extract JSON from markdown code fences
-      const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (match) {
-        result = JSON.parse(match[1].trim());
+      let cleaned = text;
+      const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (fenceMatch) {
+        cleaned = fenceMatch[1].trim();
       } else {
+        // Try to find raw JSON object in the text
+        const braceMatch = text.match(/\{[\s\S]*\}/);
+        if (braceMatch) {
+          cleaned = braceMatch[0];
+        }
+      }
+      try {
+        result = JSON.parse(cleaned);
+      } catch (parseErr) {
         return Response.json(
           { error: "Gemini returned invalid JSON", raw: text.slice(0, 500) },
-          { status: 502 }
+          { status: 502, headers: corsHeaders }
         );
       }
     }
@@ -192,17 +213,12 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
       result._input = { problem: "", goal: "", country: "", budget: "", constraints: "" };
     }
 
-    return Response.json(result, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "X-API-Key",
-      },
-    });
+    return Response.json(result, { headers: corsHeaders });
 
   } catch (e) {
     return Response.json(
       { error: `Evaluation failed: ${e.message}` },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 };

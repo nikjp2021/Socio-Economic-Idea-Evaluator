@@ -4,6 +4,100 @@ All notable changes to this project are documented here.
 
 ---
 
+## 2026-05-29 — Session 4: Expert Reviews + Content Strategy Rewrite
+
+### What Changed
+
+The evaluator output was completely rewritten based on reviews from 4 expert agents (PM, Marketing, UX/UI, Content Strategist). All jargon removed, hollow encouragement replaced with specific actions, section names rewritten in plain language for non-English speakers.
+
+### evaluator.py — Content Strategy Rewrite
+
+**Section names (before → after):**
+- "YOUR PITCH" → "YOUR IDEA"
+- "THE VERDICT" → "YOUR SCORE: X out of 10"
+- "YOUR SDG IMPACT" → "WHO YOU HELP"
+- "REALITY CHECK" → "IS THIS A REAL PROBLEM?"
+- "WHAT'S WORKING FOR YOU" → "YOUR STRENGTHS"
+- "WHAT'S HOLDING YOU BACK" → "WHAT IS IN YOUR WAY"
+- "BOOTSTRAPPER ASSESSMENT" → "CAN YOU START WITH NOTHING?"
+- "YOUR 2-WEEK PLAN" → "YOUR FIRST 14 DAYS"
+
+**Verdict labels (before → after):**
+- "GO WITH EDUCATION" → "GOOD, BUT FIX ONE THING FIRST"
+- "Nikhil's Take" → "Our Honest Opinion"
+- "FUNDING PATHWAY" → "WHERE TO FIND MONEY"
+- "Likelihood: MEDIUM" → "possible"
+
+**Removed hollow encouragement:**
+- "you're closer than you think" → replaced with specific score
+- "3 points of upside waiting" → replaced with action
+- "Ship it" → removed
+- "I won't sugarcoat it" → removed
+- "every 'impossible' idea was impossible" → removed
+
+**Other changes:**
+- Barriers now show practical meaning, not raw field names ("power_distance" → "People follow leaders")
+- Case study text no longer truncated (was 500 chars, now full text)
+- Single-sentence input gets helpful note explaining limited information
+- Footer: removed "By Nikhil Tiwari & Claude" (kept 秩序と創造)
+- Verdict messages rewritten: all 4 score ranges now use specific numbers, not encouragement
+- Elevator pitch templates rewritten: all 4 templates use score, not feelings
+- Added plain language verdict labels mapping
+- Added plain language funding likelihood mapping
+- Added dimension name mapping (lowercase → abbreviation) for HOFSTEDE_ADVICE lookup
+- Fixed LTO/IVR advice inversion (low score = barrier for these dimensions)
+- Added "farmers", "crop", "agriculture", "harvest", "famine" to food keyword detection
+
+### New Documentation Files
+
+| File | Purpose |
+|---|---|
+| `SHIZUOKA-METHOD.md` | Canonical definition of the Shizuoka Method (origin, 5 principles, V3 Framework, 7-layer pipeline) |
+| `OUTPUT-FORMAT.md` | Strict 8-section output format spec with quality checklist |
+| `COFOUNDER-PLAYBOOK.md` | How Claude amplifies the system as co-founder and innovation lead |
+| `EVENT-LOG.md` | Decision & change log with tech + business context and before/after tracking |
+| `CLAUDE.md` | Project instructions for Claude sessions |
+
+### index.html — Hero Section
+
+- Hero title: "Your idea could change thousands of lives" → "Tell us your idea. We will be honest."
+- Hero subtitle: Updated with concrete positioning (136 countries, 165 examples, 17 SDGs)
+- Added "Good to know" box below hero (this is not a guarantee, not a business plan, not a funding application)
+
+### server.py, api/index.py, app.py — JSON Response Updates
+
+- Added `practical_advice` to cultural response (meaning + workaround for each dimension)
+- Added `funding_by_score` to verdict response (score-aware funding sources)
+- Imported `HOFSTEDE_ADVICE` and `get_funding_by_score`
+
+### Expert Reviews (4 agents deployed)
+
+**PM Review:** Found broken single-sentence parsing, stub Reality Check, raw field names in output, truncated case studies, generic funding.
+
+**Marketing Review:** Found hero overpromises, "Nikhil's Take" naming problem, hollow encouragement, no trust signals, Silicon Valley jargon for developing-country audience.
+
+**UX/UI Review:** Delivered wireframes for desktop results page (collapsible sections, sticky tab bar), mobile layout (360px, 8 screens), shareable card (1080x1080 PNG), input form improvements.
+
+**Content Strategist Review:** Delivered complete jargon replacement table, section name rewrite, hero alternatives, "this is not" statement, full sample output rewrite in plain language.
+
+### Files Modified
+
+| File | Action |
+|---|---|
+| evaluator.py | MODIFIED (format_report, generate_personalized_verdict, elevator pitches, HOFSTEDE_ADVICE, get_funding_by_score, food keywords) |
+| index.html | MODIFIED (hero title, subtitle, "this is not" box) |
+| server.py | MODIFIED (imports, practical_advice, funding_by_score) |
+| api/index.py | MODIFIED (same as server.py) |
+| app.py | MODIFIED (same as server.py) |
+| OUTPUT-FORMAT.md | MODIFIED (section headers) |
+| MEMORY.md | REWRITTEN |
+| CLAUDE.md | MODIFIED (scoring formula, output patterns) |
+| EVENT-LOG.md | CREATED + MODIFIED (expert reviews, implementation log) |
+| SHIZUOKA-METHOD.md | CREATED |
+| COFOUNDER-PLAYBOOK.md | CREATED |
+
+---
+
 ## 2026-05-29 — Session 3: Vercel/Netlify Deployment + API Key Settings
 
 ### What Changed

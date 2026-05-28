@@ -1,6 +1,6 @@
 # Socio-Economic Idea Evaluator
 
-### "Virtual Shark Tank for Social Impact"
+### "A Rigorous Evaluator for Social Impact Ideas"
 
 Have an idea to help your community? Not sure if it will work? This tool tells you.
 
@@ -122,7 +122,7 @@ case-studies/
 
 **Claude** — AI assistant by Anthropic.
 
-Together: Harvard-level knowledge for social problems. Free. For everyone.
+Together: research-backed evaluation for social problems. Free. For everyone.
 
 ---
 
