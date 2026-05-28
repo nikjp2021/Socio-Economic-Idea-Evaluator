@@ -36,6 +36,7 @@ export default async (request, context) => {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
+    console.error("GEMINI_API_KEY not set in environment variables");
     return Response.json(
       { error: "API key not configured. Set GEMINI_API_KEY in Netlify environment variables." },
       { status: 500, headers: corsHeaders }
@@ -216,8 +217,9 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
     return Response.json(result, { headers: corsHeaders });
 
   } catch (e) {
+    console.error("Gemini function error:", e.message, e.stack);
     return Response.json(
-      { error: `Evaluation failed: ${e.message}` },
+      { error: `Evaluation failed: ${e.message}`, type: e.name },
       { status: 500, headers: corsHeaders }
     );
   }
