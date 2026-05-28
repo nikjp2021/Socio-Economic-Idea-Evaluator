@@ -23,6 +23,7 @@ def evaluate_idea(
     sustainability: float,
     cost_efficiency: float,
 ) -> float:
+    """Return weighted socio-economic score from five 0-10 criterion values."""
     scores = {
         "social_impact": _validate_score("social_impact", social_impact),
         "economic_feasibility": _validate_score(
@@ -36,6 +37,7 @@ def evaluate_idea(
 
 
 def rating_band(score: float) -> str:
+    """Map score to rating: >=8.5 Excellent, >=7.0 Strong, >=5.5 Moderate."""
     if score >= 8.5:
         return "Excellent"
     if score >= 7.0:

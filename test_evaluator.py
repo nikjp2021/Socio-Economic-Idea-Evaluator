@@ -14,7 +14,7 @@ class EvaluatorTests(unittest.TestCase):
         )
         self.assertEqual(score, 7.65)
 
-    def test_rating_band(self):
+    def test_rating_band_maps_scores_to_correct_bands(self):
         self.assertEqual(rating_band(8.5), "Excellent")
         self.assertEqual(rating_band(7.2), "Strong")
         self.assertEqual(rating_band(5.6), "Moderate")
