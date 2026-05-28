@@ -1,51 +1,45 @@
-#!/usr/bin/env python3
 """
-Simple HTTP server for the Socio-Economic Evaluator landing page.
-Serves the static HTML and provides an API endpoint to run evaluations.
+Vercel serverless handler for the Socio-Economic Evaluator.
+Mirrors server.py evaluation pipeline for deployment on Vercel.
 
-Usage:
-    python3 server.py
-    # Open http://localhost:8080
+Usage: Deploy to Vercel — this file is auto-detected as /api/eval endpoint.
 """
 
-import json
 import sys
 import os
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
+import json
 from pathlib import Path
+from http.server import BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
 
-SCRIPT_DIR = Path(__file__).parent
+# Point sys.path at project root so evaluator.py can be imported
+SCRIPT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from evaluator import evaluate, parse_idea, load_country_data, run_three_tests, run_cultural_analysis, run_education_analysis, run_bootstrapper_score, find_case_study, generate_verdict, map_to_sdgs, assess_fad_risk, calculate_impact_score
+from evaluator import (
+    parse_idea, load_country_data, run_three_tests,
+    run_cultural_analysis, run_education_analysis,
+    run_bootstrapper_score, find_case_study, generate_verdict,
+    map_to_sdgs, assess_fad_risk, calculate_impact_score
+)
 
-class EvalHandler(SimpleHTTPRequestHandler):
+
+class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
-
-        if parsed.path == '/api/eval':
-            self.handle_eval(parsed)
-        elif parsed.path == '/' or parsed.path == '/index.html':
-            self.path = '/index.html'
-            super().do_GET()
-        else:
-            super().do_GET()
-
-    def handle_eval(self, parsed):
         params = parse_qs(parsed.query)
         idea = params.get('idea', [''])[0]
 
-        # Read optional API key from header (for future Serper integration)
-        api_key = self.headers.get('X-API-Key', '')
-
         if not idea or len(idea.strip()) < 10:
-            self.send_json({"error": "Please describe your idea in at least 10 characters."}, 400)
+            self._send_json({"error": "Please describe your idea in at least 10 characters."}, 400)
             return
 
         if len(idea) > 5000:
-            self.send_json({"error": "Idea too long. Maximum 5000 characters."}, 400)
+            self._send_json({"error": "Idea too long. Maximum 5000 characters."}, 400)
             return
+
+        # Read optional API key from header
+        api_key = self.headers.get('X-API-Key', '')
 
         try:
             # Run full 7-layer evaluation
@@ -79,7 +73,11 @@ class EvalHandler(SimpleHTTPRequestHandler):
             # SDG Mapping & Impact
             sdgs = map_to_sdgs(parsed_idea["idea_type"])
             fad_risk = assess_fad_risk(parsed_idea["idea_type"])
-            impact = calculate_impact_score(parsed_idea["idea_type"], parsed_idea["community"]["economic_tier"], cultural_analysis["cultural_compatibility_score"])
+            impact = calculate_impact_score(
+                parsed_idea["idea_type"],
+                parsed_idea["community"]["economic_tier"],
+                cultural_analysis["cultural_compatibility_score"]
+            )
 
             # Build response
             response = {
@@ -133,7 +131,10 @@ class EvalHandler(SimpleHTTPRequestHandler):
                     "match_score": case_study.get("match_score", 0),
                     "narrative": case_study.get("narrative", "")[:500],
                     "expert": case_study.get("expert_insight", {}).get("text", ""),
-                    "expert_name": case_study.get("expert_insight", {}).get("attribution", case_study.get("expert_insight", {}).get("name", "")),
+                    "expert_name": case_study.get("expert_insight", {}).get(
+                        "attribution",
+                        case_study.get("expert_insight", {}).get("name", "")
+                    ),
                 },
                 "verdict": {
                     "total_score": verdict["total_score"],
@@ -149,32 +150,22 @@ class EvalHandler(SimpleHTTPRequestHandler):
                 "impact": impact,
             }
 
-            self.send_json(response)
+            # Include API key presence flag (not the key itself) for frontend awareness
+            if api_key:
+                response["_has_api_key"] = True
+
+            self._send_json(response)
 
         except Exception as e:
-            self.send_json({"error": f"Evaluation failed: {str(e)}"}, 500)
+            self._send_json({"error": f"Evaluation failed: {str(e)}"}, 500)
 
-    def send_json(self, data, status=200):
+    def _send_json(self, data, status=200):
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', 'X-API-Key')
         self.end_headers()
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode())
 
     def log_message(self, format, *args):
-        pass  # Suppress request logging
-
-def main():
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
-    os.chdir(SCRIPT_DIR)
-    server = HTTPServer(('0.0.0.0', port), EvalHandler)
-    print(f"Socio-Economic Evaluator running at http://localhost:{port}")
-    print(f"Press Ctrl+C to stop")
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\nStopped.")
-        server.server_close()
-
-if __name__ == "__main__":
-    main()
+        pass  # Suppress request logging in serverless

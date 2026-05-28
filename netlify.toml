@@ -1,0 +1,15 @@
+[build]
+  publish = "."
+
+# API calls proxied to Vercel (update URL after Vercel deploy)
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR-VERCEL-APP.vercel.app/api/:splat"
+  status = 200
+  force = true
+
+# SPA fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

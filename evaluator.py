@@ -1385,12 +1385,15 @@ def evaluate(idea_text: str) -> str:
     # Format report
     report = format_report(parsed, all_analysis)
 
-    # Save to file
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = OUTPUT_DIR / f"evaluation_{timestamp}.txt"
-    OUTPUT_DIR.mkdir(exist_ok=True)
-    with open(output_file, "w") as f:
-        f.write(report)
+    # Save to file (only when OUTPUT_DIR is writable, i.e., local dev)
+    try:
+        OUTPUT_DIR.mkdir(exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = OUTPUT_DIR / f"evaluation_{timestamp}.txt"
+        with open(output_file, "w") as f:
+            f.write(report)
+    except (OSError, PermissionError):
+        pass  # Serverless environment — skip file output
 
     return report
 
