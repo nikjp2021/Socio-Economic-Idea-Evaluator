@@ -1,72 +1,47 @@
 """
-Netlify Function handler for the Socio-Economic Evaluator.
-Routes /api/eval to this Python function.
+Render web service for the Socio-Economic Evaluator.
+Thin Flask wrapper around the evaluation pipeline.
 
-Netlify Python functions use the handler(event, context) signature.
+Usage:
+    gunicorn app:app
 """
 
-import sys
 import os
 import json
-import traceback
-from pathlib import Path
-from urllib.parse import parse_qs
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
-# Resolve paths — evaluator.py and data are bundled alongside this function
-FUNCTION_DIR = Path(__file__).parent.resolve()
+from evaluator import (
+    parse_idea, load_country_data, run_three_tests,
+    run_cultural_analysis, run_education_analysis,
+    run_bootstrapper_score, find_case_study, generate_verdict,
+    map_to_sdgs, assess_fad_risk, calculate_impact_score
+)
 
-# In Netlify's runtime, bundled files are in the function directory
-# Try function dir first, then project root
-EVALUATOR_PATH = None
-for candidate in [FUNCTION_DIR, FUNCTION_DIR.parent.parent]:
-    if (candidate / "evaluator.py").exists():
-        EVALUATOR_PATH = candidate
-        break
-
-if EVALUATOR_PATH:
-    sys.path.insert(0, str(EVALUATOR_PATH))
-
-try:
-    from evaluator import (
-        parse_idea, load_country_data, run_three_tests,
-        run_cultural_analysis, run_education_analysis,
-        run_bootstrapper_score, find_case_study, generate_verdict,
-        map_to_sdgs, assess_fad_risk, calculate_impact_score
-    )
-    IMPORT_OK = True
-    IMPORT_ERROR = None
-except ImportError as e:
-    IMPORT_OK = False
-    IMPORT_ERROR = str(e)
+app = Flask(__name__)
+CORS(app)
 
 
-def handler(event, context):
-    """Netlify Function entry point."""
-    # Parse query parameters
-    params = event.get("queryStringParameters") or {}
-    idea = params.get("idea", "")
+@app.route("/")
+def index():
+    """Health check."""
+    return jsonify({"status": "ok", "service": "Socio-Economic Evaluator"})
+
+
+@app.route("/api/eval")
+def eval_idea():
+    """Run a full 7-layer evaluation."""
+    idea = request.args.get("idea", "")
 
     if not idea or len(idea.strip()) < 10:
-        return _response(400, {"error": "Please describe your idea in at least 10 characters."})
+        return jsonify({"error": "Please describe your idea in at least 10 characters."}), 400
 
     if len(idea) > 5000:
-        return _response(400, {"error": "Idea too long. Maximum 5000 characters."})
+        return jsonify({"error": "Idea too long. Maximum 5000 characters."}), 400
 
-    if not IMPORT_OK:
-        return _response(500, {
-            "error": f"Module import failed: {IMPORT_ERROR}",
-            "function_dir": str(FUNCTION_DIR),
-            "evaluator_path": str(EVALUATOR_PATH),
-            "cwd": os.getcwd(),
-            "files": os.listdir(str(FUNCTION_DIR))[:20],
-        })
-
-    # Read optional API key from header
-    headers = event.get("headers") or {}
-    api_key = headers.get("x-api-key", "")
+    api_key = request.headers.get("X-API-Key", "")
 
     try:
-        # Run full 7-layer evaluation
         parsed_idea = parse_idea(idea)
         country_code = parsed_idea["country"]
         country_data = load_country_data(country_code)
@@ -94,7 +69,6 @@ def handler(event, context):
         }
         verdict = generate_verdict(parsed_idea, all_analysis)
 
-        # SDG Mapping & Impact
         sdgs = map_to_sdgs(parsed_idea["idea_type"])
         fad_risk = assess_fad_risk(parsed_idea["idea_type"])
         impact = calculate_impact_score(
@@ -103,7 +77,6 @@ def handler(event, context):
             cultural_analysis["cultural_compatibility_score"]
         )
 
-        # Build response
         result = {
             "idea": idea[:200],
             "_input": {
@@ -177,23 +150,16 @@ def handler(event, context):
         if api_key:
             result["_has_api_key"] = True
 
-        return _response(200, result)
+        return jsonify(result)
 
     except Exception as e:
-        return _response(500, {
+        import traceback
+        return jsonify({
             "error": f"Evaluation failed: {str(e)}",
             "traceback": traceback.format_exc(),
-        })
+        }), 500
 
 
-def _response(status, body):
-    """Build a Netlify Function response."""
-    return {
-        "statusCode": status,
-        "headers": {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "X-API-Key",
-        },
-        "body": json.dumps(body, ensure_ascii=False),
-    }
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)

@@ -1241,6 +1241,10 @@
 </div>
 
 <script>
+// API URL — set this to your Render service URL for production
+// Leave empty for local dev (uses relative /api/eval with server.py)
+const SEE_API_URL = '';  // e.g. 'https://see-evaluator.onrender.com'
+
 // Nav scroll
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
@@ -1342,7 +1346,8 @@ evalBtn.addEventListener('click', async () => {
     const headers = {};
     const apiKey = localStorage.getItem('see_api_key');
     if (apiKey) headers['X-API-Key'] = apiKey;
-    const resp = await fetch('/api/eval?idea=' + encodeURIComponent(ideaText), { headers });
+    const apiUrl = (typeof SEE_API_URL !== 'undefined' && SEE_API_URL) ? SEE_API_URL : '';
+    const resp = await fetch(apiUrl + '/api/eval?idea=' + encodeURIComponent(ideaText), { headers });
     const data = await resp.json();
     if (data.error) { tryError.textContent = data.error; tryError.classList.add('visible'); return; }
     data._input = { problem, goal, country, budget, constraints };
@@ -1350,7 +1355,7 @@ evalBtn.addEventListener('click', async () => {
     tryResults.classList.add('visible');
     tryResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch(e) {
-    tryError.textContent = 'Something went wrong. Make sure the server is running: python3 server.py';
+    tryError.textContent = apiUrl ? 'Something went wrong. Please try again.' : 'Something went wrong. Make sure the server is running: python3 server.py';
     tryError.classList.add('visible');
   } finally {
     evalBtn.disabled = false;

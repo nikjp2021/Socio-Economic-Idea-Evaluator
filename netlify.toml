@@ -1,21 +1,7 @@
 [build]
   publish = "."
-  functions = "netlify/functions"
 
-[build.environment]
-  PYTHON_VERSION = "3.11"
-
-[functions]
-  # Bundle evaluator.py and data files with the function
-  included_files = ["evaluator.py", "data/**", "case-studies/**"]
-
-# API route → Netlify Function
-[[redirects]]
-  from = "/api/eval"
-  to = "/.netlify/functions/eval"
-  status = 200
-
-# SPA fallback — must come last
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
