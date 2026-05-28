@@ -178,9 +178,24 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    // Gemini 2.5 Flash may return multiple parts (thinking + text)
+    // Find the part with the actual JSON response
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    let text = '';
+    for (const part of parts) {
+      if (part.text && !part.thought) {
+        text = part.text;
+        break;
+      }
+    }
+    // Fallback: use first part with text
+    if (!text && parts.length > 0) {
+      text = parts.find(p => p.text)?.text || '';
+    }
 
     if (!text) {
+      console.error("Gemini response has no text parts:", JSON.stringify(data).slice(0, 500));
       return Response.json(
         { error: "Gemini returned empty response" },
         { status: 502, headers: corsHeaders }
@@ -198,19 +213,29 @@ For the elevator_pitch: use the person's actual words. Start with their idea in 
       if (fenceMatch) {
         cleaned = fenceMatch[1].trim();
       } else {
-        // Try to find raw JSON object in the text
-        const braceMatch = text.match(/\{[\s\S]*\}/);
-        if (braceMatch) {
-          cleaned = braceMatch[0];
+        // Try to find the last complete JSON object in the text
+        // (handles thinking tokens before JSON)
+        const allBraces = text.match(/\{[\s\S]*\}/g);
+        if (allBraces && allBraces.length > 0) {
+          // Try each match from largest to smallest
+          for (const match of allBraces.sort((a, b) => b.length - a.length)) {
+            try {
+              result = JSON.parse(match);
+              break; // Successfully parsed
+            } catch { continue; }
+          }
         }
       }
-      try {
-        result = JSON.parse(cleaned);
-      } catch (parseErr) {
-        return Response.json(
-          { error: "Gemini returned invalid JSON", raw: text.slice(0, 500) },
-          { status: 502, headers: corsHeaders }
-        );
+      if (!result) {
+        try {
+          result = JSON.parse(cleaned);
+        } catch (parseErr) {
+          console.error("Gemini JSON parse failed. Raw text:", text.slice(0, 1000));
+          return Response.json(
+            { error: "Gemini returned invalid JSON", raw: text.slice(0, 500) },
+            { status: 502, headers: corsHeaders }
+          );
+        }
       }
     }
 
