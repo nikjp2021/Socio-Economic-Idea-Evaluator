@@ -4,7 +4,7 @@ Project memory for Claude sessions. Updated each session.
 
 ---
 
-## Last Updated: 2026-05-28 (Session 2)
+## Last Updated: 2026-05-29 (Session 3)
 
 ## Project State
 
@@ -12,17 +12,20 @@ Project memory for Claude sessions. Updated each session.
 - **Type:** Python CLI tool + web frontend (zero dependencies, stdlib only)
 - **Purpose:** 7-layer social impact idea evaluator (Parse → Three Tests → Cultural Matrix → Education Lever → Bootstrapper Score → Case Study → Verdict)
 - **Data:** 136 countries (Hofstede), 165 case studies, 57 figures, 11 zones
-- **Status:** MVP complete, 2 sessions of work done
+- **Status:** MVP complete, 3 sessions of work done
 
 ## Key Files
 
 | File | Lines | Purpose |
 |---|---|---|
-| evaluator.py | ~1375 | Full 7-layer evaluation pipeline |
-| server.py | 177 | HTTP server, `/api/eval` JSON endpoint |
-| index.html | ~1320 | Landing page + client-side evaluator |
+| evaluator.py | ~1390 | Full 7-layer evaluation pipeline |
+| server.py | 180 | HTTP server, `/api/eval` JSON endpoint |
+| api/index.py | 171 | Vercel serverless handler |
+| index.html | ~1460 | Landing page + client-side evaluator + settings |
+| vercel.json | 9 | Vercel deployment config |
+| netlify.toml | 15 | Netlify deployment config |
 | PRD-MVP.md | ~228 | Product requirements document |
-| CHANGELOG.md | ~150 | Change history across sessions |
+| CHANGELOG.md | ~220 | Change history across sessions |
 | SESSION-LOG-2026-05-28.md | ~170 | Session 1 detailed log |
 
 ## Session History
@@ -39,6 +42,16 @@ Project memory for Claude sessions. Updated each session.
 - Frontend pitch display in verdict card
 - Bug fixes: hook truncation, barrier phrasing
 - Created CHANGELOG.md
+
+### Session 3 (2026-05-29) — Vercel/Netlify Deployment + API Key Settings
+- Created api/index.py: Vercel Python serverless handler
+- Created vercel.json and netlify.toml deployment configs
+- Added settings gear in nav with API key modal (localStorage)
+- Fetch now sends X-API-Key header when key is set
+- Guarded evaluator output write for serverless environments
+- Created .env.example documenting SERPER_API_KEY and PORT
+- Rewrote README.md with deployment instructions
+- Pushed to GitHub: https://github.com/nikjp2021/Socio-Economic-Idea-Evaluator
 
 ## Architecture Decisions
 

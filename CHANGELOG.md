@@ -4,6 +4,72 @@ All notable changes to this project are documented here.
 
 ---
 
+## 2026-05-29 — Session 3: Vercel/Netlify Deployment + API Key Settings
+
+### What Changed
+
+The evaluator is now deployable to Vercel (serverless Python) and Netlify (static + API proxy). A settings screen lets users configure API keys from the browser.
+
+### New Files
+
+| File | Purpose |
+|---|---|
+| `api/index.py` | Vercel Python serverless handler — mirrors server.py evaluation pipeline |
+| `vercel.json` | Vercel routing: `/api/*` → Python function, `/*` → static index.html |
+| `netlify.toml` | Netlify static hosting + API redirect to Vercel deployment |
+| `.env.example` | Documents `SERPER_API_KEY` and `PORT` environment variables |
+
+### index.html — Settings Modal (lines 1010, 1227–1269, 1343–1344)
+
+- **Settings gear** in nav bar (between nav-links and CTA button)
+- **Settings modal** with API key input (password field, localStorage persistence)
+- **X-API-Key header** sent with fetch requests when key is set
+- **Privacy text fixed**: "Your idea is sent to our server for evaluation. API keys stay in your browser." (was misleading before)
+
+### server.py — API Key Awareness (line 40)
+
+- Reads `X-API-Key` header for local dev parity with deployed behavior
+- Key available for future Serper integration (Phase 2)
+
+### evaluator.py — Serverless Guard (lines 1388–1395)
+
+- Output file write wrapped in try/except for serverless environments
+- Falls back silently when OUTPUT_DIR is read-only
+
+### .gitignore — Added
+
+- `.env`, `.vercel/`, `.netlify/`
+
+### README.md — Full Rewrite
+
+- Local dev, Vercel deploy, Netlify deploy instructions
+- Data assets summary, environment variables table, project structure
+
+### API Key Flow
+
+```
+Frontend (localStorage 'see_api_key')
+  → X-API-Key header in fetch request
+    → server.py / api/index.py reads header
+      → Available for future Serper web search integration
+```
+
+### Files Modified
+
+| File | Action |
+|---|---|
+| api/index.py | CREATED (171 lines) |
+| vercel.json | CREATED |
+| netlify.toml | CREATED |
+| .env.example | CREATED |
+| index.html | MODIFIED (+136 lines: settings CSS/HTML/JS, fetch headers) |
+| server.py | MODIFIED (+3 lines: X-API-Key header) |
+| evaluator.py | MODIFIED (output write guard) |
+| .gitignore | MODIFIED (+3 entries) |
+| README.md | REWRITTEN |
+
+---
+
 ## 2026-05-28 — Session 2: Personalized Elevator Pitch + API Wiring
 
 ### What Changed
