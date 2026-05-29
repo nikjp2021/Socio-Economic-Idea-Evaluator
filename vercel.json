@@ -1,13 +1,12 @@
 {
   "builds": [
-    { "src": "api/eval.mjs", "use": "@vercel/edge" },
     { "src": "api/index.py", "use": "@vercel/python" }
   ],
   "routes": [
-    { "src": "/api/eval", "dest": "api/eval.mjs" },
     { "src": "/api/(.*)", "dest": "api/index.py" },
     { "src": "/(data/.*)", "dest": "/$1" },
     { "src": "/(case-studies/.*)", "dest": "/$1" },
+    { "src": "/(\\.env|\\.git|\\.vercel|node_modules|package\\.json|vercel\\.json|netlify\\.toml|render\\.yaml|requirements\\.txt|runtime\\.txt)", "status": 404 },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

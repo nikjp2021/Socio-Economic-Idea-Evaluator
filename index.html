@@ -1472,10 +1472,10 @@ function renderResult(d) {
     // SDG explanation header
     h += `<div style="font-size:0.8125rem;color:var(--ink-muted);line-height:1.6;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(37,99,168,0.04);border-radius:8px">The <strong style="color:var(--ink)">United Nations</strong> has <strong style="color:var(--ink)">17 Global Goals</strong> to make the world better by 2030. They are called the <strong style="color:var(--ink)">Sustainable Development Goals (SDGs)</strong>. Your idea connects to these goals.</div>`;
     // Primary SDG
-    const plainExp = d.sdgs.primary.plain_explanation || d.sdgs.alignment_text || '';
-    h += `<div class="r-card" style="margin-bottom:0.75rem"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem"><div class="sdg-number">${d.sdgs.primary.number}</div><div><div class="r-value">Goal ${d.sdgs.primary.number}: ${d.sdgs.primary.name}</div><div class="r-detail">UN Target ${d.sdgs.primary.target}: ${d.sdgs.primary.target_text}</div></div></div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${plainExp}</div></div>`;
+    const plainExp = esc(d.sdgs.primary.plain_explanation || d.sdgs.alignment_text || '');
+    h += `<div class="r-card" style="margin-bottom:0.75rem"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem"><div class="sdg-number">${d.sdgs.primary.number}</div><div><div class="r-value">Goal ${d.sdgs.primary.number}: ${esc(d.sdgs.primary.name)}</div><div class="r-detail">UN Target ${d.sdgs.primary.target}: ${esc(d.sdgs.primary.target_text)}</div></div></div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${plainExp}</div></div>`;
     // What this means
-    const whatMeans = d.sdgs.what_this_means || '';
+    const whatMeans = esc(d.sdgs.what_this_means || '');
     if (whatMeans) {
       h += `<div class="r-card" style="margin-bottom:0.75rem"><div class="r-label">What This Means For You</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${whatMeans}</div></div>`;
     }
@@ -1494,7 +1494,7 @@ function renderResult(d) {
     const fc = f.level === 'LOW' ? 'forest' : f.level === 'MEDIUM' ? 'amber' : 'terracotta';
     const fcVar = f.level === 'LOW' ? 'var(--forest)' : f.level === 'MEDIUM' ? 'var(--amber)' : 'var(--terracotta)';
     const fadLabel = f.level === 'LOW' ? 'REAL PROBLEM' : f.level === 'MEDIUM' ? 'REAL, BUT WATCH THE TREND' : 'COULD BE A TREND';
-    c.innerHTML += `<div class="r-section"><div class="r-title"><span class="r-icon amber">&#x1F50D;</span>Is This a Real Problem?</div><div class="r-card" style="margin-bottom:0.75rem"><div style="margin-bottom:0.5rem"><span style="font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.25rem 0.75rem;border-radius:100px;background:var(--${fc}-dim);color:${fcVar};border:1px solid rgba(0,0,0,0.04)">${fadLabel}</span></div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6;margin-bottom:0.25rem">${f.text}</div><div class="r-detail">${f.signal}</div></div><div class="r-card"><div class="r-label">What This Means For You</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">If this problem will still exist in 5 years, your work will still matter. You are not building something that will disappear when the news stops covering it.</div></div></div>`;
+    c.innerHTML += `<div class="r-section"><div class="r-title"><span class="r-icon amber">&#x1F50D;</span>Is This a Real Problem?</div><div class="r-card" style="margin-bottom:0.75rem"><div style="margin-bottom:0.5rem"><span style="font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.25rem 0.75rem;border-radius:100px;background:var(--${fc}-dim);color:${fcVar};border:1px solid rgba(0,0,0,0.04)">${fadLabel}</span></div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6;margin-bottom:0.25rem">${esc(f.text)}</div><div class="r-detail">${esc(f.signal)}</div></div><div class="r-card"><div class="r-label">What This Means For You</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">If this problem will still exist in 5 years, your work will still matter. You are not building something that will disappear when the news stops covering it.</div></div></div>`;
   }
 
   // What's Working
@@ -1537,7 +1537,7 @@ function renderResult(d) {
 
   // Bootstrapper
   const bs = d.bootstrapper;
-  c.innerHTML += `<div class="r-section"><div class="r-title"><span class="r-icon sky">&#x1F9EA;</span>Can You Start With Nothing?</div><div class="score-row"><div class="score-card"><div class="score-num">${bs.easy}</div><div class="score-label">Easy</div><div class="score-desc">How simple to start</div></div><div class="score-card"><div class="score-num">${bs.feasible}</div><div class="score-label">Feasible</div><div class="score-desc">How practical</div></div><div class="score-card"><div class="score-num">${bs.efforts}</div><div class="score-label">Effort</div><div class="score-desc">Ongoing work</div></div></div><div class="r-card"><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${bs.take}</div></div></div>`;
+  c.innerHTML += `<div class="r-section"><div class="r-title"><span class="r-icon sky">&#x1F9EA;</span>Can You Start With Nothing?</div><div class="score-row"><div class="score-card"><div class="score-num">${bs.easy}</div><div class="score-label">Easy</div><div class="score-desc">How simple to start</div></div><div class="score-card"><div class="score-num">${bs.feasible}</div><div class="score-label">Feasible</div><div class="score-desc">How practical</div></div><div class="score-card"><div class="score-num">${bs.efforts}</div><div class="score-label">Effort</div><div class="score-desc">Ongoing work</div></div></div><div class="r-card"><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${esc(bs.take)}</div></div></div>`;
 
   // Case Study
   if (d.case_study && d.case_study.title !== 'N/A') {
