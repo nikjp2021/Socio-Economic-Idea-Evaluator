@@ -10,6 +10,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/api/eval", "destination": "/api/eval.mjs" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
