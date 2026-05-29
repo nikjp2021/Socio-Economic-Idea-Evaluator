@@ -2,10 +2,6 @@
   publish = "."
   functions = "api"
 
-[functions]
-  node_bundle = true
-  timeout = 25
-
 # API route → evaluation function
 [[redirects]]
   from = "/api/eval"
