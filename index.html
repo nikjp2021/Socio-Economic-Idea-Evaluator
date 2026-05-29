@@ -912,9 +912,145 @@
       }
     }
 
+    /* Gate Screen Overlay */
+    .gate-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: #faf7f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease-out, visibility 0.5s;
+    }
+    .gate-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(230,168,23,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .gate-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .gate-card {
+      background: white;
+      border: 1px solid rgba(26,22,18,0.08);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 24rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(26,22,18,0.08), 0 1px 3px rgba(26,22,18,0.04);
+      position: relative;
+      z-index: 2;
+    }
+    .gate-logo {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      color: var(--forest);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .gate-title {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .gate-subtitle {
+      font-size: 0.875rem;
+      color: var(--ink-muted);
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+    .gate-input-wrap {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .gate-card input {
+      width: 100%;
+      background: #faf7f2;
+      border: 1.5px solid rgba(26,22,18,0.1);
+      border-radius: 12px;
+      padding: 0.875rem 1.25rem;
+      font-size: 1.25rem;
+      text-align: center;
+      letter-spacing: 0.25em;
+      outline: none;
+      transition: all 0.2s;
+      font-family: monospace;
+    }
+    .gate-card input::placeholder {
+      letter-spacing: normal;
+      font-size: 0.9375rem;
+      font-family: var(--font-body);
+    }
+    .gate-card input:focus {
+      border-color: var(--forest);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(45,90,39,0.08);
+    }
+    .gate-btn {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cream);
+      background: var(--forest);
+      border: none;
+      padding: 0.875rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 10px rgba(45,90,39,0.15);
+    }
+    .gate-btn:hover {
+      background: var(--forest-light);
+      transform: translateY(-1px);
+    }
+    .gate-error {
+      color: var(--terracotta);
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+      display: none;
+      font-weight: 600;
+    }
+    .gate-error.visible {
+      display: block;
+      animation: shake 0.3s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    body.gate-active {
+      overflow: hidden;
+    }
+
   </style>
 </head>
 <body>
+
+<!-- Gate Screen Overlay -->
+<div id="gateOverlay" class="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-logo"><span class="leaf">&#x1F331;</span> SEE</div>
+    <h2 class="gate-title">Enter Access Code</h2>
+    <p class="gate-subtitle">This private evaluation platform is password-protected.</p>
+    <div class="gate-input-wrap">
+      <input type="password" id="gateCode" placeholder="Enter 4-digit code" maxlength="4" autofocus>
+      <div id="gateError" class="gate-error">Incorrect code. Try again.</div>
+    </div>
+    <button id="gateBtn" class="gate-btn">Access Platform</button>
+  </div>
+</div>
 
 <!-- Nav -->
 <nav class="nav" id="nav">
@@ -1122,6 +1258,38 @@
 
 
 <script>
+// Authorization check (Access code gate)
+const gateOverlay = document.getElementById('gateOverlay');
+const gateCode = document.getElementById('gateCode');
+const gateBtn = document.getElementById('gateBtn');
+const gateError = document.getElementById('gateError');
+
+if (localStorage.getItem('see_unlocked') !== 'true') {
+  document.body.classList.add('gate-active');
+} else {
+  gateOverlay.classList.add('hidden');
+}
+
+function verifyGateCode() {
+  if (gateCode.value.trim() === '9999') {
+    localStorage.setItem('see_unlocked', 'true');
+    gateOverlay.classList.add('hidden');
+    document.body.classList.remove('gate-active');
+  } else {
+    gateError.classList.add('visible');
+    gateCode.value = '';
+    gateCode.focus();
+    setTimeout(() => {
+      gateError.classList.remove('visible');
+    }, 3000);
+  }
+}
+
+gateBtn.addEventListener('click', verifyGateCode);
+gateCode.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') verifyGateCode();
+});
+
 // Nav scroll
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
