@@ -20,6 +20,151 @@ DATA_DIR = SCRIPT_DIR / "data"
 CASE_STUDIES_DIR = SCRIPT_DIR / "case-studies"
 OUTPUT_DIR = SCRIPT_DIR / "output"
 
+# Load .env file if it exists
+_env_file = SCRIPT_DIR / ".env"
+if _env_file.exists():
+    for line in _env_file.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip())
+
+# ─────────────────────────────────────────────────────────
+# GEMINI ENRICHMENT — Web search for case studies
+# ─────────────────────────────────────────────────────────
+
+import urllib.request
+import urllib.error
+
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+
+def enrich_case_study_with_gemini(parsed: dict, weak_case_study: dict) -> dict:
+    """When local case study is weak, use Gemini to find a real organization."""
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        return weak_case_study  # No API key, return what we have
+
+    idea_type = parsed["idea_type"]
+    country = parsed.get("country", "")
+    raw_input = parsed.get("raw_input", "")
+
+    prompt = f"""You are a social impact researcher. Find ONE real organization that has done something similar to this idea:
+
+"{raw_input}"
+
+Idea type: {idea_type}
+Country: {country}
+
+Search the web for real organizations, NGOs, social enterprises, or government programs that have tackled this problem in this region or a similar context.
+
+Respond with ONLY valid JSON (no markdown, no fences):
+{{
+  "title": "Organization Name: What They Did",
+  "country": "ISO country code",
+  "founder": "founder name or 'Government' or 'Community'",
+  "founded": year,
+  "category": "{idea_type}",
+  "problem": "what problem they solved",
+  "model": "how they solved it (2-3 sentences)",
+  "impact_numbers": {{"metric": "number"}},
+  "what_worked": ["point 1", "point 2"],
+  "what_didnt_work": ["point 1"],
+  "key_lesson": "one sentence lesson",
+  "expert_quote": "a relevant quote from the founder or a thought leader",
+  "expert_name": "who said it",
+  "source_type": "real"
+}}
+
+Be specific. Use real numbers. If you cannot find a real organization, say so honestly."""
+
+    try:
+        body = json.dumps({
+            "contents": [{"parts": [{"text": f"Search the web and find a real organization. {prompt}"}]}],
+            "generationConfig": {
+                "temperature": 0.3,
+                "maxOutputTokens": 2048
+            }
+        }).encode()
+
+        url = f"{GEMINI_API_URL}?key={api_key}"
+        req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read())
+
+        parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+        text = ""
+        for part in parts:
+            if part.get("text") and not part.get("thought"):
+                text = part["text"]
+                break
+        if not text:
+            text = parts[0].get("text", "") if parts else ""
+
+        if not text:
+            return weak_case_study
+
+        # Parse JSON from response
+        result = None
+        try:
+            result = json.loads(text)
+        except json.JSONDecodeError:
+            # Try brace extraction
+            import re
+            matches = re.findall(r'\{[\s\S]*\}', text)
+            for match in sorted(matches, key=len, reverse=True):
+                try:
+                    result = json.loads(match)
+                    break
+                except json.JSONDecodeError:
+                    continue
+
+        if not result or not result.get("title"):
+            return weak_case_study
+
+        # Build proper case study from Gemini result
+        narrative_parts = []
+        if result.get("model"):
+            narrative_parts.append(result["model"])
+        if result.get("what_worked"):
+            narrative_parts.append(f"What worked: {', '.join(result['what_worked'])}")
+        if result.get("what_didnt_work"):
+            narrative_parts.append(f"What didn't work: {', '.join(result['what_didnt_work'])}")
+        if result.get("key_lesson"):
+            narrative_parts.append(f"Key lesson: {result['key_lesson']}")
+
+        return {
+            "case_study": {
+                "title": result.get("title", "Unknown"),
+                "country": result.get("country", country),
+                "founder": result.get("founder", ""),
+                "founded": result.get("founded", ""),
+                "category": result.get("category", idea_type),
+                "problem_statement": result.get("problem", ""),
+                "the_model": result.get("model", ""),
+                "impact_numbers": result.get("impact_numbers", {}),
+                "what_worked": result.get("what_worked", []),
+                "what_didnt_work": result.get("what_didnt_work", []),
+                "key_lesson": result.get("key_lesson", ""),
+                "status": "Active",
+            },
+            "expert_insight": {
+                "text": result.get("expert_quote", ""),
+                "attribution": result.get("expert_name", ""),
+                "sourceType": "real",
+            },
+            "narrative": "\n".join(narrative_parts),
+            "match_score": 6,  # Gemini-enriched gets moderate score
+            "source": "gemini_web_search",
+            "sourceType": "real",
+            "mode": "gemini_enriched",
+        }
+
+    except Exception as e:
+        print(f"Gemini enrichment failed: {e}", file=sys.stderr)
+        return weak_case_study
+
+
 # ─────────────────────────────────────────────────────────
 # LAYER 1: PARSE & STRUCTURE
 # ─────────────────────────────────────────────────────────
@@ -119,6 +264,20 @@ def detect_idea_type(text: str) -> str:
         "work": ["work", "job", "employ", "wage", "labor", "skill", "income", "gig"],
         "education": ["education", "school", "learn", "teach", "tutor", "homework", "literacy", "reading"],
         "community": ["community", "neighbor", "volunteer", "together", "group"],
+        "environment": ["environment", "pollution", "waste", "plastic", "recycle", "clean", "green", "carbon", "emission", "deforestation"],
+        "sustainability": ["sustainable", "sustainability", "renewable", "solar", "circular", "eco", "organic", "zero waste"],
+        "animals": ["animal", "wildlife", "species", "endangered", "habitat", "conservation", "biodiversity", "poaching", "rescue"],
+        "labor": ["labor", "worker", "rights", "exploitation", "sweatshop", "fair trade", "living wage", "working conditions"],
+        "housing": ["housing", "shelter", "homeless", "affordable", "slum", "settlement"],
+        "transport": ["transport", "mobility", "commute", "bicycle", "public transit", "accessibility"],
+        "energy": ["energy", "power", "electricity", "off-grid", "solar", "wind", "biogas"],
+        "rights": ["rights", "human rights", "civil", "freedom", "justice", "discrimination", "equity", "inclusion"],
+        "inclusion": ["inclusion", "disability", "accessible", "marginalized", "indigenous", "minority", "refugee"],
+        "art": ["art", "music", "creative", "culture", "heritage", "museum", "theater", "craft"],
+        "sport": ["sport", "football", "soccer", "athletic", "fitness", "play", "recreation"],
+        "peace": ["peace", "conflict", "reconciliation", "dialogue", "mediation"],
+        "governance": ["governance", "transparency", "corruption", "accountability", "democracy", "civic"],
+        "technology": ["technology", "app", "digital", "internet", "connectivity", "coding", "programming"],
     }
     for type_name, keywords in type_keywords.items():
         for kw in keywords:
@@ -573,40 +732,42 @@ def find_case_study(parsed: dict) -> dict:
                 "mode": "exact_match"
             }
         elif best_score >= 2:
-            # Partial match — use top 3 as supporting evidence, generate hypothetical
+            # Partial match — try Gemini to find a real organization
             top_3 = [s[1] for s in scored[:3] if s[0] > 0]
-            hypothetical = generate_hypothetical_narrative(top_3, parsed)
-            return {
+            weak_result = {
                 "case_study": top_3[0] if top_3 else {},
                 "expert_insight": best_expert,
-                "narrative": hypothetical,
+                "narrative": generate_hypothetical_narrative(top_3, parsed),
                 "supporting_cases": top_3[1:] if len(top_3) > 1 else [],
                 "match_score": best_score,
                 "source": "hypothetical_grounded",
                 "sourceType": "hypothetical",
                 "mode": "hypothetical"
             }
+            return enrich_case_study_with_gemini(parsed, weak_result)
         else:
-            # No match — generate hypothetical from all scored
+            # No match — try Gemini to find a real organization
             top_3 = [s[1] for s in scored[:3]]
-            hypothetical = generate_hypothetical_narrative(top_3, parsed)
-            return {
+            weak_result = {
                 "case_study": {"title": "Hypothetical — grounded in real evidence", "text": "No direct precedent found."},
                 "expert_insight": best_expert,
-                "narrative": hypothetical,
+                "narrative": generate_hypothetical_narrative(top_3, parsed),
                 "supporting_cases": top_3,
                 "match_score": best_score,
                 "source": "hypothetical_grounded",
                 "sourceType": "hypothetical",
                 "mode": "hypothetical"
             }
+            return enrich_case_study_with_gemini(parsed, weak_result)
 
-    return {
+    # No scored results at all — try Gemini
+    weak_result = {
         "case_study": {"title": "No matching case study", "text": "This idea is novel — you're creating the case study."},
         "expert_insight": best_expert,
         "narrative": "No matching case study found. This idea is novel — you're creating the precedent.",
         "mode": "none"
     }
+    return enrich_case_study_with_gemini(parsed, weak_result)
 
 def generate_hypothetical_narrative(supporting_cases: list, parsed: dict) -> str:
     """Generate a hypothetical case study following the Shizuoka Method pattern.
@@ -837,6 +998,76 @@ SDG_MAP = {
         "secondary": {"number": 16, "name": "Peace and Justice", "target": "16.7", "target_text": "Responsive, inclusive decision-making"},
         "weight": 6
     },
+    "environment": {
+        "primary": {"number": 13, "name": "Climate Action", "target": "13.2", "target_text": "Integrate climate measures into policy"},
+        "secondary": {"number": 15, "name": "Life on Land", "target": "15.1", "target_text": "Conserve and restore terrestrial ecosystems"},
+        "weight": 9
+    },
+    "sustainability": {
+        "primary": {"number": 12, "name": "Responsible Consumption and Production", "target": "12.2", "target_text": "Sustainable management of natural resources"},
+        "secondary": {"number": 13, "name": "Climate Action", "target": "13.2", "target_text": "Integrate climate measures into policy"},
+        "weight": 8
+    },
+    "animals": {
+        "primary": {"number": 15, "name": "Life on Land", "target": "15.5", "target_text": "Reduce degradation of natural habitats"},
+        "secondary": {"number": 14, "name": "Life Below Water", "target": "14.2", "target_text": "Sustainably manage marine ecosystems"},
+        "weight": 8
+    },
+    "labor": {
+        "primary": {"number": 8, "name": "Decent Work and Economic Growth", "target": "8.8", "target_text": "Protect labor rights and promote safe working environments"},
+        "secondary": {"number": 1, "name": "No Poverty", "target": "1.1", "target_text": "Eradicate extreme poverty"},
+        "weight": 8
+    },
+    "housing": {
+        "primary": {"number": 11, "name": "Sustainable Cities and Communities", "target": "11.1", "target_text": "Access to adequate, safe, and affordable housing"},
+        "secondary": {"number": 1, "name": "No Poverty", "target": "1.4", "target_text": "Equal rights to economic resources"},
+        "weight": 8
+    },
+    "transport": {
+        "primary": {"number": 11, "name": "Sustainable Cities and Communities", "target": "11.2", "target_text": "Access to safe, affordable, accessible transport"},
+        "secondary": {"number": 13, "name": "Climate Action", "target": "13.2", "target_text": "Integrate climate measures into policy"},
+        "weight": 7
+    },
+    "energy": {
+        "primary": {"number": 7, "name": "Affordable and Clean Energy", "target": "7.1", "target_text": "Ensure access to affordable, reliable energy"},
+        "secondary": {"number": 13, "name": "Climate Action", "target": "13.2", "target_text": "Integrate climate measures into policy"},
+        "weight": 8
+    },
+    "rights": {
+        "primary": {"number": 16, "name": "Peace, Justice and Strong Institutions", "target": "16.10", "target_text": "Ensure access to information and protect fundamental freedoms"},
+        "secondary": {"number": 10, "name": "Reduced Inequalities", "target": "10.2", "target_text": "Promote social, economic, and political inclusion"},
+        "weight": 8
+    },
+    "inclusion": {
+        "primary": {"number": 10, "name": "Reduced Inequalities", "target": "10.2", "target_text": "Promote social, economic, and political inclusion"},
+        "secondary": {"number": 16, "name": "Peace and Justice", "target": "16.7", "target_text": "Responsive, inclusive decision-making"},
+        "weight": 8
+    },
+    "art": {
+        "primary": {"number": 11, "name": "Sustainable Cities and Communities", "target": "11.4", "target_text": "Strengthen efforts to protect cultural heritage"},
+        "secondary": {"number": 4, "name": "Quality Education", "target": "4.7", "target_text": "Education for sustainable development and global citizenship"},
+        "weight": 6
+    },
+    "sport": {
+        "primary": {"number": 3, "name": "Good Health and Well-being", "target": "3.4", "target_text": "Reduce premature mortality from non-communicable diseases"},
+        "secondary": {"number": 11, "name": "Sustainable Cities", "target": "11.7", "target_text": "Provide universal access to safe, inclusive green spaces"},
+        "weight": 5
+    },
+    "peace": {
+        "primary": {"number": 16, "name": "Peace, Justice and Strong Institutions", "target": "16.1", "target_text": "Reduce violence everywhere"},
+        "secondary": {"number": 17, "name": "Partnerships", "target": "17.16", "target_text": "Enhance partnerships for sustainable development"},
+        "weight": 8
+    },
+    "governance": {
+        "primary": {"number": 16, "name": "Peace, Justice and Strong Institutions", "target": "16.6", "target_text": "Develop effective, accountable institutions"},
+        "secondary": {"number": 17, "name": "Partnerships", "target": "17.14", "target_text": "Enhance policy coherence for sustainable development"},
+        "weight": 7
+    },
+    "technology": {
+        "primary": {"number": 9, "name": "Industry, Innovation and Infrastructure", "target": "9.c", "target_text": "Increase access to ICT and provide universal internet access"},
+        "secondary": {"number": 4, "name": "Quality Education", "target": "4.4", "target_text": "Increase youth and adults with relevant skills for employment"},
+        "weight": 7
+    },
 }
 
 FAD_RISK = {
@@ -852,6 +1083,20 @@ FAD_RISK = {
     "disaster": {"level": "LOW", "text": "Disasters are increasing in frequency. Response needs are permanent.", "signal": "Climate change ensures this problem gets worse, not better."},
     "financial": {"level": "LOW", "text": "Financial exclusion is a persistent, structural problem.", "signal": "Decades of data. Not a fad."},
     "community": {"level": "MEDIUM", "text": "Community building is real, but the method matters.", "signal": "The need for connection is permanent. But apps come and go."},
+    "environment": {"level": "LOW", "text": "Environmental degradation is accelerating. The need is permanent.", "signal": "Climate change ensures this problem gets worse, not better."},
+    "sustainability": {"level": "LOW", "text": "Resource depletion is structural. Sustainable alternatives are necessary.", "signal": "The shift to sustainability is a generational trend, not a fad."},
+    "animals": {"level": "LOW", "text": "Biodiversity loss is accelerating. Conservation needs are permanent.", "signal": "Species extinction is irreversible. This problem only gets worse."},
+    "labor": {"level": "LOW", "text": "Labor exploitation is structural and persistent.", "signal": "Worker rights have been fought for over 200 years. Not a fad."},
+    "housing": {"level": "LOW", "text": "Housing affordability is a global crisis.", "signal": "Urbanization ensures this problem persists for decades."},
+    "transport": {"level": "MEDIUM", "text": "Transport needs are real, but solutions change with technology.", "signal": "The need is permanent. But specific solutions (e-scooters, ride-sharing) may be fads."},
+    "energy": {"level": "LOW", "text": "Energy access is fundamental. The transition to clean energy is structural.", "signal": "The energy transition is a 30-year megatrend."},
+    "rights": {"level": "LOW", "text": "Human rights struggles are persistent and deeply rooted.", "signal": "These fights have been going on for centuries. Not a fad."},
+    "inclusion": {"level": "LOW", "text": "Marginalization is structural. Inclusion efforts are necessary.", "signal": "The push for inclusion is a generational shift, not a trend."},
+    "art": {"level": "MEDIUM", "text": "Cultural preservation is important, but funding models change.", "signal": "The need is permanent. But specific art forms and funding models evolve."},
+    "sport": {"level": "MEDIUM", "text": "Physical activity needs are constant, but delivery methods change.", "signal": "The need for play and fitness is permanent. But specific sports and apps come and go."},
+    "peace": {"level": "LOW", "text": "Conflict resolution is a permanent human need.", "signal": "Peace-building has been needed for all of human history."},
+    "governance": {"level": "LOW", "text": "Good governance is a persistent challenge.", "signal": "The fight against corruption and for accountability is centuries old."},
+    "technology": {"level": "MEDIUM", "text": "Technology access is important, but specific solutions change fast.", "signal": "The need for connectivity is permanent. But specific apps and platforms come and go."},
 }
 
 def map_to_sdgs(idea_type: str) -> dict:

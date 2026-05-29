@@ -57,7 +57,7 @@ Required JSON structure:
   "_input": {"problem": "", "goal": "", "country": "", "budget": "", "constraints": ""},
   "country": "ISO code",
   "country_name": "full name",
-  "idea_type": "health|education|women|food|water|safety|elderly|mental_health|work|financial|disaster|community",
+  "idea_type": "health|education|women|food|water|safety|elderly|mental_health|work|financial|disaster|community|environment|sustainability|animals|labor|rights|housing|transport|energy|agriculture|technology|art|culture|sport|peace|governance|inclusion",
   "economic_tier": "T1|T2|T3|T4",
   "three_tests": {"community_viability_score": 0-10, "facebook_group_test": true/false, "ten_for_ten_test": true/false, "whatsapp_only_test": true/false},
   "cultural": {"score": 1-10, "context_summary": "2-3 sentences describing the cultural environment the applicant operates in. Write as 'here's what your environment looks like' not 'here's why you might fail'.", "dimensions": {"power_distance": {"score": 0-100, "context": "What this means for the applicant's idea. Focus on how to work WITH this, not against it.", "practical_advice": "Specific action the applicant can take."}, "individualism": {"score": 0-100, "context": "", "practical_advice": ""}, "masculinity": {"score": 0-100, "context": "", "practical_advice": ""}, "uncertainty_avoidance": {"score": 0-100, "context": "", "practical_advice": ""}, "long_term_orientation": {"score": 0-100, "context": "", "practical_advice": ""}, "indulgence": {"score": 0-100, "context": "", "practical_advice": ""}}},
