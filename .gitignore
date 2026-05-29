@@ -4,3 +4,4 @@ output/
 .env
 .vercel/
 .netlify/
+node_modules/

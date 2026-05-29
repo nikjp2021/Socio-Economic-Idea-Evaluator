@@ -1322,6 +1322,57 @@ const evalBtn = document.getElementById('evalBtn');
 const tryResults = document.getElementById('tryResults');
 const tryError = document.getElementById('tryError');
 
+// Intent filtering — stop non-serious inputs before API call
+const BLOCKED_PATTERNS = [
+  /disneyland|disney\s*land/i,
+  /go\s*to\s*(the\s*)?moon/i,
+  /buy\s*(a\s*)?lamborghini|buy\s*(a\s*)?ferrari/i,
+  /make\s*me\s*rich|get\s*rich\s*quick/i,
+  /dating\s*app|tinder|hookup/i,
+  /nft|crypto\s*pump|memecoin/i,
+  /kill|harm|hurt|attack|bomb|weapon/i,
+  /drug\s*deal|sell\s*drug/i,
+  /onlyfans|porn|adult\s*content/i,
+  /prank|joke|meme\s*project/i,
+];
+
+function validateIntent(problem, goal) {
+  const combined = (problem + ' ' + goal).toLowerCase();
+
+  // Check for blocked patterns
+  for (const pattern of BLOCKED_PATTERNS) {
+    if (pattern.test(combined)) {
+      return { valid: false, message: "This tool evaluates social impact ideas — ideas that help communities. Your input doesn't seem like a serious social impact idea. If it is, please describe the problem you're solving and who it helps." };
+    }
+  }
+
+  // Check for too short
+  if (problem.length + goal.length < 50) {
+    return { valid: false, message: "We need more detail. Tell us: What is the problem? Who is affected? What do you want to achieve? At least 2-3 sentences each." };
+  }
+
+  // Check for gibberish (too many consonants, no spaces)
+  const words = combined.split(/\s+/).filter(w => w.length > 2);
+  if (words.length < 5) {
+    return { valid: false, message: "We need more detail. Describe the problem and your goal in at least 2-3 sentences each." };
+  }
+
+  // Check for question-only input (not an idea)
+  if (combined.endsWith('?') && !combined.includes('want') && !combined.includes('create') && !combined.includes('build') && !combined.includes('help')) {
+    return { valid: false, message: "This looks like a question, not an idea. Tell us what you want to DO, not just what you're wondering about." };
+  }
+
+  return { valid: true };
+}
+
+// Static results for sample cases — no API call needed
+const STATIC_RESULTS = {
+  "Indian street food in London": null, // Will be populated if needed
+  "Elder care WhatsApp in Japan": null,
+  "Sanitary pads in Bangladesh": null,
+  "Coding classes in Nairobi": null,
+};
+
 evalBtn.addEventListener('click', async () => {
   const problem = document.getElementById('fieldProblem').value.trim();
   const goal = document.getElementById('fieldGoal').value.trim();
@@ -1329,8 +1380,13 @@ evalBtn.addEventListener('click', async () => {
   const budget = document.getElementById('fieldBudget').value.trim();
   const constraints = document.getElementById('fieldConstraints').value.trim();
 
-  if (!problem || !goal) { tryError.textContent = 'Tell us the problem and what you want to achieve.'; tryError.classList.add('visible'); return; }
-  if (problem.length + goal.length < 50) { tryError.textContent = 'Keep going... we need more detail to give you a real evaluation.'; tryError.classList.add('visible'); return; }
+  // Validate intent before API call
+  const validation = validateIntent(problem, goal);
+  if (!validation.valid) {
+    tryError.textContent = validation.message;
+    tryError.classList.add('visible');
+    return;
+  }
 
   let ideaText = problem + '. ' + goal;
   if (country) ideaText += '. Location: ' + country;
@@ -1347,13 +1403,22 @@ evalBtn.addEventListener('click', async () => {
     if (apiKey) headers['X-API-Key'] = apiKey;
     const resp = await fetch('/api/eval?idea=' + encodeURIComponent(ideaText), { headers });
     const data = await resp.json();
-    if (data.error) { tryError.textContent = data.error; tryError.classList.add('visible'); return; }
+    if (data.error) {
+      // Better error messages based on error type
+      let msg = data.error;
+      if (msg.includes('timed out')) msg = 'The evaluation took too long. Try a shorter, more specific description.';
+      else if (msg.includes('invalid JSON')) msg = 'We had trouble processing this. Try rephrasing your idea with more detail.';
+      else if (msg.includes('API key')) msg = 'Service temporarily unavailable. Please try again in a moment.';
+      tryError.textContent = msg;
+      tryError.classList.add('visible');
+      return;
+    }
     data._input = { problem, goal, country, budget, constraints };
     renderResult(data);
     tryResults.classList.add('visible');
     tryResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch(e) {
-    tryError.textContent = 'Something went wrong. Please try again.';
+    tryError.textContent = 'Connection issue. Check your internet and try again.';
     tryError.classList.add('visible');
   } finally {
     evalBtn.disabled = false;
