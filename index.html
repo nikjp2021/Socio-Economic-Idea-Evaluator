@@ -1404,7 +1404,16 @@ function renderResult(d) {
   // SDG Impact
   if (d.sdgs) {
     let h = `<div class="r-section"><div class="r-title"><span class="r-icon sky">&#x1F30D;</span>Who You Help</div>`;
-    h += `<div class="r-card" style="margin-bottom:0.75rem"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem"><div class="sdg-number">${d.sdgs.primary.number}</div><div><div class="r-value">SDG ${d.sdgs.primary.number}: ${d.sdgs.primary.name}</div><div class="r-detail">Target ${d.sdgs.primary.target}: ${d.sdgs.primary.target_text}</div></div></div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${d.sdgs.alignment_text}</div></div>`;
+    // SDG explanation header
+    h += `<div style="font-size:0.8125rem;color:var(--ink-muted);line-height:1.6;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(37,99,168,0.04);border-radius:8px">The <strong style="color:var(--ink)">United Nations</strong> has <strong style="color:var(--ink)">17 Global Goals</strong> to make the world better by 2030. They are called the <strong style="color:var(--ink)">Sustainable Development Goals (SDGs)</strong>. Your idea connects to these goals.</div>`;
+    // Primary SDG
+    const plainExp = d.sdgs.primary.plain_explanation || d.sdgs.alignment_text || '';
+    h += `<div class="r-card" style="margin-bottom:0.75rem"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem"><div class="sdg-number">${d.sdgs.primary.number}</div><div><div class="r-value">Goal ${d.sdgs.primary.number}: ${d.sdgs.primary.name}</div><div class="r-detail">UN Target ${d.sdgs.primary.target}: ${d.sdgs.primary.target_text}</div></div></div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${plainExp}</div></div>`;
+    // What this means
+    const whatMeans = d.sdgs.what_this_means || '';
+    if (whatMeans) {
+      h += `<div class="r-card" style="margin-bottom:0.75rem"><div class="r-label">What This Means For You</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${whatMeans}</div></div>`;
+    }
     if (d.impact) {
       const ic = d.impact.interpretation === 'HIGH' ? 'forest' : d.impact.interpretation === 'MEDIUM' ? 'amber' : 'ink-muted';
       const icVar = d.impact.interpretation === 'HIGH' ? 'var(--forest)' : d.impact.interpretation === 'MEDIUM' ? 'var(--amber)' : 'var(--ink-muted)';
