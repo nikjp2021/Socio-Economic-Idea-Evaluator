@@ -22,6 +22,7 @@ Fixed Vercel build failures and resolved Netlify API runtime errors, creating a 
 - **Support for Google's New `AQ.` Keys:** Expanded API key format validation to support both traditional `AIzaSy` keys and Google's newly introduced 2026 `AQ.` format for Gemini API developer keys.
 - **Dynamic CORS Origin Support:** Removed hardcoded origins in favor of a dynamic matching system that mirrors `Origin` headers (or falls back to `*`). This immediately resolved browser CORS policy blocking errors on the new custom domain `see2026.netlify.app`.
 - **CORS Header Merging:** Merged CORS headers into Node's `res.writeHead` responses in Vercel to prevent browsers from blocking 4xx/5xx API errors as CORS violations, making errors transparent and debuggable.
+- **Passcode Gate Protection:** Integrated a beautiful, secure-looking client-side 4-digit passcode gate lock screen (`9999`) in `index.html` with glassmorphic overlay, input shake animations, and `localStorage` persistence (`see_unlocked`) to lock down private preview deployments.
 
 ### Files Modified
 

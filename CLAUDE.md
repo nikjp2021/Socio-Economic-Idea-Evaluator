@@ -394,6 +394,82 @@ for (const [key, mockResponse] of Object.entries(STATIC_RESULTS)) {
 }
 ```
 
+### 4. Client-Side Access Code Gate (Lock Screen)
+
+To password-protect private deployment links (e.g. Vercel/Netlify staging, demo versions) without setting up heavy backend authorization, use the following **CSS/HTML/JS Lock Screen** pattern in the root `index.html`.
+
+#### A. HTML (Inject at the top of `<body>`)
+```html
+<div id="gateOverlay" class="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-logo">🔑 Access Gate</div>
+    <h2 class="gate-title">Enter Access Code</h2>
+    <p class="gate-subtitle">This private evaluation platform is password-protected.</p>
+    <div class="gate-input-wrap">
+      <input type="password" id="gateCode" placeholder="Enter 4-digit code" maxlength="4" autofocus>
+      <div id="gateError" class="gate-error">Incorrect code. Try again.</div>
+    </div>
+    <button id="gateBtn" class="gate-btn">Access Platform</button>
+  </div>
+</div>
+```
+
+#### B. CSS (Style dynamically in `<style>`)
+Ensure the lock page is absolute, overrides all other layouts, and prevents scrolling when locked:
+```css
+.gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #faf7f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease-out, visibility 0.5s;
+}
+.gate-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+body.gate-active {
+  overflow: hidden; /* Disables scroll when locked */
+}
+/* Style card, inputs, and submit button similarly to your branding system... */
+```
+
+#### C. JavaScript (Initialize at the top of `<script>`)
+Check authorization status immediately to block page renders, and persist the unlocked state in `localStorage` for returning visits:
+```javascript
+const gateOverlay = document.getElementById('gateOverlay');
+const gateCode = document.getElementById('gateCode');
+const gateBtn = document.getElementById('gateBtn');
+const gateError = document.getElementById('gateError');
+
+// Enforce initial locking state
+if (localStorage.getItem('see_unlocked') !== 'true') {
+  document.body.classList.add('gate-active');
+} else {
+  gateOverlay.classList.add('hidden');
+}
+
+function verifyGateCode() {
+  if (gateCode.value.trim() === '9999') { // Target passcode
+    localStorage.setItem('see_unlocked', 'true');
+    gateOverlay.classList.add('hidden');
+    document.body.classList.remove('gate-active');
+  } else {
+    gateError.classList.add('visible');
+    gateCode.value = '';
+    gateCode.focus();
+    setTimeout(() => gateError.classList.remove('visible'), 3000);
+  }
+}
+
+gateBtn.addEventListener('click', verifyGateCode);
+gateCode.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyGateCode(); });
+```
+
 ## Co-Founder Dynamic
 
 **Nikhil** = Visionary + Domain Expert (PhD research, Shizuoka Method, cultural knowledge, final decisions)
