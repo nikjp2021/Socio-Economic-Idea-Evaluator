@@ -335,6 +335,64 @@ Ensure Vercel's Node compiler doesn't fail looking for a build script:
 }
 ```
 
+### 3. API Cost & Security Guardrails (Local Intent Filtering)
+
+To optimize costs, prevent prompt injection, and avoid wasting API credits on out-of-scope or spammy requests, implement **Local Intent Filtering** before invoking any external LLM APIs in your Node.js handlers.
+
+#### A. Regex-Based Pattern Blocking
+Define a blacklist of regular expressions for non-serious or out-of-scope topics. Check the user input against these patterns locally. If a match is found, reject the request immediately with a clear error:
+
+```javascript
+// Intent filtering - stop non-serious inputs before calling the Gemini API
+const blockedPatterns = [
+  /disneyland|disney\s*land/i,            // Out-of-scope entertainment
+  /go\s*to\s*(the\s*)?moon/i,             // Joke/meme plans
+  /buy\s*(a\s*)?lamborghini/i,            // Self-enrichment templates
+  /dating\s*app|tinder|hookup/i,          // Social networking/dating
+  /nft|crypto\s*pump|memecoin/i,          // Crypto speculation
+  /kill|harm|hurt|attack|bomb|weapon/i,   // Safety violations
+  /drug\s*deal|sell\s*drug/i,             // Illegal operations
+  /prank|joke|meme\s*project/i,           // Trivial/silly requests
+];
+
+for (const pattern of blockedPatterns) {
+  if (pattern.test(userInput)) {
+    const err = new Error("Your input does not appear to be within the scope of this tool. Please enter a serious project.");
+    err.status = 400; // Bad Request
+    throw err;
+  }
+}
+```
+
+#### B. Minimum Word Count Validation
+Enforce strict minimum data quality standards locally so the LLM has enough context to generate high-fidelity, high-value outputs:
+```javascript
+// Minimum quality check - ensure sufficient context has been provided
+const words = userInput.split(/\s+/).filter(w => w.length > 2);
+if (words.length < 8) {
+  const err = new Error("Please describe your project with more detail (at least 2-3 full sentences).");
+  err.status = 400;
+  throw err;
+}
+```
+
+#### C. Local Static Mock Responses
+For common demo queries, return static, high-fidelity mock JSON directly from local memory. This completely bypasses the external API call, speeds up the response time for demonstrations, and saves credits:
+```javascript
+const STATIC_RESULTS = {
+  "london commuter street food": {
+    // High-fidelity structured evaluation response...
+  }
+};
+
+const normalizedInput = userInput.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+for (const [key, mockResponse] of Object.entries(STATIC_RESULTS)) {
+  if (normalizedInput.includes(key)) {
+    return mockResponse; // Bypasses the API call completely!
+  }
+}
+```
+
 ## Co-Founder Dynamic
 
 **Nikhil** = Visionary + Domain Expert (PhD research, Shizuoka Method, cultural knowledge, final decisions)
