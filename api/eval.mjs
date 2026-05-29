@@ -1,9 +1,14 @@
 /**
- * Netlify Function: Gemini-powered evaluation with Google Search Grounding
- * Uses @google/genai SDK with gemini-3.1-flash-lite and web search.
+ * Unified evaluation function for Vercel + Netlify.
+ * Uses @google/genai SDK with Gemini 3.1 Flash-Lite and Google Search Grounding.
+ * Works on both platforms with a single codebase.
  */
 
 import { GoogleGenAI } from "@google/genai";
+
+export const config = {
+  runtime: "edge",
+};
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,13 +16,13 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
 
-export default async (request, context) => {
+export default async function handler(req) {
   // Handle CORS preflight
-  if (request.method === "OPTIONS") {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  const url = new URL(request.url);
+  const url = new URL(req.url);
   const idea = url.searchParams.get("idea") || "";
 
   if (!idea || idea.trim().length < 10) {
@@ -34,13 +39,13 @@ export default async (request, context) => {
     );
   }
 
-  // Netlify AI Gateway handles auth automatically if configured
-  // Otherwise falls back to GOOGLE_GENAI_API_KEY env var
+  // Netlify AI Gateway injects credentials automatically.
+  // Vercel needs GOOGLE_GENAI_API_KEY in environment variables.
   const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_GENAI_API_KEY
+    apiKey: process.env.GOOGLE_GENAI_API_KEY || ""
   });
 
-  const systemPrompt = `You are a social impact idea evaluator. You evaluate ideas through 7 layers: parsing, community tests, cultural analysis, education analysis, bootstrapper scoring, case study matching, and verdict.
+  const systemPrompt = `You are a social impact idea evaluator. Evaluate ideas through 7 layers: parsing, community tests, cultural analysis, education analysis, bootstrapper scoring, case study matching, and verdict.
 
 Search the web for real organizations, NGOs, social enterprises that have done something similar to the user's idea. Use real data, real numbers, real case studies.
 
@@ -65,7 +70,11 @@ Required JSON structure:
   "impact": {"score": 0-100, "sdg_weight": 0-10, "estimated_reach": 0, "cultural_fit": 0-1, "interpretation": "HIGH|MEDIUM|LOW"}
 }
 
-Use real Hofstede scores. Be honest. Not every idea deserves GO. Search the web for real case studies.`;
+Use real Hofstede scores for the country. Be honest. Not every idea deserves GO. Use PIVOT when the approach is wrong but the problem is real. Use SHELVE when structural barriers are too high.
+
+For case_study: search the web for a REAL organization that did something similar. Include real impact numbers. If you cannot find one, say source_type: "hypothetical".
+
+For elevator_pitch: use the person's actual words. Start with their idea in quotes. Then give specific scores and a concrete next step. Write like a partner, not a consultant.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -133,10 +142,10 @@ Use real Hofstede scores. Be honest. Not every idea deserves GO. Search the web 
     return Response.json(result, { headers: corsHeaders });
 
   } catch (error) {
-    console.error("Gemini function error:", error.message);
+    console.error("Evaluation error:", error.message);
     return Response.json(
       { error: `Evaluation failed: ${error.message}` },
       { status: 500, headers: corsHeaders }
     );
   }
-};
+}

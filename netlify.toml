@@ -1,14 +1,15 @@
 [build]
   publish = "."
-  functions = "netlify/functions"
+  functions = "api"
 
 [functions]
-  timeout = 30
+  node_bundle = true
+  timeout = 25
 
-# API route → Gemini evaluation function
+# API route → evaluation function
 [[redirects]]
   from = "/api/eval"
-  to = "/.netlify/functions/gemini-eval"
+  to = "/.netlify/functions/eval"
   status = 200
 
 # SPA fallback — must come last
