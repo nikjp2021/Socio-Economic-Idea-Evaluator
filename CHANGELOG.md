@@ -4,6 +4,35 @@ All notable changes to this project are documented here.
 
 ---
 
+## 2026-05-29 — Session 5: Vercel & Netlify Deployment Overrides and API Key Fixes
+
+### What Changed
+
+Fixed Vercel build failures and resolved Netlify API runtime errors, creating a bulletproof dual-platform deployment pipeline. Added strict, proactive debugging tools to prevent future developer credential mismatches.
+
+### Vercel — Overriding Legacy Build Presets
+
+- **Build Preset Conflict:** Overrode legacy Vercel dashboard "Flask" presets by adding an explicit `"builds"` definition in `vercel.json`. This tells Vercel's compile environment to build `index.html` as a static file (`@vercel/static`) and `api/eval.mjs` as a Node.js serverless function (`@vercel/node`), avoiding Python compilation crashes.
+- **Python Bypass:** Created `.vercelignore` to completely omit Python scripts (`api/index.py`, `evaluator.py`, `app.py`, etc.) during Vercel's build phase to bypass import resolution and packaging failures.
+- **Node.js Build Script:** Added a dummy `"build"` command in `package.json` to safely fulfill Node environment build requirements.
+
+### Netlify & Vercel — API Key & CORS Resolution
+
+- **Dual-Handler API Export:** Completely refactored `api/eval.mjs` to use Node.js standard serverless compilation. It now exports both a default handler signature for Vercel and a named `handler` signature for Netlify's standard AWS Lambda runtime.
+- **Support for Google's New `AQ.` Keys:** Expanded API key format validation to support both traditional `AIzaSy` keys and Google's newly introduced 2026 `AQ.` format for Gemini API developer keys.
+- **Dynamic CORS Origin Support:** Removed hardcoded origins in favor of a dynamic matching system that mirrors `Origin` headers (or falls back to `*`). This immediately resolved browser CORS policy blocking errors on the new custom domain `see2026.netlify.app`.
+- **CORS Header Merging:** Merged CORS headers into Node's `res.writeHead` responses in Vercel to prevent browsers from blocking 4xx/5xx API errors as CORS violations, making errors transparent and debuggable.
+
+### Files Modified
+
+| File | Action |
+|---|---|
+| vercel.json | MODIFIED (Added builds config, removed hardcoded CORS headers) |
+| netlify.toml | MODIFIED (Configured esbuild bundler) |
+| package.json | MODIFIED (Added dummy build script) |
+| api/eval.mjs | REWRITTEN (Dual-handler architecture, dynamic CORS origin, expanded environment checks, AQ. prefix validation) |
+| .vercelignore | CREATED (Python exclusion list) |
+
 ## 2026-05-29 — Session 4: Expert Reviews + Content Strategy Rewrite
 
 ### What Changed

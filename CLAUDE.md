@@ -210,6 +210,131 @@ The system must motivate without misleading.
 - Case study matching can match irrelevant studies
 - Reality Check has context leakage (analyzes wrong topic)
 
+## Multi-Platform Serverless Deployment & API Guidelines
+
+When deploying web apps with serverless APIs on **Vercel** and **Netlify**, use the following unified architectures to ensure error-free compilation and runtime key injection across your other projects.
+
+### 1. The Dual-Handler ESM Pattern (Node.js API)
+Never use Edge Runtime with `@google/genai` or Vertex libraries, as their bundlers struggle with Edge constraints. Use standard Node.js serverless functions, and export **both** handlers from the same `.mjs` file:
+
+```javascript
+import { GoogleGenAI } from "@google/genai";
+
+// Dynamic CORS header generation matching the browser origin
+function getCorsHeaders(origin) {
+  return {
+    "Access-Control-Allow-Origin": origin || "*",
+    "Access-Control-Allow-Headers": "Content-Type, X-API-Key",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+  };
+}
+
+async function coreAPILogic(input) {
+  // 1. Fetch environment variables safely
+  const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || "";
+  
+  if (!apiKey) {
+    const err = new Error("Gemini API key is not configured.");
+    err.status = 500;
+    throw err;
+  }
+
+  // Support both legacy (AIzaSy) and new 2026 (AQ.) API Studio developer key formats
+  if (!apiKey.startsWith("AIzaSy") && !apiKey.startsWith("AQ.")) {
+    const err = new Error("Invalid API key prefix.");
+    err.status = 401;
+    throw err;
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+  // Call models here...
+  return { success: true };
+}
+
+// A. VERCEL HANDLER (Default Export)
+export default async function vercelHandler(req, res) {
+  const origin = req.headers.origin || req.headers.Origin || "";
+  const corsHeaders = getCorsHeaders(origin);
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, corsHeaders);
+    res.end();
+    return;
+  }
+
+  try {
+    const idea = req.query.idea || "";
+    const result = await coreAPILogic(idea);
+    res.writeHead(200, { "Content-Type": "application/json", ...corsHeaders });
+    res.end(JSON.stringify(result));
+  } catch (err) {
+    res.writeHead(err.status || 500, { "Content-Type": "application/json", ...corsHeaders });
+    res.end(JSON.stringify({ error: err.message }));
+  }
+}
+
+// B. NETLIFY HANDLER (Named Export)
+export const handler = async (event, context) => {
+  const origin = event.headers.origin || event.headers.Origin || "";
+  const corsHeaders = getCorsHeaders(origin);
+
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 204, headers: corsHeaders, body: "" };
+  }
+
+  try {
+    const idea = event.queryStringParameters ? (event.queryStringParameters.idea || "") : "";
+    const result = await coreAPILogic(idea);
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+      body: JSON.stringify(result),
+    };
+  } catch (err) {
+    return {
+      statusCode: err.status || 500,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+      body: JSON.stringify({ error: err.message }),
+    };
+  }
+};
+```
+
+### 2. Standard Configuration Overrides
+
+#### Overriding Vercel Framework Presets (`vercel.json`)
+If a Vercel project has a legacy "Flask/Python" or incorrect framework preset set in the dashboard, force Vercel to bypass it by defining custom `"builds"` and `"routes"` keys:
+```json
+{
+  "builds": [
+    { "src": "api/eval.mjs", "use": "@vercel/node" },
+    { "src": "index.html", "use": "@vercel/static" }
+  ],
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
+```
+
+#### Optimizing Netlify ES Module Bundling (`netlify.toml`)
+Enable `esbuild` in Netlify to compile ES Modules flawlessly:
+```toml
+[build]
+  publish = "."
+  functions = "api"
+
+[functions]
+  node_bundler = "esbuild"
+```
+
+#### Fulfilling Node Build Conditions (`package.json`)
+Ensure Vercel's Node compiler doesn't fail looking for a build script:
+```json
+"scripts": {
+  "build": "echo 'No build step required'"
+}
+```
+
 ## Co-Founder Dynamic
 
 **Nikhil** = Visionary + Domain Expert (PhD research, Shizuoka Method, cultural knowledge, final decisions)
