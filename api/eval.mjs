@@ -299,11 +299,17 @@ export default async function vercelHandler(req, res) {
   try {
     const idea = req.query.idea || "";
     const result = await evaluateIdea(idea);
-    res.writeHead(200, { "Content-Type": "application/json" });
+    res.writeHead(200, {
+      "Content-Type": "application/json",
+      ...corsHeaders
+    });
     res.end(JSON.stringify(result));
   } catch (err) {
     const status = err.status || 500;
-    res.writeHead(status, { "Content-Type": "application/json" });
+    res.writeHead(status, {
+      "Content-Type": "application/json",
+      ...corsHeaders
+    });
     res.end(JSON.stringify({ error: err.message }));
   }
 }
