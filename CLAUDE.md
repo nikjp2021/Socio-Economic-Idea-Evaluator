@@ -311,6 +311,7 @@ If a Vercel project has a legacy "Flask/Python" or incorrect framework preset se
     { "src": "index.html", "use": "@vercel/static" }
   ],
   "rewrites": [
+    { "source": "/api/eval", "destination": "/api/eval.mjs" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
