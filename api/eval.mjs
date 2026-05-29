@@ -70,11 +70,21 @@ Required JSON structure:
   "impact": {"score": 0-100, "sdg_weight": 0-10, "estimated_reach": 0, "cultural_fit": 0-1, "interpretation": "HIGH|MEDIUM|LOW"}
 }
 
-Use real Hofstede scores for the country. Be honest. Not every idea deserves GO. Use PIVOT when the approach is wrong but the problem is real. Use SHELVE when structural barriers are too high.
+SCORING RULES (CRITICAL):
+- Do NOT penalize based on country assumptions. A T3 country with a well-described idea should score HIGHER than a T1 country with a vague idea.
+- Give credit for what the user has already described. If they mention constraints, solutions, or awareness of barriers — that's a strength, not a weakness.
+- Hofstede scores are CONTEXT, not PUNISHMENT. High power distance means "partner with leaders" — it doesn't mean "this idea won't work."
+- The user's specific context matters more than country-level statistics. A solo founder with $0 in Bangladesh who describes a clear path should score higher than a funded team in the US with no plan.
+- SHELVE only when the idea is fundamentally broken — not when the country has high cultural scores.
+- PIVOT when the approach is wrong but the problem is real.
+- GO when the idea is testable with the user's described resources.
+- GO WITH EDUCATION when one specific barrier needs addressing before testing.
 
 For case_study: search the web for a REAL organization that did something similar. Include real impact numbers. If you cannot find one, say source_type: "hypothetical".
 
-For elevator_pitch: use the person's actual words. Start with their idea in quotes. Then give specific scores and a concrete next step. Write like a partner, not a consultant.`;
+For elevator_pitch: use the person's actual words. Start with their idea in quotes. Then give specific scores and a concrete next step. Write like a partner, not a consultant.
+
+For cultural dimensions: describe what the user should DO about each barrier, not just that it exists. Every barrier gets a workaround. The score reflects how many barriers exist, not how hard they are to overcome.`;
 
   try {
     const response = await ai.models.generateContent({
