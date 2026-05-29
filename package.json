@@ -1,0 +1,24 @@
+{
+  "name": "socio-economic-evaluator",
+  "version": "1.0.0",
+  "description": "Have an idea to help your community? Not sure if it will work? This tool tells you.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikjp2021/Socio-Economic-Idea-Evaluator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nikjp2021/Socio-Economic-Idea-Evaluator/issues"
+  },
+  "homepage": "https://github.com/nikjp2021/Socio-Economic-Idea-Evaluator#readme",
+  "dependencies": {
+    "@google/genai": "^2.7.0"
+  }
+}
