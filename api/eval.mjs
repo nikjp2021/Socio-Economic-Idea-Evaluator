@@ -6,17 +6,9 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ALLOWED_ORIGINS = [
-  "https://socio-economic-evaluator-bt3p.vercel.app",
-  "https://socio-economic-evaluator.netlify.app",
-  "http://localhost:8888",
-  "http://localhost:8080",
-];
-
 function getCorsHeaders(origin) {
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
-    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Origin": origin || "*",
     "Access-Control-Allow-Headers": "Content-Type, X-API-Key",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
   };
