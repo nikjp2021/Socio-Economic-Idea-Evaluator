@@ -60,7 +60,7 @@ Required JSON structure:
   "idea_type": "health|education|women|food|water|safety|elderly|mental_health|work|financial|disaster|community",
   "economic_tier": "T1|T2|T3|T4",
   "three_tests": {"community_viability_score": 0-10, "facebook_group_test": true/false, "ten_for_ten_test": true/false, "whatsapp_only_test": true/false},
-  "cultural": {"score": 1-10, "dominant_barrier": "description", "dimensions": {"power_distance": {"score": 0-100, "barrier": ""}, "individualism": {"score": 0-100, "barrier": ""}, "masculinity": {"score": 0-100, "barrier": ""}, "uncertainty_avoidance": {"score": 0-100, "barrier": ""}, "long_term_orientation": {"score": 0-100, "barrier": ""}, "indulgence": {"score": 0-100, "barrier": ""}}},
+  "cultural": {"score": 1-10, "context_summary": "2-3 sentences describing the cultural environment the applicant operates in. Write as 'here's what your environment looks like' not 'here's why you might fail'.", "dimensions": {"power_distance": {"score": 0-100, "context": "What this means for the applicant's idea. Focus on how to work WITH this, not against it.", "practical_advice": "Specific action the applicant can take."}, "individualism": {"score": 0-100, "context": "", "practical_advice": ""}, "masculinity": {"score": 0-100, "context": "", "practical_advice": ""}, "uncertainty_avoidance": {"score": 0-100, "context": "", "practical_advice": ""}, "long_term_orientation": {"score": 0-100, "context": "", "practical_advice": ""}, "indulgence": {"score": 0-100, "context": "", "practical_advice": ""}}},
   "education": {"score_today": 1-10, "score_after": 1-10, "delta": 0-10, "roi": "HIGH|MEDIUM|LOW", "barriers": [{"name": "", "type": "trainable|structural", "trainable": true/false}]},
   "bootstrapper": {"score": 1-10, "easy": 1-10, "feasible": 1-10, "efforts": 1-10, "take": "2-sentence honest assessment"},
   "case_study": {"title": "", "source_type": "real|hypothetical", "narrative": "2-3 paragraphs about a real organization", "expert": "quote", "expert_name": ""},
@@ -71,12 +71,12 @@ Required JSON structure:
 }
 
 SCORING RULES (CRITICAL):
-- Do NOT penalize based on country assumptions. A T3 country with a well-described idea should score HIGHER than a T1 country with a vague idea.
-- Give credit for what the user has already described. If they mention constraints, solutions, or awareness of barriers — that's a strength, not a weakness.
-- Hofstede scores are CONTEXT, not PUNISHMENT. High power distance means "partner with leaders" — it doesn't mean "this idea won't work."
-- The user's specific context matters more than country-level statistics. A solo founder with $0 in Bangladesh who describes a clear path should score higher than a funded team in the US with no plan.
-- SHELVE only when the idea is fundamentally broken — not when the country has high cultural scores.
-- PIVOT when the approach is wrong but the problem is real.
+- Score the IDEA, not the COUNTRY. A well-described idea in Bangladesh should score higher than a vague idea in Germany.
+- Cultural data (Hofstede dimensions) is CONTEXT for understanding the applicant's environment. It helps you give BETTER advice, not LOWER scores.
+- Do NOT penalize for cultural barriers. Instead, explain what the barriers mean and how to work WITH them.
+- Give credit for what the user has already described. Awareness of constraints is a strength.
+- SHELVE only when the idea is fundamentally broken — not when the environment is challenging.
+- PIVOT when the approach needs changing but the problem is real.
 - GO when the idea is testable with the user's described resources.
 - GO WITH EDUCATION when one specific barrier needs addressing before testing.
 
@@ -84,7 +84,12 @@ For case_study: search the web for a REAL organization that did something simila
 
 For elevator_pitch: use the person's actual words. Start with their idea in quotes. Then give specific scores and a concrete next step. Write like a partner, not a consultant.
 
-For cultural dimensions: describe what the user should DO about each barrier, not just that it exists. Every barrier gets a workaround. The score reflects how many barriers exist, not how hard they are to overcome.`;
+For cultural dimensions: this is CONTEXT for understanding the applicant's environment, not scoring factors. For each dimension:
+- Describe what the environment looks like (e.g., "In your area, people follow leaders and don't challenge authority openly.")
+- Give practical advice on how to work WITH this (e.g., "Partner with a respected community leader who can vouch for your idea.")
+- Never frame cultural data as reasons the idea might fail. Frame it as "here's how to navigate your environment."
+
+The cultural score (1-10) reflects how well the idea is DESIGNED for the environment, not how good the environment is. An idea that accounts for cultural context scores higher than one that ignores it.`;
 
   try {
     const response = await ai.models.generateContent({
