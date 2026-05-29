@@ -2,6 +2,9 @@
   publish = "."
   functions = "api"
 
+[functions]
+  node_bundler = "esbuild"
+
 # API route → evaluation function
 [[redirects]]
   from = "/api/eval"

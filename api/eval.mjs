@@ -1,14 +1,10 @@
 /**
  * Unified evaluation function for Vercel + Netlify.
  * Uses @google/genai SDK with Gemini 3.1 Flash-Lite and Google Search Grounding.
- * Works on both platforms with a single codebase.
+ * Dual-handler export: Vercel standard serverless (default) and Netlify standard serverless (named).
  */
 
 import { GoogleGenAI } from "@google/genai";
-
-export const config = {
-  runtime: "edge",
-};
 
 const ALLOWED_ORIGINS = [
   "https://socio-economic-evaluator-bt3p.vercel.app",
@@ -17,8 +13,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8080",
 ];
 
-function getCorsHeaders(req) {
-  const origin = req.headers.get("origin") || "";
+function getCorsHeaders(origin) {
   const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
@@ -27,97 +22,25 @@ function getCorsHeaders(req) {
   };
 }
 
-export default async function handler(req) {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: getCorsHeaders(req) });
-  }
+const STATIC_RESULTS = {
+  "local coffee shops near london bridge": {
+    idea: "Indian street food stall for London commuters",
+    _input: { problem: "Local coffee shops near London Bridge are losing foot traffic to chains", goal: "Open a small Indian street food stall serving evening commuters", country: "United Kingdom", budget: "£500 initial capital", constraints: "Solo operator, evenings only (6-10pm), no kitchen, first-time food business" },
+    country: "GB", country_name: "United Kingdom", idea_type: "food", economic_tier: "T1",
+    three_tests: { community_viability_score: 7, facebook_group_test: true, ten_for_ten_test: true, whatsapp_only_test: false },
+    cultural: { score: 8, context_summary: "London is multicultural with high demand for street food. Evening commuters near London Bridge are a reliable customer base.", dimensions: { power_distance: { score: 35, context: "Flat hierarchy. Customers judge on quality, not credentials.", practical_advice: "Focus on food quality and Instagram presence." }, individualism: { score: 89, context: "People make individual choices. Word-of-mouth works differently here.", practical_advice: "Build a personal brand. Customers come for YOUR food, not just food." }, masculinity: { score: 66, context: "Competitive market. Quality wins.", practical_advice: "Differentiate on taste and speed, not price." }, uncertainty_avoidance: { score: 35, context: "People try new things easily.", practical_advice: "Experiment with menu. Low risk of rejection." }, long_term_orientation: { score: 51, context: "Mixed. Some plan long-term, some want quick wins.", practical_advice: "Start with a pop-up to test demand before committing." }, indulgence: { score: 69, context: "People spend on pleasure and food.", practical_advice: "Street food is indulgence. Lean into it." } } },
+    education: { score_today: 7, score_after: 8, delta: 1, roi: "LOW", barriers: [{ name: "Food safety regulations", type: "structural", trainable: false }] },
+    bootstrapper: { score: 8, easy: 8, feasible: 9, efforts: 7, take: "£500 and a cart. Evening commuters are a captive audience. Test with a weekend market first." },
+    case_study: { title: "Dishoom: From Street Food to Restaurant Empire", source_type: "real", narrative: "Dishoom started as a tribute to Bombay's Irani cafes. They focused on one thing: authentic food with a story. No shortcuts on ingredients, no compromise on atmosphere. Now they have 8 locations across the UK.", expert: "The best street food tells a story. People don't just buy food — they buy the experience.", expert_name: "Karam Sethi, Dishoom Co-founder" },
+    verdict: { total_score: 8, verdict: "GO", detail: "London's evening commuter market is reliable. £500 is enough to test. Focus on one dish, one location, one week.", elevator_pitch: "\"Open a small Indian street food stall that serves evening commuters\" — this is ready to test. London Bridge has 50,000+ commuters daily. Your £500 gets you a cart and ingredients. This week: find a spot, test with 20 customers. If 14 say they'd come back — you have a business.", first_step: "Visit London Bridge on a Tuesday evening. Count how many people walk past. Find the best spot. Buy ingredients for 20 portions of your best dish.", proof_of_work: { week_1: { day_1_2: "Visit London Bridge at 6pm. Count foot traffic. Find the best corner.", day_3_4: "Buy ingredients for 20 portions. Practice your fastest prep.", day_5_7: "Set up for one evening. Serve 20 people. Ask: 'Would you come back?'" }, week_2: { day_8_10: "Serve 3 evenings. Track: how many repeat customers?", day_11_12: "Ask every customer: 'What's your favorite dish?' Write it down.", day_13_14: "Write 1 page: what worked, what didn't, what to change. This is your proof." }, success_criteria: "If 7 out of 10 customers say 'I'd come back' — you have a business. Keep going." } },
+    funding: [{ source: "Local council street trading license", amount: "£100-300", likelihood: "HIGH" }, { source: "Street food market pitch competitions", amount: "£500-2000", likelihood: "MEDIUM" }],
+    sdgs: { primary: { number: 8, name: "Decent Work and Economic Growth", target: "8.3", target_text: "Promote development-oriented policies supporting productive activities", plain_explanation: "The United Nations has 17 Global Goals. Your food stall helps with Goal 8: creating jobs and economic growth. Every small business contributes to the local economy." }, secondary: { number: 2, name: "Zero Hunger", target: "2.1", target_text: "End hunger", plain_explanation: "Providing affordable, nutritious food to commuters who might otherwise skip dinner." }, impact_weight: 6, what_this_means: "Your food stall creates income for you and affordable meals for commuters. Small businesses like yours are the backbone of local economies." },
+    fad_risk: { level: "LOW", text: "People need to eat. Street food has existed for thousands of years.", signal: "London's street food market has been growing steadily for 20 years." },
+    impact: { score: 45, sdg_weight: 6, estimated_reach: 200, cultural_fit: 0.8, interpretation: "MEDIUM" }
+  },
+};
 
-  const url = new URL(req.url);
-  const idea = url.searchParams.get("idea") || "";
-
-  // Server-side input validation — BEFORE calling Gemini
-  if (!idea || idea.trim().length < 10) {
-    return Response.json(
-      { error: "Please describe your idea in at least 10 characters." },
-      { status: 400, headers: getCorsHeaders(req) }
-    );
-  }
-
-  if (idea.length > 5000) {
-    return Response.json(
-      { error: "Idea too long. Maximum 5000 characters." },
-      { status: 400, headers: getCorsHeaders(req) }
-    );
-  }
-
-  // Intent filtering — stop non-serious inputs before spending API credits
-  const lowerIdea = idea.toLowerCase();
-  const blockedPatterns = [
-    /disneyland|disney\s*land/i,
-    /go\s*to\s*(the\s*)?moon/i,
-    /buy\s*(a\s*)?lamborghini|buy\s*(a\s*)?ferrari/i,
-    /make\s*me\s*rich|get\s*rich\s*quick/i,
-    /dating\s*app|tinder|hookup/i,
-    /nft|crypto\s*pump|memecoin/i,
-    /kill|harm|hurt|attack|bomb|weapon/i,
-    /drug\s*deal|sell\s*drug/i,
-    /onlyfans|porn|adult\s*content/i,
-    /prank|joke|meme\s*project/i,
-  ];
-
-  for (const pattern of blockedPatterns) {
-    if (pattern.test(idea)) {
-      return Response.json(
-        { error: "This tool evaluates social impact ideas — ideas that help communities. Your input doesn't seem like a serious social impact idea. If it is, please describe the problem you're solving and who it helps." },
-        { status: 400, headers: getCorsHeaders(req) }
-      );
-    }
-  }
-
-  // Minimum quality check — must have enough words
-  const words = idea.split(/\s+/).filter(w => w.length > 2);
-  if (words.length < 8) {
-    return Response.json(
-      { error: "We need more detail. Tell us: What is the problem? Who is affected? What do you want to achieve? At least 2-3 sentences." },
-      { status: 400, headers: getCorsHeaders(req) }
-    );
-  }
-
-  // Static results for sample cases — no API call needed
-  const STATIC_RESULTS = {
-    "local coffee shops near london bridge": {
-      idea: "Indian street food stall for London commuters",
-      _input: { problem: "Local coffee shops near London Bridge are losing foot traffic to chains", goal: "Open a small Indian street food stall serving evening commuters", country: "United Kingdom", budget: "£500 initial capital", constraints: "Solo operator, evenings only (6-10pm), no kitchen, first-time food business" },
-      country: "GB", country_name: "United Kingdom", idea_type: "food", economic_tier: "T1",
-      three_tests: { community_viability_score: 7, facebook_group_test: true, ten_for_ten_test: true, whatsapp_only_test: false },
-      cultural: { score: 8, context_summary: "London is multicultural with high demand for street food. Evening commuters near London Bridge are a reliable customer base.", dimensions: { power_distance: { score: 35, context: "Flat hierarchy. Customers judge on quality, not credentials.", practical_advice: "Focus on food quality and Instagram presence." }, individualism: { score: 89, context: "People make individual choices. Word-of-mouth works differently here.", practical_advice: "Build a personal brand. Customers come for YOUR food, not just food." }, masculinity: { score: 66, context: "Competitive market. Quality wins.", practical_advice: "Differentiate on taste and speed, not price." }, uncertainty_avoidance: { score: 35, context: "People try new things easily.", practical_advice: "Experiment with menu. Low risk of rejection." }, long_term_orientation: { score: 51, context: "Mixed. Some plan long-term, some want quick wins.", practical_advice: "Start with a pop-up to test demand before committing." }, indulgence: { score: 69, context: "People spend on pleasure and food.", practical_advice: "Street food is indulgence. Lean into it." } } },
-      education: { score_today: 7, score_after: 8, delta: 1, roi: "LOW", barriers: [{ name: "Food safety regulations", type: "structural", trainable: false }] },
-      bootstrapper: { score: 8, easy: 8, feasible: 9, efforts: 7, take: "£500 and a cart. Evening commuters are a captive audience. Test with a weekend market first." },
-      case_study: { title: "Dishoom: From Street Food to Restaurant Empire", source_type: "real", narrative: "Dishoom started as a tribute to Bombay's Irani cafes. They focused on one thing: authentic food with a story. No shortcuts on ingredients, no compromise on atmosphere. Now they have 8 locations across the UK.", expert: "The best street food tells a story. People don't just buy food — they buy the experience.", expert_name: "Karam Sethi, Dishoom Co-founder" },
-      verdict: { total_score: 8, verdict: "GO", detail: "London's evening commuter market is reliable. £500 is enough to test. Focus on one dish, one location, one week.", elevator_pitch: "\"Open a small Indian street food stall that serves evening commuters\" — this is ready to test. London Bridge has 50,000+ commuters daily. Your £500 gets you a cart and ingredients. This week: find a spot, test with 20 customers. If 14 say they'd come back — you have a business.", first_step: "Visit London Bridge on a Tuesday evening. Count how many people walk past. Find the best spot. Buy ingredients for 20 portions of your best dish.", proof_of_work: { week_1: { day_1_2: "Visit London Bridge at 6pm. Count foot traffic. Find the best corner.", day_3_4: "Buy ingredients for 20 portions. Practice your fastest prep.", day_5_7: "Set up for one evening. Serve 20 people. Ask: 'Would you come back?'" }, week_2: { day_8_10: "Serve 3 evenings. Track: how many repeat customers?", day_11_12: "Ask every customer: 'What's your favorite dish?' Write it down.", day_13_14: "Write 1 page: what worked, what didn't, what to change. This is your proof." }, success_criteria: "If 7 out of 10 customers say 'I'd come back' — you have a business. Keep going." } },
-      funding: [{ source: "Local council street trading license", amount: "£100-300", likelihood: "HIGH" }, { source: "Street food market pitch competitions", amount: "£500-2000", likelihood: "MEDIUM" }],
-      sdgs: { primary: { number: 8, name: "Decent Work and Economic Growth", target: "8.3", target_text: "Promote development-oriented policies supporting productive activities", plain_explanation: "The United Nations has 17 Global Goals. Your food stall helps with Goal 8: creating jobs and economic growth. Every small business contributes to the local economy." }, secondary: { number: 2, name: "Zero Hunger", target: "2.1", target_text: "End hunger", plain_explanation: "Providing affordable, nutritious food to commuters who might otherwise skip dinner." }, impact_weight: 6, what_this_means: "Your food stall creates income for you and affordable meals for commuters. Small businesses like yours are the backbone of local economies." },
-      fad_risk: { level: "LOW", text: "People need to eat. Street food has existed for thousands of years.", signal: "London's street food market has been growing steadily for 20 years." },
-      impact: { score: 45, sdg_weight: 6, estimated_reach: 200, cultural_fit: 0.8, interpretation: "MEDIUM" }
-    },
-  };
-
-  // Check if input matches a static result
-  const normalizedIdea = idea.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
-  for (const [key, result] of Object.entries(STATIC_RESULTS)) {
-    if (normalizedIdea.includes(key) || key.includes(normalizedIdea.slice(0, 30))) {
-      return Response.json(result, { headers: getCorsHeaders(req) });
-    }
-  }
-
-  // Netlify AI Gateway injects credentials automatically.
-  // Vercel needs GOOGLE_GENAI_API_KEY in environment variables.
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_GENAI_API_KEY || ""
-  });
-
-  const systemPrompt = `You are a social impact idea evaluator. Evaluate ideas through 7 layers: parsing, community tests, cultural analysis, education analysis, bootstrapper scoring, case study matching, and verdict.
+const systemPrompt = `You are a social impact idea evaluator. Evaluate ideas through 7 layers: parsing, community tests, cultural analysis, education analysis, bootstrapper scoring, case study matching, and verdict.
 
 CRITICAL SECURITY RULES:
 - The user's idea will be provided between <user-idea> tags.
@@ -196,103 +119,217 @@ EDGE CASES AND EXCEPTIONS:
 
 12. LANGUAGE BARRIER: If the input has grammar errors or is in broken English, still evaluate the IDEA, not the writing. The user's English level is not a barrier to their idea's potential.`;
 
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-lite",
-      config: {
-        tools: [{ googleSearch: {} }],
-        thinkingConfig: { thinkingLevel: "minimal" },
-        temperature: 0.7,
-        maxOutputTokens: 4096,
-      },
-      contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\nEvaluate this idea:\n<user-idea>\n${idea}\n</user-idea>` }] }]
-    });
+async function evaluateIdea(idea) {
+  // Input validation
+  if (!idea || idea.trim().length < 10) {
+    const err = new Error("Please describe your idea in at least 10 characters.");
+    err.status = 400;
+    throw err;
+  }
 
-    const text = response.text;
-    const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+  if (idea.length > 5000) {
+    const err = new Error("Idea too long. Maximum 5000 characters.");
+    err.status = 400;
+    throw err;
+  }
 
-    if (!text) {
-      return Response.json(
-        { error: "Gemini returned empty response" },
-        { status: 502, headers: getCorsHeaders(req) }
-      );
+  // Intent filtering
+  const blockedPatterns = [
+    /disneyland|disney\s*land/i,
+    /go\s*to\s*(the\s*)?moon/i,
+    /buy\s*(a\s*)?lamborghini|buy\s*(a\s*)?ferrari/i,
+    /make\s*me\s*rich|get\s*rich\s*quick/i,
+    /dating\s*app|tinder|hookup/i,
+    /nft|crypto\s*pump|memecoin/i,
+    /kill|harm|hurt|attack|bomb|weapon/i,
+    /drug\s*deal|sell\s*drug/i,
+    /onlyfans|porn|adult\s*content/i,
+    /prank|joke|meme\s*project/i,
+  ];
+
+  for (const pattern of blockedPatterns) {
+    if (pattern.test(idea)) {
+      const err = new Error("This tool evaluates social impact ideas — ideas that help communities. Your input doesn't seem like a serious social impact idea. If it is, please describe the problem you're solving and who it helps.");
+      err.status = 400;
+      throw err;
     }
+  }
 
-    // Parse JSON
-    let result = null;
-    try {
-      result = JSON.parse(text);
-    } catch {
-      // Try code fences
-      const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (fenceMatch) {
-        try { result = JSON.parse(fenceMatch[1].trim()); } catch {}
-      }
-      // Try brace extraction
-      if (!result) {
-        const allBraces = text.match(/\{[\s\S]*\}/g);
-        if (allBraces) {
-          for (const match of allBraces.sort((a, b) => b.length - a.length)) {
-            try { result = JSON.parse(match); break; } catch {}
-          }
+  // Quality check
+  const words = idea.split(/\s+/).filter(w => w.length > 2);
+  if (words.length < 8) {
+    const err = new Error("We need more detail. Tell us: What is the problem? Who is affected? What do you want to achieve? At least 2-3 sentences.");
+    err.status = 400;
+    throw err;
+  }
+
+  // Static results check
+  const normalizedIdea = idea.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+  for (const [key, result] of Object.entries(STATIC_RESULTS)) {
+    if (normalizedIdea.includes(key) || key.includes(normalizedIdea.slice(0, 30))) {
+      return result;
+    }
+  }
+
+  // AI Client config
+  const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || "";
+  const ai = new GoogleGenAI({ apiKey });
+
+  // Call API
+  const response = await ai.models.generateContent({
+    model: "gemini-3.1-flash-lite",
+    config: {
+      tools: [{ googleSearch: {} }],
+      thinkingConfig: { thinkingLevel: "minimal" },
+      temperature: 0.7,
+      maxOutputTokens: 4096,
+    },
+    contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\nEvaluate this idea:\n<user-idea>\n${idea}\n</user-idea>` }] }]
+  });
+
+  const text = response.text;
+  const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+
+  if (!text) {
+    const err = new Error("Gemini returned empty response");
+    err.status = 502;
+    throw err;
+  }
+
+  // Parse JSON
+  let result = null;
+  try {
+    result = JSON.parse(text);
+  } catch {
+    // Try code fences
+    const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenceMatch) {
+      try { result = JSON.parse(fenceMatch[1].trim()); } catch {}
+    }
+    // Try brace extraction
+    if (!result) {
+      const allBraces = text.match(/\{[\s\S]*\}/g);
+      if (allBraces) {
+        for (const match of allBraces.sort((a, b) => b.length - a.length)) {
+          try { result = JSON.parse(match); break; } catch {}
         }
       }
     }
+  }
 
-    if (!result) {
-      console.error("Gemini JSON parse failed. Raw:", text.slice(0, 1000));
-      return Response.json(
-        { error: "The evaluation service returned an unexpected response. Please try again." },
-        { status: 502, headers: getCorsHeaders(req) }
-      );
-    }
+  if (!result) {
+    console.error("Gemini JSON parse failed. Raw:", text.slice(0, 1000));
+    const err = new Error("The evaluation service returned an unexpected response. Please try again.");
+    err.status = 502;
+    throw err;
+  }
 
-    // Ensure _input is populated
-    if (!result._input) {
-      result._input = { problem: "", goal: "", country: "", budget: "", constraints: "" };
-    }
+  // Ensure _input is populated
+  if (!result._input) {
+    result._input = { problem: "", goal: "", country: "", budget: "", constraints: "" };
+  }
 
-    // Output schema validation — ensure critical fields exist and are correct types
-    if (!result.verdict || typeof result.verdict.total_score !== 'number') {
-      console.error("Invalid verdict structure:", JSON.stringify(result.verdict).slice(0, 200));
-      return Response.json(
-        { error: "The evaluation returned invalid data. Please try again." },
-        { status: 502, headers: getCorsHeaders(req) }
-      );
-    }
+  // Output schema validation
+  if (!result.verdict || typeof result.verdict.total_score !== 'number') {
+    console.error("Invalid verdict structure:", JSON.stringify(result.verdict).slice(0, 200));
+    const err = new Error("The evaluation returned invalid data. Please try again.");
+    err.status = 502;
+    throw err;
+  }
 
-    // Clamp score to valid range
-    result.verdict.total_score = Math.max(1, Math.min(10, result.verdict.total_score));
+  // Clamp score
+  result.verdict.total_score = Math.max(1, Math.min(10, result.verdict.total_score));
 
-    // Ensure verdict is one of the valid values
-    const validVerdicts = ['GO', 'GO WITH EDUCATION', 'PIVOT', 'SHELVE'];
-    if (!validVerdicts.includes(result.verdict.verdict)) {
-      result.verdict.verdict = result.verdict.total_score >= 8 ? 'GO' : result.verdict.total_score >= 6 ? 'GO WITH EDUCATION' : result.verdict.total_score >= 4 ? 'PIVOT' : 'SHELVE';
-    }
+  // Ensure verdict is valid
+  const validVerdicts = ['GO', 'GO WITH EDUCATION', 'PIVOT', 'SHELVE'];
+  if (!validVerdicts.includes(result.verdict.verdict)) {
+    result.verdict.verdict = result.verdict.total_score >= 8 ? 'GO' : result.verdict.total_score >= 6 ? 'GO WITH EDUCATION' : result.verdict.total_score >= 4 ? 'PIVOT' : 'SHELVE';
+  }
 
-    // Sanitize any HTML in string fields
-    const sanitize = (str) => typeof str === 'string' ? str.replace(/<[^>]*>/g, '') : str;
-    if (result.verdict.elevator_pitch) result.verdict.elevator_pitch = sanitize(result.verdict.elevator_pitch);
-    if (result.verdict.detail) result.verdict.detail = sanitize(result.verdict.detail);
-    if (result.case_study?.narrative) result.case_study.narrative = sanitize(result.case_study.narrative);
-    if (result.sdgs?.primary?.plain_explanation) result.sdgs.primary.plain_explanation = sanitize(result.sdgs.primary.plain_explanation);
-    if (result.sdgs?.what_this_means) result.sdgs.what_this_means = sanitize(result.sdgs.what_this_means);
+  // Sanitize HTML in strings
+  const sanitize = (str) => typeof str === 'string' ? str.replace(/<[^>]*>/g, '') : str;
+  if (result.verdict.elevator_pitch) result.verdict.elevator_pitch = sanitize(result.verdict.elevator_pitch);
+  if (result.verdict.detail) result.verdict.detail = sanitize(result.verdict.detail);
+  if (result.case_study?.narrative) result.case_study.narrative = sanitize(result.case_study.narrative);
+  if (result.sdgs?.primary?.plain_explanation) result.sdgs.primary.plain_explanation = sanitize(result.sdgs.primary.plain_explanation);
+  if (result.sdgs?.what_this_means) result.sdgs.what_this_means = sanitize(result.sdgs.what_this_means);
 
-    // Add search sources if available
-    if (sources.length > 0) {
-      result._search_sources = sources.map(s => ({
-        title: s.web?.title || "",
-        uri: s.web?.uri || ""
-      }));
-    }
+  // Add search sources
+  if (sources.length > 0) {
+    result._search_sources = sources.map(s => ({
+      title: s.web?.title || "",
+      uri: s.web?.uri || ""
+    }));
+  }
 
-    return Response.json(result, { headers: getCorsHeaders(req) });
+  return result;
+}
 
-  } catch (error) {
-    console.error("Evaluation error:", error);
-    return Response.json(
-      { error: "An unexpected error occurred. Please try again." },
-      { status: 500, headers: getCorsHeaders(req) }
-    );
+// ==========================================
+// 1. Vercel Standard Node Handler (Default)
+// ==========================================
+export default async function vercelHandler(req, res) {
+  const origin = req.headers.origin || req.headers.Origin || "";
+  const corsHeaders = getCorsHeaders(origin);
+
+  // Set CORS headers
+  for (const [key, value] of Object.entries(corsHeaders)) {
+    res.setHeader(key, value);
+  }
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
+  try {
+    const idea = req.query.idea || "";
+    const result = await evaluateIdea(idea);
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(result));
+  } catch (err) {
+    const status = err.status || 500;
+    res.writeHead(status, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: err.message }));
   }
 }
+
+// ==========================================
+// 2. Netlify Standard Node Handler (Named)
+// ==========================================
+export const handler = async (event, context) => {
+  const origin = event.headers.origin || event.headers.Origin || "";
+  const corsHeaders = getCorsHeaders(origin);
+
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: corsHeaders,
+      body: "",
+    };
+  }
+
+  try {
+    const idea = event.queryStringParameters ? (event.queryStringParameters.idea || "") : "";
+    const result = await evaluateIdea(idea);
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+      body: JSON.stringify(result),
+    };
+  } catch (err) {
+    const status = err.status || 500;
+    return {
+      statusCode: status,
+      headers: {
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+      body: JSON.stringify({ error: err.message }),
+    };
+  }
+};

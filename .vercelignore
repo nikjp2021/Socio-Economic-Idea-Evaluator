@@ -1,0 +1,10 @@
+# Ignore all Python files during Vercel deployment to prevent packaging failures.
+api/index.py
+app.py
+server.py
+evaluator.py
+requirements.txt
+__pycache__
+.git
+.netlify
+node_modules
