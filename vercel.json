@@ -1,4 +1,14 @@
 {
+  "builds": [
+    {
+      "src": "api/eval.mjs",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],

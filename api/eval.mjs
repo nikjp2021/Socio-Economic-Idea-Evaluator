@@ -172,7 +172,20 @@ async function evaluateIdea(idea) {
   }
 
   // AI Client config
-  const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || "";
+  const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+  
+  if (!apiKey) {
+    const err = new Error("Gemini API key is not configured in the server environment. Please set GOOGLE_GENAI_API_KEY or GEMINI_API_KEY in your environment variables settings.");
+    err.status = 500;
+    throw err;
+  }
+
+  if (!apiKey.startsWith("AIzaSy")) {
+    const err = new Error(`The configured API key appears to be invalid. Gemini API keys from Google AI Studio must start with 'AIzaSy'. Your key starts with '${apiKey.slice(0, 5)}...'. Please verify the key in your hosting dashboard settings.`);
+    err.status = 401;
+    throw err;
+  }
+
   const ai = new GoogleGenAI({ apiKey });
 
   // Call API
