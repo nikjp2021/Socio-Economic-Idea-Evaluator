@@ -4,7 +4,7 @@ Security precautions and mitigations. Updated after each security review.
 
 ---
 
-## Last Updated: 2026-05-29
+## Last Updated: 2026-05-29 (Session 5)
 
 ## Threat Model
 
@@ -75,12 +75,19 @@ Security precautions and mitigations. Updated after each security review.
 - Invalid verdict values corrected based on score
 - HTML stripped from all string fields
 
-### 7. Config File Protection (2026-05-29)
+### 7. Config File Protection + Security Headers (2026-05-29, updated)
 
 **Files:** `vercel.json`
 
-- Vercel routing blocks access to: .env, .git, .vercel, node_modules, package.json, vercel.json, netlify.toml, render.yaml, requirements.txt, runtime.txt
-- Returns 404 for blocked paths
+- Removed deprecated `builds` key (caused `builder.build is not a function` on Vercel CLI v54+)
+- Vercel auto-detects `api/eval.mjs` as Edge function, `api/index.py` as Python function
+- SPA rewrite only applies to non-API routes: `/((?!api/).*))`
+- Added security headers via Vercel `headers` config:
+  - `X-Content-Type-Options: nosniff` — prevents MIME type sniffing
+  - `X-Frame-Options: DENY` — prevents clickjacking
+  - `Referrer-Policy: strict-origin-when-cross-origin` — limits referrer leakage
+- CORS headers restricted to allowed origins on API routes only
+- Config files (.env, .git, etc.) protected by Vercel's default behavior (not served from api/ directory)
 
 ### 8. .env Parser Hardening (2026-05-29)
 
@@ -94,9 +101,16 @@ Security precautions and mitigations. Updated after each security review.
 
 **Files:** `api/eval.mjs`
 
-- 4 example chips return pre-computed JSON
-- Zero API calls for demo/testing
-- Reduces cost for common test cases
+- Pre-computed JSON for sample cases (zero API calls)
+- Reduces cost for demo/testing
+
+### 10. Static Results Syntax Fix (2026-05-29)
+
+**Files:** `api/eval.mjs`
+
+- Fixed unclosed `verdict` object in STATIC_RESULTS — `funding`, `sdgs`, `fad_risk`, `impact` were accidentally nested inside `verdict` instead of at entry level
+- This was a syntax error that broke Netlify's esbuild bundler (but not Vercel's)
+- Verified with `node --check`
 
 ## Pending Mitigations
 
@@ -110,6 +124,7 @@ Security precautions and mitigations. Updated after each security review.
 | Date | Reviewer | Findings | Fixed |
 |---|---|---|---|
 | 2026-05-29 | Claude (automated) | 10 vulnerabilities (3 HIGH, 4 MEDIUM, 3 LOW) | 8/10 fixed |
+| 2026-05-29 | Claude (Session 5) | Vercel build broken (deprecated `builds` key), Netlify build broken (unclosed brace in STATIC_RESULTS), missing security headers | 3/3 fixed |
 
 ---
 
