@@ -180,8 +180,8 @@ async function evaluateIdea(idea) {
     throw err;
   }
 
-  if (!apiKey.startsWith("AIzaSy")) {
-    const err = new Error(`The configured API key appears to be invalid. Gemini API keys from Google AI Studio must start with 'AIzaSy'. Your key starts with '${apiKey.slice(0, 5)}...'. Please verify the key in your hosting dashboard settings.`);
+  if (!apiKey.startsWith("AIzaSy") && !apiKey.startsWith("AQ.")) {
+    const err = new Error(`The configured API key appears to be invalid. Gemini API keys from Google AI Studio must start with 'AIzaSy' or 'AQ.'. Your key starts with '${apiKey.slice(0, 5)}...'. Please verify the key in your hosting dashboard settings.`);
     err.status = 401;
     throw err;
   }
