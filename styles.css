@@ -947,6 +947,38 @@ button { font-family: var(--font-body); }
   color: rgba(250,247,242,0.45);
   line-height: 1.6;
 }
+.evidence-card-image img {
+  width: 100%; height: auto;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  aspect-ratio: 4 / 3;
+}
+.evidence-dimensions {
+  list-style: none;
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1.25rem;
+}
+.evidence-dimensions li {
+  font-size: 0.8125rem;
+  color: rgba(250,247,242,0.55);
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.5;
+}
+.evidence-dimensions li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.5em;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+.evidence-dimensions li strong {
+  color: var(--cream);
+  font-weight: 600;
+}
 
 /* ═══════════════════════════════════════════════════════
    STORY SECTION
