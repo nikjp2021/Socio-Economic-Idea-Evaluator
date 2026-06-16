@@ -308,16 +308,27 @@ async function evaluateIdea(idea) {
   const ai = new GoogleGenAI({ apiKey });
 
   // Call API
-  const response = await ai.models.generateContent({
-    model: "gemini-3.1-flash-lite",
-    config: {
-      tools: [{ googleSearch: {} }],
-      thinkingConfig: { thinkingLevel: "minimal" },
-      temperature: 0.7,
-      maxOutputTokens: 4096,
-    },
-    contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\nEvaluate this idea:\n<user-idea>\n${idea}\n</user-idea>` }] }]
-  });
+  let response;
+  try {
+    response = await ai.models.generateContent({
+      model: "gemini-3.1-flash-lite",
+      config: {
+        tools: [{ googleSearch: {} }],
+        thinkingConfig: { thinkingLevel: "minimal" },
+        temperature: 0.7,
+        maxOutputTokens: 4096,
+      },
+      contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\nEvaluate this idea:\n<user-idea>\n${idea}\n</user-idea>` }] }]
+    });
+  } catch (apiErr) {
+    const msg = apiErr.message || '';
+    if (msg.includes('429') || msg.includes('quota') || msg.includes('rate') || msg.includes('RESOURCE_EXHAUSTED')) {
+      const err = new Error("Our evaluation service is busy right now. Please try again in a few minutes.");
+      err.status = 429;
+      throw err;
+    }
+    throw apiErr;
+  }
 
   const text = response.text;
   const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];

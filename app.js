@@ -60,7 +60,7 @@
   }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
 
   function initRevealElements() {
-    $$('.reveal').forEach((el) => revealObserver.observe(el));
+    $$('.reveal, .how-step, .evidence-card, .evidence-featured, .sdg-card').forEach((el) => revealObserver.observe(el));
   }
 
   // ─── COUNTER ANIMATION ───
@@ -269,8 +269,12 @@
           msg = 'The evaluation took too long. Try a shorter, more specific description.';
         else if (msg.includes('invalid JSON'))
           msg = 'We had trouble processing this. Try rephrasing your idea with more detail.';
-        else if (msg.includes('API key'))
+        else if (msg.includes('API key') || msg.includes('not configured'))
           msg = 'Service temporarily unavailable. Please try again in a moment.';
+        else if (msg.includes('429') || msg.includes('quota') || msg.includes('rate') || msg.includes('busy'))
+          msg = 'Our evaluation service is busy right now. Please try again in a few minutes.';
+        else if (msg.includes('limit'))
+          msg = 'Something went wrong. Please try again.';
         tryError.textContent = msg;
         tryError.classList.add('visible');
         return;
@@ -1596,6 +1600,10 @@
       const evals = data.evaluations || [];
       let html = '<div class="my-evals-panel">';
       html += '<div class="my-evals-header"><h3>My Evaluations</h3><button class="my-evals-close" id="myEvalsClose">&times;</button></div>';
+
+      if (evals.length > 0) {
+        html += `<div class="my-evals-counter">${evals.length} evaluation${evals.length !== 1 ? 's' : ''}</div>`;
+      }
 
       if (evals.length === 0) {
         html += '<div class="my-evals-empty">No evaluations yet. <a href="#try">Evaluate your first idea</a></div>';
