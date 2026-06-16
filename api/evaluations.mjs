@@ -3,6 +3,17 @@ import { getUserFromRequest, verifyToken } from './auth.mjs';
 
 // ─── Helpers ───
 
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (chunk) => { data += chunk; });
+    req.on('end', () => {
+      try { resolve(data ? JSON.parse(data) : {}); } catch (_) { resolve({}); }
+    });
+    req.on('error', reject);
+  });
+}
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -93,7 +104,7 @@ async function handleGetEvaluation(req) {
 
 async function handleSaveEvaluation(req) {
   const user = await getUserFromRequest(req);
-  const body = await req.json().catch(() => ({}));
+  const body = await readBody(req);
   const { idea_text, result } = body;
 
   if (!idea_text || !result) {
@@ -157,7 +168,7 @@ async function handleToggleFavorite(req) {
   const user = await getUserFromRequest(req);
   if (!user) return json({ error: 'Login required' }, 401);
 
-  const body = await req.json().catch(() => ({}));
+  const body = await readBody(req);
   const { evaluation_id, fav_type, title, notes } = body;
 
   if (!evaluation_id) return json({ error: 'evaluation_id is required' }, 400);
@@ -201,7 +212,7 @@ async function handleListFavorites(req) {
 
 async function handleSubmitToMarketplace(req) {
   const user = await getUserFromRequest(req);
-  const body = await req.json().catch(() => ({}));
+  const body = await readBody(req);
   const { evaluation_id, hook, badge, badge_label, idea_type, region, sdg_tags } = body;
 
   if (!hook) return json({ error: 'Hook text is required' }, 400);

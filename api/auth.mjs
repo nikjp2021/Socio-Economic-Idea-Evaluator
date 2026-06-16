@@ -6,6 +6,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'see-dev-secret-change-in-productio
 const JWT_EXPIRES = '7d';
 const SALT_ROUNDS = 10;
 
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (chunk) => { data += chunk; });
+    req.on('end', () => {
+      try { resolve(data ? JSON.parse(data) : {}); } catch (_) { resolve({}); }
+    });
+    req.on('error', reject);
+  });
+}
+
 // ─── JWT Helpers ───
 
 function signToken(payload) {
@@ -75,7 +86,7 @@ function validatePassword(pw) {
 // ─── Handlers ───
 
 async function handleRegister(req) {
-  const body = await req.json().catch(() => ({}));
+  const body = await readBody(req);
   const { email, password, name } = body;
 
   if (!email || !validateEmail(email)) {
@@ -129,7 +140,7 @@ async function handleRegister(req) {
 }
 
 async function handleLogin(req) {
-  const body = await req.json().catch(() => ({}));
+  const body = await readBody(req);
   const { email, password } = body;
 
   if (!email || !password) {
@@ -207,7 +218,7 @@ async function handleUpdateProfile(req) {
     return json({ error: 'Not authenticated' }, 401);
   }
 
-  const body = await req.json().catch(() => ({}));
+  const body = await readBody(req);
   const { name, role, organization, country, bio, goals } = body;
 
   if (name) {
