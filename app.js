@@ -879,13 +879,15 @@
     const hasPositioning = d.competitive_positioning;
     const hasHeatmap = d.global_heatmap;
     const hasMarketplace = d.marketplace_listing;
+    const hasMentors = Array.isArray(d.mentor_council) && d.mentor_council.length > 0;
 
-    if (!hasCanvas && !hasPositioning && !hasHeatmap && !hasMarketplace) {
+    if (!hasCanvas && !hasPositioning && !hasHeatmap && !hasMarketplace && !hasMentors) {
       panel.style.display = 'none';
       return;
     }
 
     const innovTabs = [];
+    if (hasMentors) innovTabs.push({ id: 'inn-mentors', label: 'Mentor Council', icon: '&#x1F9D1;&#x200D;&#x1F4BC;' });
     if (hasCanvas) innovTabs.push({ id: 'inn-canvas', label: 'Lean Canvas', icon: '&#x1F4CB;' });
     if (hasPositioning) innovTabs.push({ id: 'inn-positioning', label: 'Positioning', icon: '&#x1F4CA;' });
     if (hasHeatmap) innovTabs.push({ id: 'inn-heatmap', label: 'Global Heatmap', icon: '&#x1F30D;' });
@@ -902,7 +904,8 @@
     ).join('')}</div>`;
 
     html += '<div class="innovation-content">';
-    if (hasCanvas) html += `<div id="inn-canvas" class="active">${renderLeanCanvas(d.lean_canvas)}</div>`;
+    if (hasMentors) html += `<div id="inn-mentors" class="active">${renderMentorCouncil(d.mentor_council, d.verdict)}</div>`;
+    if (hasCanvas) html += `<div id="inn-canvas"${hasMentors ? '' : ' class="active"'}>${renderLeanCanvas(d.lean_canvas)}</div>`;
     if (hasPositioning) html += `<div id="inn-positioning">${renderCompetitivePositioning(d.competitive_positioning)}</div>`;
     if (hasHeatmap) html += `<div id="inn-heatmap">${renderGlobalHeatmap(d)}</div>`;
     if (hasMarketplace) html += `<div id="inn-marketplace">${renderMarketplaceCard(d.marketplace_listing)}</div>`;
@@ -1195,6 +1198,142 @@
     return html;
   }
 
+  // ─── MENTOR COUNCIL RENDERER ───
+  function renderMentorCouncil(mentors, verdict) {
+    if (!Array.isArray(mentors) || mentors.length === 0) {
+      return '<p style="color:var(--ink-muted)">No mentor matches found for this idea.</p>';
+    }
+
+    const zoneLabels = {
+      south_asia: 'South Asia', southeast_asia: 'Southeast Asia', east_asia: 'East Asia',
+      sub_saharan_africa: 'Sub-Saharan Africa', latin_america: 'Latin America',
+      mena: 'Middle East & North Africa', north_america: 'North America',
+      europe: 'Europe', central_asia: 'Central Asia', oceania: 'Oceania'
+    };
+
+    const stageIcons = { idea: '&#x1F4A1;', proof: '&#x1F9EA;', scale: '&#x1F680;', system: '&#x1F3E2;' };
+    const stageLabels = { idea: 'Idea Stage', proof: 'Proof Stage', scale: 'Scale Stage', system: 'System Change' };
+
+    const scoreTier = mentors[0]?.score_tier || 'mid_score';
+    const tierLabels = { low_score: 'Early Stage', mid_score: 'Building Proof', high_score: 'Scaling Up' };
+    const tierLabel = tierLabels[scoreTier] || 'Your Stage';
+
+    let html = `<div class="mentor-council-header">
+      <div class="section-label">Mentor Personas</div>
+      <h2 class="section-title">Your Mentor Council</h2>
+      <p class="section-sub">Real playbooks from social enterprise leaders who solved problems like yours. Matched to your idea, your context, and your current stage.</p>
+      <div class="mentor-stage-badge">${esc(tierLabel)}</div>
+    </div>`;
+
+    html += '<div class="mentor-council-grid">';
+    mentors.forEach((m, idx) => {
+      html += `<div class="mentor-card">
+        <div class="mentor-card-header">
+          <div class="mentor-avatar">${esc(m.name?.charAt(0) || '?')}</div>
+          <div class="mentor-meta">
+            <h3 class="mentor-name">${esc(m.name)}</h3>
+            <div class="mentor-title">${esc(m.title)}</div>
+            <div class="mentor-zone">${zoneLabels[m.zone] || esc(m.zone)} &middot; ${esc(m.country)}</div>
+          </div>
+        </div>
+
+        <div class="mentor-bio">${esc(m.bio)}</div>
+
+        <div class="mentor-philosophy">
+          <div class="mentor-philosophy-label">Philosophy</div>
+          <div class="mentor-philosophy-text">${esc(m.philosophy)}</div>
+          ${m.quote ? `<div class="mentor-quote">"${esc(m.quote)}"</div>` : ''}
+        </div>
+
+        <div class="mentor-playbook">
+          <div class="mentor-playbook-label">Playbook for You</div>
+          <h4 class="mentor-playbook-title">${esc(m.playbook_title)}</h4>
+          <p class="mentor-playbook-advice">${esc(m.playbook_advice)}</p>
+          ${m.playbook_actions && m.playbook_actions.length ? `
+            <div class="mentor-playbook-actions">
+              <div class="mentor-actions-label">Your Actions</div>
+              <ol>${m.playbook_actions.map((a) => `<li>${esc(a)}</li>`).join('')}</ol>
+            </div>` : ''}
+        </div>
+
+        ${m.model_stages ? `<div class="mentor-journey">
+          <div class="mentor-journey-label">How They Did It</div>
+          <div class="mentor-journey-stages">
+            ${['idea', 'proof', 'scale', 'system'].filter(s => m.model_stages[s]).map((s) => `
+              <div class="mentor-stage">
+                <div class="mentor-stage-icon">${stageIcons[s]}</div>
+                <div class="mentor-stage-name">${stageLabels[s]}</div>
+                <div class="mentor-stage-text">${esc(m.model_stages[s])}</div>
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+
+        ${m.warning ? `<div class="mentor-warning">
+          <div class="mentor-warning-label">&#x26A0;&#xFE0F; What They'd Warn Against</div>
+          <p>${esc(m.warning)}</p>
+        </div>` : ''}
+      </div>`;
+    });
+    html += '</div>';
+
+    return html;
+  }
+
+  // ─── MENTORS GALLERY (Standalone) ───
+  let _mentorPersonas = [];
+
+  async function loadMentorPersonas() {
+    if (_mentorPersonas.length) return _mentorPersonas;
+    try {
+      const resp = await fetch('case-studies/mentor-personas.json');
+      if (!resp.ok) return [];
+      const data = await resp.json();
+      _mentorPersonas = data.personas || data || [];
+      return _mentorPersonas;
+    } catch (_) { return []; }
+  }
+
+  async function renderMentorsGallery(zone) {
+    const grid = $('#mentorsGrid');
+    if (!grid) return;
+    const personas = await loadMentorPersonas();
+    if (!personas.length) {
+      grid.innerHTML = '<div class="mentors-empty">No mentor personas available. Run an evaluation to populate the mentor council.</div>';
+      return;
+    }
+
+    const zoneLabels = { south_asia: 'South Asia', east_asia: 'East Asia', southeast_asia: 'SE Asia', sub_saharan_africa: 'Sub-Saharan Africa', mena: 'MENA', latin_america: 'Latin America', north_america: 'North America', europe: 'Europe' };
+
+    const filtered = zone === 'all' ? personas : personas.filter((p) => p.zone === zone);
+
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="mentors-empty">No mentors found for this region.</div>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map((p) => {
+      const initials = (p.name || '?').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+      const categories = (p.categories || []).map((c) => `<span class="mentor-gallery-cat">${esc(c)}</span>`).join('');
+
+      return `<div class="mentor-gallery-card" data-zone="${esc(p.zone || '')}">
+        <div class="mentor-gallery-card-inner">
+          <div class="mentor-gallery-top">
+            <div class="mentor-gallery-avatar">${esc(initials)}</div>
+            <div class="mentor-gallery-info">
+              <h4>${esc(p.name)}</h4>
+              <span class="mentor-gallery-title">${esc(p.title)}</span>
+            </div>
+          </div>
+          <div class="mentor-gallery-zone">${esc(zoneLabels[p.zone] || p.zone)} · ${esc(p.country || '')}</div>
+          <div class="mentor-gallery-bio">${esc(p.bio)}</div>
+          ${p.quote ? `<div class="mentor-gallery-quote">"${esc(p.quote)}"</div>` : ''}
+          ${p.philosophy ? `<div class="mentor-gallery-philosophy"><strong>Philosophy</strong>${esc(p.philosophy)}</div>` : ''}
+          ${categories ? `<div class="mentor-gallery-categories">${categories}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
   // ─── MARKETPLACE CARD RENDERER ───
   function renderMarketplaceCard(listing) {
     if (!listing) return '<p style="color:var(--ink-muted)">Marketplace listing not available.</p>';
@@ -1284,6 +1423,21 @@
   // ─── INIT ───
   document.addEventListener('DOMContentLoaded', () => {
     initRevealElements();
+
+    // Mentors gallery
+    renderMentorsGallery('all');
+
+    // Mentors filters
+    const mentorsFiltersContainer = $('#mentorsFilters');
+    if (mentorsFiltersContainer) {
+      mentorsFiltersContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.mentors-filter');
+        if (!btn) return;
+        mentorsFiltersContainer.querySelectorAll('.mentors-filter').forEach((f) => f.classList.remove('active'));
+        btn.classList.add('active');
+        renderMentorsGallery(btn.dataset.zone);
+      });
+    }
 
     // Marketplace gallery
     renderMarketplaceGallery('all');

@@ -92,8 +92,35 @@ Required JSON structure:
     "hook": "one-line hook from elevator pitch",
     "idea_type_display": "Education|Health|Food|etc",
     "sdg_tags": [{"number": 0, "name": ""}]
-  }
+  },
+
+  "mentor_council": [
+    {
+      "id": "yunus",
+      "name": "Full name of real social enterprise leader",
+      "title": "Their title and organization",
+      "country": "ISO code",
+      "zone": "geographic zone",
+      "bio": "2-3 sentence bio based on what they actually built. Real numbers, real impact.",
+      "philosophy": "Their core belief about social change, derived from their actual approach",
+      "quote": "A real quote from this person, or empty string",
+      "playbook_title": "Title for the personalized advice section (e.g., 'Start With One Group')",
+      "playbook_advice": "3-4 sentences of advice this person would give based on their methodology, personalized to the user's score tier. If score < 4: their early struggle story. If 4-6: their proof approach. If 6-8: their scaling decisions. If 8+: their system-change strategy.",
+      "playbook_actions": ["3 specific actions derived from this person's what_worked, mapped to the user's context"],
+      "warning": "What this person would warn against, based on their what_didnt",
+      "model_stages": {"idea": "what they did at idea stage", "proof": "what they did to prove it", "scale": "how they scaled", "system": "systemic change they achieved"}
+    }
+  ]
 }
+
+MENTOR COUNCIL RULES:
+- Select 3 real social enterprise leaders whose approach best matches the user's idea type, country zone, and barriers.
+- Each mentor MUST be a real person who built a real organization with documented impact.
+- The playbook_advice must be personalized to the user's score tier: if score < 4, share the mentor's early struggle; if 4-6, their proof approach; if 6-8, their scaling decisions; if 8+, their system-change strategy.
+- Draw from diverse regions — don't pick all from one zone.
+- The playbook_actions must be specific to the user's idea, not generic advice.
+- Use real quotes when available. If no quote exists, leave empty string.
+- Match mentors whose methodology addresses the user's specific barriers (e.g., if barriers include 'high power distance', select mentors who succeeded in high-PDI cultures).
 
 SCORING RULES (CRITICAL):
 - Score the IDEA, not the COUNTRY. A well-described idea in Bangladesh should score higher than a vague idea in Germany.
@@ -289,6 +316,24 @@ async function evaluateIdea(idea) {
   if (result.case_study?.narrative) result.case_study.narrative = sanitize(result.case_study.narrative);
   if (result.sdgs?.primary?.plain_explanation) result.sdgs.primary.plain_explanation = sanitize(result.sdgs.primary.plain_explanation);
   if (result.sdgs?.what_this_means) result.sdgs.what_this_means = sanitize(result.sdgs.what_this_means);
+
+  // Sanitize mentor council
+  if (Array.isArray(result.mentor_council)) {
+    result.mentor_council = result.mentor_council.slice(0, 3).map(m => ({
+      ...m,
+      name: sanitize(m.name),
+      title: sanitize(m.title),
+      bio: sanitize(m.bio),
+      philosophy: sanitize(m.philosophy),
+      quote: sanitize(m.quote),
+      playbook_title: sanitize(m.playbook_title),
+      playbook_advice: sanitize(m.playbook_advice),
+      playbook_actions: Array.isArray(m.playbook_actions) ? m.playbook_actions.map(sanitize) : [],
+      warning: sanitize(m.warning),
+    }));
+  } else {
+    result.mentor_council = [];
+  }
 
   // Add search sources
   if (sources.length > 0) {

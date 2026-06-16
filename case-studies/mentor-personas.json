@@ -1,0 +1,1010 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "description": "20 mentor personas derived from real social enterprise leaders. Playbooks based on actual case study data — what they did, what worked, what didn't. Not live mentorship. AI-curated methodology from proven impact.",
+    "last_updated": "2026-06-17",
+    "source": "zones-library.json case studies + figure data"
+  },
+  "personas": [
+    {
+      "id": "yunus",
+      "name": "Muhammad Yunus",
+      "title": "Founder, Grameen Bank",
+      "country": "BD",
+      "zone": "south_asia",
+      "country_tier": "T3",
+      "bio": "Economics professor who started lending $27 to 42 women in Jobra village. Built Grameen Bank into a $10B+ institution serving 9M borrowers. Nobel Peace Prize 2006. Proved the poor are bankable.",
+      "philosophy": "Poverty is not a lack of character — it's a lack of cash. Give people access to capital and trust them to use it.",
+      "quote": "Poverty is not a lack of character; it's a lack of cash.",
+      "categories": ["financial", "women", "poverty", "work"],
+      "specialties": ["microfinance", "group_lending", "women_empowerment", "community_trust"],
+      "barrier_strengths": ["high_pdi", "low_idv", "restrained"],
+      "model_stages": {
+        "idea": "Start with the smallest possible unit of trust — one person, one loan, one group.",
+        "proof": "Build a 5-person group with peer accountability. Prove 97% repayment with your own eyes.",
+        "scale": "Systematize what works. Create loan officer roles. Expand village by village.",
+        "system": "Became a bank. Built the financial infrastructure that outlasts any individual."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Start With One Group",
+          "advice": "Yunus started with $27 and 42 women. He didn't write a business plan — he walked into a village. Your first step is finding 5 people who share the problem you're solving. Don't build a system yet. Build a group.",
+          "actions": [
+            "Find 5 people in your community who face the exact problem you identified",
+            "Offer them something small — a service, a product, a connection — and watch what happens",
+            "Document what they tell you. Their words are your market research."
+          ]
+        },
+        "mid_score": {
+          "title": "Build the Accountability Circle",
+          "advice": "Grameen's secret wasn't microloans — it was group accountability. 5 borrowers, each watching the other. When one fails, the group feels it. Your next step is creating this same dynamic among your early users.",
+          "actions": [
+            "Create a group of 5-10 early users who commit to using your solution weekly",
+            "Build a simple check-in ritual — WhatsApp group, weekly call, community meeting",
+            "Track who's benefiting and who's struggling. The group will self-correct."
+          ]
+        },
+        "high_score": {
+          "title": "Systematize the Trust",
+          "advice": "Grameen scaled by turning trust into a system. Loan officers were local women, not bankers. Branches were in villages, not cities. Your job now is to codify what makes your solution work and train others to deliver it.",
+          "actions": [
+            "Write down the exact steps that make your solution work — the 'loan officer playbook'",
+            "Recruit and train 3 local people to deliver your solution without you",
+            "Expand to a second community before perfecting the first. Test transferability."
+          ]
+        }
+      },
+      "warning": "Credit alone doesn't lift people out of poverty. Grameen learned this the hard way — some borrowers used loans for consumption, not income. Always pair access with capability building. The money is the hook, not the solution."
+    },
+    {
+      "id": "abed",
+      "name": "Sir Fazle Hasan Abed",
+      "title": "Founder, BRAC",
+      "country": "BD",
+      "zone": "south_asia",
+      "country_tier": "T3",
+      "bio": "Former Shell Oil executive who left corporate life after the 1971 Bangladesh cyclone. Founded BRAC, now the world's largest southern-led NGO reaching 100M+ people. Pioneered the graduation approach: microfinance + health + education + coaching over 24 months.",
+      "philosophy": "We don't give handouts. We give hand-ups. The human element — a neighbor who shows up every week — is the irreplaceable ingredient.",
+      "quote": "We don't give handouts. We give hand-ups.",
+      "categories": ["poverty", "women", "health", "education", "community"],
+      "specialties": ["graduation_approach", "community_health_volunteers", "self_funding", "holistic_programs"],
+      "barrier_strengths": ["high_pdi", "low_idv", "restrained"],
+      "model_stages": {
+        "idea": "Start with relief. Then realize relief creates dependency. Shift to building capability.",
+        "proof": "Design a 24-month program: asset transfer + weekly coaching + health + education. Prove it works with 100 families.",
+        "scale": "Build self-funding social enterprises (retail, dairy, textiles) that subsidize programs. Reduce donor dependency.",
+        "system": "Export the model. BRAC now operates in 11 countries. The graduation approach is adopted globally."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Start With Relief, Then Pivot",
+          "advice": "Abed started with cyclone relief. Then he saw that relief creates dependency. Your first step might look like charity — but plan to pivot to capability-building within 6 months. Relief earns trust. Trust enables transformation.",
+          "actions": [
+            "Provide something immediately useful — food, information, connection — to earn trust",
+            "While delivering relief, ask: 'What would you need to solve this yourself?'",
+            "Document the answers. Those answers become your capability-building program."
+          ]
+        },
+        "mid_score": {
+          "title": "The 24-Month Graduation Model",
+          "advice": "BRAC's graduation approach is the most rigorously tested anti-poverty program in history. 95% of participants still improving 7 years later. It works because it's holistic: asset + coaching + health + education, delivered weekly over 24 months. Copy this structure.",
+          "actions": [
+            "Design your program as a 24-month journey, not a one-time service",
+            "Assign each participant a weekly contact — a neighbor, volunteer, or peer",
+            "Include 3 components: the core service + health awareness + financial literacy"
+          ]
+        },
+        "high_score": {
+          "title": "Build the Self-Funding Engine",
+          "advice": "BRAC runs social enterprises (Aarong retail, BRAC Dairy, textile production) that generate revenue to subsidize programs. This is how you survive funding cycles. Your next step: build a revenue-generating arm that funds your mission.",
+          "actions": [
+            "Identify one product or service your community would pay for",
+            "Use profits to cross-subsidize your free programs",
+            "Aim for 50% self-funding within 3 years. Donor dependency is the #1 killer of social enterprises."
+          ]
+        }
+      },
+      "warning": "BRAC faced a donor dependency crisis in 2025 — proof that even the largest organizations are vulnerable. Never let external funding exceed 70% of your budget. Build self-funding capacity from day one."
+    },
+    {
+      "id": "meloto",
+      "name": "Tony Meloto",
+      "title": "Founding Chairman, Gawad Kalinga",
+      "country": "PH",
+      "zone": "southeast_asia",
+      "country_tier": "T3",
+      "bio": "Built 70,000-200,000+ homes in the Philippines through community-driven construction. Corporations, volunteers, and families co-build villages that include housing, education, health, and livelihood. Proved that housing alone isn't enough — you need the whole ecosystem.",
+      "philosophy": "We don't just build houses. We build communities. Housing without education, health, and livelihood is just a building.",
+      "quote": "We don't just build houses. We build communities.",
+      "categories": ["community", "women", "work", "poverty"],
+      "specialties": ["corporate_partnerships", "community_construction", "holistic_villages", "volunteer_mobilization"],
+      "barrier_strengths": ["high_pdi", "low_idv"],
+      "model_stages": {
+        "idea": "Start with one family. Build them a home. Watch what happens to the neighborhood.",
+        "proof": "Partner with one corporation. Build one village. Show the model works.",
+        "scale": "Create a replicable village blueprint. Corporations fund. Volunteers build. Families invest sweat equity.",
+        "system": "GK became a national movement. 2,000-3,000 communities. Haiyan response: 2,923 new homes."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "One Family, One Home",
+          "advice": "Meloto started by building one home for one family in a squatter community. That home became proof. That proof attracted corporations. Start with the smallest possible demonstration of your vision — one family, one classroom, one garden.",
+          "actions": [
+            "Identify one family or community group that represents your target beneficiary",
+            "Deliver your solution to them — even if it's manual, small, and imperfect",
+            "Document the transformation. Before/after is your most powerful fundraising tool."
+          ]
+        },
+        "mid_score": {
+          "title": "The Corporate Partnership Playbook",
+          "advice": "Gawad Kalinga's breakthrough was getting Ayala, SM, Jollibee — the Philippines' biggest corporations — to fund village construction. They didn't ask for donations. They offered companies a chance to build something visible, branded, and transformative. Frame your ask as an opportunity, not a charity.",
+          "actions": [
+            "Identify 3 corporations whose values align with your mission",
+            "Create a sponsorship package: 'For $X, your company builds Y for Z families'",
+            "Offer visibility: company branding on the project, employee volunteer days, media coverage"
+          ]
+        },
+        "high_score": {
+          "title": "The Holistic Village Model",
+          "advice": "GK's innovation was refusing to build just houses. Every village includes education, health, livelihood, and values formation. This holistic approach is why GK communities outperform government housing. Don't scale one service — scale the ecosystem.",
+          "actions": [
+            "Map the 4 pillars your community needs: shelter, education, health, livelihood",
+            "Partner with specialists for each pillar — you coordinate, they deliver",
+            "Require families to invest sweat equity. Free things aren't valued. Earned things are."
+          ]
+        }
+      },
+      "warning": "GK faced a scale vs. quality tension — expanding fast meant some villages didn't get the full ecosystem. Corporate donor dependency also created vulnerability. Scale the blueprint, not the organization."
+    },
+    {
+      "id": "ruiz",
+      "name": "Reese Fernandez-Ruiz",
+      "title": "Co-founder, Rags2Riches",
+      "country": "PH",
+      "zone": "southeast_asia",
+      "country_tier": "T3",
+      "bio": "Turned dumpsite women's scrap cloth into premium fashion accessories. Positioned upcycled products as aspirational, not cheap. Ashoka Fellow and National Geographic Explorer. Proved that position determines price.",
+      "philosophy": "Position determines price. The same scrap cloth, positioned as premium, pays living wages.",
+      "quote": "",
+      "categories": ["women", "work", "community", "poverty"],
+      "specialties": ["social_enterprise", "upcycling", "premium_positioning", "women_empowerment"],
+      "barrier_strengths": ["high_pdi", "low_idv", "restrained"],
+      "model_stages": {
+        "idea": "See waste as raw material. See marginalized women as skilled artisans.",
+        "proof": "Create 10 premium products from scrap. Sell at design fairs. Prove the market exists.",
+        "scale": "Partner with designers for product development. Build artisan training pipeline. Enter retail.",
+        "system": "Rags2Riches became a nationally recognized brand. Artisan women became business owners."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Reframe the Narrative",
+          "advice": "Rags2Riches' first move was refusing to call their products 'recycled.' They called them 'upcycled' — premium, designed, aspirational. The material didn't change. The story changed. Reframe your community's assets as strengths, not deficits.",
+          "actions": [
+            "List 3 things your community produces that outsiders consider waste or low-value",
+            "Redesign or rebrand one of them for a premium market",
+            "Test at a design fair, farmers market, or online marketplace. Price it as premium."
+          ]
+        },
+        "mid_score": {
+          "title": "The Artisan Pipeline",
+          "advice": "Fernandez-Ruiz built a training system: women from Payatas dumpsite learned design, quality control, and business skills. They went from earning below minimum wage to running their own micro-enterprises. Build the training pipeline before scaling production.",
+          "actions": [
+            "Create a structured training program: 4-8 weeks of skills development",
+            "Include business skills alongside technical skills — pricing, marketing, customer service",
+            "Track artisan income over time. The metric is: are they earning a living wage?"
+          ]
+        },
+        "high_score": {
+          "title": "Premium Brand, Mass Impact",
+          "advice": "Rags2Riches partnered with top Filipino designers to create products that compete on design, not just social impact story. National Geographic featured them. The brand became aspirational. Scale by making your brand desirable to people who DON'T care about social impact.",
+          "actions": [
+            "Hire or partner with a professional designer. Social impact alone doesn't sell products.",
+            "Enter mainstream retail channels — not just social enterprise fairs",
+            "Measure success by repeat customers who buy for quality, not charity."
+          ]
+        }
+      },
+      "warning": "Scaling artisan production while maintaining quality is the hardest part. Each handmade product is different. Build quality control systems early, or you'll lose the premium positioning that makes the whole model work."
+    },
+    {
+      "id": "diaz",
+      "name": "Illac Diaz",
+      "title": "Founder, Liter of Light",
+      "country": "PH",
+      "zone": "southeast_asia",
+      "country_tier": "T3",
+      "bio": "Created a grassroots movement teaching communities to build solar lighting from local materials. 382,000+ Filipinos helped. Operates in 32 countries. Cut crime 70% in Tacloban after Typhoon Haiyan. Proved that teaching beats giving.",
+      "philosophy": "Teach them to build it themselves. A community that can make its own lights doesn't need you anymore.",
+      "quote": "",
+      "categories": ["disaster", "community", "work", "poverty"],
+      "specialties": ["community_training", "low_cost_tech", "disaster_response", "self_sufficiency"],
+      "barrier_strengths": ["high_pdi", "low_idv", "restrained"],
+      "model_stages": {
+        "idea": "A plastic bottle + water + bleach = a solar light. Start with the simplest possible technology.",
+        "proof": "Light one dark street. Measure the crime rate change. That's your proof.",
+        "scale": "Train community trainers. Each trainer teaches 10 more. The movement spreads without you.",
+        "system": "Liter of Light operates in 32 countries. The technology evolved from bottle lights to full solar systems."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "The Simplest Possible Technology",
+          "advice": "Liter of Light started with a plastic bottle filled with water and bleach, installed in a rooftop — it refracts sunlight and provides the equivalent of a 55W bulb during the day. Zero electricity. Zero cost. Find the simplest technology that solves the immediate problem.",
+          "actions": [
+            "Identify the cheapest, simplest version of your solution that works",
+            "Build 3 units by hand. Install them. See if people use them.",
+            "If they use them, teach 3 more people to build them. If they don't, iterate."
+          ]
+        },
+        "mid_score": {
+          "title": "Train the Trainers",
+          "advice": "Diaz's breakthrough was realizing that if you teach one person to build solar lights, they teach 10 more. The movement spreads without you. Build a 'train the trainer' model — your organization becomes a curriculum, not a service provider.",
+          "actions": [
+            "Create a simple training manual — 1 page, visual, no literacy required",
+            "Train your first 5 community members. Give them tools, not just knowledge.",
+            "Track how many people each trainee teaches. That's your viral coefficient."
+          ]
+        },
+        "high_score": {
+          "title": "Evolve the Technology, Keep the Model",
+          "advice": "Liter of Light evolved from bottle lights to full solar street lights — but the community-building model stayed the same. As you scale, upgrade the technology but keep the grassroots training approach. Technology changes. Community ownership doesn't.",
+          "actions": [
+            "Upgrade to a more capable version of your technology (solar panels, batteries, etc.)",
+            "Maintain the community training model — don't centralize production",
+            "Partner with local government to adopt your model as public infrastructure"
+          ]
+        }
+      },
+      "warning": "Bottle lights have a limited lifespan. As Liter of Light scaled, they had to evolve to more complex systems — which required engineering skills the community trainers didn't have. Plan your technology evolution from the start."
+    },
+    {
+      "id": "roy",
+      "name": "Bunker Roy",
+      "title": "Founder, Barefoot College",
+      "country": "IN",
+      "zone": "south_asia",
+      "country_tier": "T3",
+      "bio": "Trained illiterate grandmothers from 96 countries as solar engineers. 6-month training program. They return and electrify their villages. Proved that the people most likely to stay are the people with roots.",
+      "philosophy": "The people most likely to stay are the people with roots. Train grandmothers, not graduates.",
+      "quote": "The people most likely to stay are the people with roots.",
+      "categories": ["education", "women", "work", "community", "elderly"],
+      "specialties": ["unconventional_recipients", "community_tech", "self_sufficiency", "women_empowerment"],
+      "barrier_strengths": ["high_pdi", "low_idv", "restrained"],
+      "model_stages": {
+        "idea": "The most qualified people won't serve in villages. So train the unqualified — they'll never leave.",
+        "proof": "Train one grandmother. Electrify one village. Show it works.",
+        "scale": "Create a 6-month residential training center. Grandmothers from 96 countries come, learn, return.",
+        "system": "Barefoot College became a global model. Thousands of grandmothers. Thousands of villages electrified."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Counter-Intuitive Selection",
+          "advice": "Everyone told Roy to train young men with engineering degrees. He chose illiterate grandmothers instead. They were the ones who would stay in the village. Look for the people everyone else overlooks — they might be your best agents of change.",
+          "actions": [
+            "Identify the people in your community who are committed to staying — not the most educated or ambitious",
+            "Ask: 'Who will still be here in 10 years?' Those are your people.",
+            "Train them in the simplest version of your skill. Literacy is not a prerequisite for impact."
+          ]
+        },
+        "mid_score": {
+          "title": "The Residential Training Model",
+          "advice": "Barefoot College's 6-month residential program removes grandmothers from their environment and immerses them in learning. No textbooks. No lectures. All hands-on. Color-coded circuits. Learning by doing. Design your training to be experiential, not academic.",
+          "actions": [
+            "Design a hands-on training program — no lectures, no textbooks, all doing",
+            "Use visual and color-coded instructions for non-literate learners",
+            "Include a 'graduation project' — each trainee must build something that works before they leave"
+          ]
+        },
+        "high_score": {
+          "title": "The Barefoot Professional",
+          "advice": "Barefoot College created 'barefoot professionals' — solar engineers, water engineers, health workers, teachers — all from people with no formal education. They proved that professional skills can be taught without professional credentials. Build your own barefoot professional pipeline.",
+          "actions": [
+            "Expand your training to cover multiple skill areas — solar, water, health, education",
+            "Create a 'barefoot professional' certification recognized by the community, not institutions",
+            "Partner with governments to recognize barefoot professionals in public service delivery"
+          ]
+        }
+      },
+      "warning": "6-month residential training away from family is a hard sell. Many grandmothers initially refused. You need a strong support system — childcare for grandchildren, community buy-in — to make residential training work."
+    },
+    {
+      "id": "gupta",
+      "name": "Anshu Gupta",
+      "title": "Founder, Goonj",
+      "country": "IN",
+      "zone": "south_asia",
+      "country_tier": "T3",
+      "bio": "Created 'Cloth for Work' — communities earn urban surplus materials by completing local infrastructure projects. 2,000+ tons of material channeled annually across 21 Indian states. Ramon Magsaysay Award 2015. Proved that dignity is the product.",
+      "philosophy": "Dignity is the product. When people EARN what they receive, they value it. When they're given charity, they don't.",
+      "quote": "",
+      "categories": ["community", "poverty", "work", "women"],
+      "specialties": ["dignity_first", "urban_rural_pipeline", "behavior_change", "resource_redistribution"],
+      "barrier_strengths": ["high_pdi", "low_idv", "restrained"],
+      "model_stages": {
+        "idea": "Urban waste is rural treasure. But only if it's earned, not given.",
+        "proof": "Collect 1 ton of urban cloth. Connect it to one rural community through a 'Cloth for Work' project.",
+        "scale": "Build collection infrastructure in cities. Build work project pipeline in villages. Connect them.",
+        "system": "Goonj channels 2,000+ tons annually across 21 states. The model works without cash transactions."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Dignity Over Charity",
+          "advice": "Gupta's insight: giving things away creates dependency and shame. Earning them creates dignity and ownership. Before you design any service, ask: 'How can the recipient earn this instead of receiving it as charity?'",
+          "actions": [
+            "Redesign your solution so recipients invest effort — time, labor, participation — in exchange for value",
+            "Never use the word 'beneficiary.' They are partners, participants, or community members.",
+            "Test: would your target users tell their friends about this service, or would they be embarrassed?"
+          ]
+        },
+        "mid_score": {
+          "title": "Build the Pipeline",
+          "advice": "Goonj's infrastructure is a pipeline: urban collection → sorting/cleaning → rural distribution through work projects. The innovation isn't the cloth — it's the logistics. Build the pipeline that connects supply to demand.",
+          "actions": [
+            "Map your supply chain: where does the resource come from? How does it reach the community?",
+            "Create collection points and sorting processes. Quality matters — nobody wants garbage.",
+            "Connect distribution to community-chosen infrastructure projects (roads, wells, bridges)"
+          ]
+        },
+        "high_score": {
+          "title": "Cashless Transactions at Scale",
+          "advice": "Goonj operates without cash — communities earn materials through work. This eliminates corruption, dependency, and dignity issues. As you scale, consider: can your model work without money changing hands? Barter systems create deeper ownership.",
+          "actions": [
+            "Design a non-cash exchange mechanism — work for materials, participation for services",
+            "Build trust systems that don't require financial intermediaries",
+            "Document the model so other communities can replicate it without your organization"
+          ]
+        }
+      },
+      "warning": "Quality control of donated items is a persistent challenge. Not all urban surplus is useful — sorting, cleaning, and quality standards require significant labor. Don't underestimate the logistics."
+    },
+    {
+      "id": "venkataswamy",
+      "name": "Dr. Govindappa Venkataswamy",
+      "title": "Founder, Aravind Eye Care",
+      "country": "IN",
+      "zone": "south_asia",
+      "country_tier": "T3",
+      "bio": "At age 58, with arthritic fingers that couldn't hold a scalpel normally, built the world's largest eye care provider. 10.8M+ surgeries. 60-70% treated free. Inspired by McDonald's assembly-line efficiency. Cross-subsidy: paying patients fund free surgeries.",
+      "philosophy": "The McDonald's model works for surgery. Assembly-line efficiency + cross-subsidy = 10.8M surgeries, 70% free.",
+      "quote": "",
+      "categories": ["health", "poverty", "work"],
+      "specialties": ["cross_subsidy", "operational_efficiency", "assembly_line_service", "affordable_healthcare"],
+      "barrier_strengths": ["high_pdi", "low_idv"],
+      "model_stages": {
+        "idea": "If McDonald's can serve billions of burgers consistently, why can't we do the same for surgery?",
+        "proof": "Set up one operating theater. Run it like a factory. 100+ surgeries per surgeon per day.",
+        "scale": "Build Aurolab to manufacture intraocular lenses at 1/100th Western cost. Cross-subsidize.",
+        "system": "14 hospitals. 90M+ outpatient visits. WHO and WEF recognition. The model is studied at HBS."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Find the Cross-Subsidy",
+          "advice": "Aravind's genius: paying patients fund free patients. The same surgeon, same theater, same quality — just different wards. Find the segment of your market that can pay, and use their revenue to serve those who can't.",
+          "actions": [
+            "Identify who in your community can afford to pay for your service",
+            "Design a premium tier that cross-subsidizes a free tier — same quality, different experience",
+            "Start with 1 paying customer funding 1 free customer. That's the ratio to prove."
+          ]
+        },
+        "mid_score": {
+          "title": "The Assembly Line",
+          "advice": "Aravind surgeons do 100+ surgeries per day because they never leave the operating theater. Assistants handle prep, cleanup, and patient movement. The surgeon only does surgery. Break your service into steps and assign each step to the right person.",
+          "actions": [
+            "Map every step of your service delivery. Identify which step requires the most skilled person.",
+            "Assign lower-skilled steps to trained assistants. Keep the expert focused on the expert-only task.",
+            "Measure throughput: how many people can you serve per day? Optimize for that number."
+          ]
+        },
+        "high_score": {
+          "title": "Build the Supply Chain",
+          "advice": "Aravind built Aurolab to manufacture lenses at 1/100th Western cost. This eliminated the biggest cost driver and made free surgery possible. If a key input is expensive, build it yourself. Vertical integration is the affordability breakthrough.",
+          "actions": [
+            "Identify your most expensive input. Can you manufacture, grow, or produce it locally?",
+            "Build or partner with a local producer. Even 50% cost reduction changes the math.",
+            "Reinvest savings into serving more people at lower cost. The goal is: more impact per dollar."
+          ]
+        }
+      },
+      "warning": "Aravind was slow to digitize initially and limited in geographic spread beyond Tamil Nadu. Don't let operational excellence in one location prevent you from adapting the model for new contexts."
+    },
+    {
+      "id": "imamura",
+      "name": "Kumi Imamura",
+      "title": "Founder, KATARIBA",
+      "country": "JP",
+      "zone": "east_asia",
+      "country_tier": "T1",
+      "bio": "Created 'diagonal relationships' — older peers (not parents, not teachers) who mentor Japanese teens with low self-esteem. 98,935 students served. Time Magazine cover. Prime Minister's Commendation. Proved that the right relationship at the right time changes everything.",
+      "philosophy": "Every child deserves someone who believes in them — even if the system doesn't. Diagonal relationships create unique trust.",
+      "quote": "Every child deserves someone who believes in them — even if the system doesn't.",
+      "categories": ["education", "mental_health", "community", "youth"],
+      "specialties": ["diagonal_mentorship", "youth_empowerment", "four_pillar_model", "trust_building"],
+      "barrier_strengths": ["high_uai", "high_mas"],
+      "model_stages": {
+        "idea": "Japanese teens need someone who's not a parent and not a teacher. A 'diagonal' relationship — older peer, not authority.",
+        "proof": "Run one program. 4 pillars: DISCOVER, RESILIENCE, GLOCAL, POST-TRAUMATIC GROWTH. Measure self-esteem change.",
+        "scale": "Train staff in diagonal mentorship. Expand to 7 locations. Build the curriculum.",
+        "system": "KATARIBA became Japan's model for youth development. Time Magazine. Government recognition."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "The Diagonal Relationship",
+          "advice": "Imamura's insight: teens don't trust parents (too close) or teachers (too authority). They trust someone in between — a young adult who's been through what they're going through. Find the 'diagonal' relationship for your community.",
+          "actions": [
+            "Identify the trust gap: who does your target group NOT trust? Parents? Government? Strangers?",
+            "Recruit mentors from the 'diagonal' — not authority figures, not peers, but someone in between",
+            "Start with 5 mentor-mentee pairs. Meet weekly. Track the relationship, not just outcomes."
+          ]
+        },
+        "mid_score": {
+          "title": "The Four Pillar Model",
+          "advice": "KATARIBA's four pillars address different needs: DISCOVER (find your strength), RESILIENCE (bounce back), GLOCAL (local action, global thinking), POST-TRAUMATIC GROWTH (turn pain into purpose). Design your program around multiple dimensions, not just one.",
+          "actions": [
+            "Design 3-4 program pillars that address different aspects of your community's needs",
+            "Assign each pillar a specific outcome and measurement",
+            "Let participants choose which pillar to start with — agency increases engagement"
+          ]
+        },
+        "high_score": {
+          "title": "Scale the Curriculum, Not the Organization",
+          "advice": "KATARIBA scaled by codifying its methodology into a curriculum that any trained facilitator can deliver. 157 staff across 7 locations. The organization is the curriculum. Write it down, train people to deliver it, measure outcomes.",
+          "actions": [
+            "Write your complete methodology as a step-by-step curriculum",
+            "Train the first cohort of facilitators — they should be able to deliver without you",
+            "Create a measurement framework that works across all locations"
+          ]
+        }
+      },
+      "warning": "Scaling beyond Japan proved difficult — the diagonal relationship model is deeply cultural. When adapting to new contexts, don't assume the same trust dynamics exist. Map the local trust structure first."
+    },
+    {
+      "id": "kar",
+      "name": "Kamal Kar",
+      "title": "Founder, CLTS",
+      "country": "BD",
+      "zone": "south_asia",
+      "country_tier": "T3",
+      "bio": "Revolutionized sanitation by making communities disgusted with themselves — no subsidies, no toilets built by outsiders. Facilitators trigger collective shame and pride. Adopted in 60+ countries. Proved that behavior change sticks when the community decides together.",
+      "philosophy": "I didn't build a single toilet. I made them ashamed of not building one. When the community decides together, behavior change sticks.",
+      "quote": "I didn't build a single toilet. I made them ashamed of not building one.",
+      "categories": ["sanitation", "health", "community", "water"],
+      "specialties": ["behavior_change", "no_subsidy", "community_triggering", "collective_action"],
+      "barrier_strengths": ["high_pdi", "low_idv", "restrained"],
+      "model_stages": {
+        "idea": "Don't build toilets. Make people disgusted with open defecation. The community builds its own.",
+        "proof": "Trigger one community. Watch them build toilets in 2 weeks without any subsidy.",
+        "scale": "Train facilitators in triggering methodology. Expand district by district.",
+        "system": "CLTS adopted in 60+ countries. The methodology is open-source. No organization needed."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Trigger, Don't Build",
+          "advice": "Kar's revolution: stop building things for people. Instead, trigger them to build things for themselves. The facilitator doesn't bring solutions — they bring awareness. Walk the community through the problem until they can't ignore it.",
+          "actions": [
+            "Identify the behavior that perpetuates the problem in your community",
+            "Design a 'triggering' experience — a walk, a demonstration, a conversation — that makes the problem visceral",
+            "Step back. Let the community decide what to do. Don't offer solutions. Offer awareness."
+          ]
+        },
+        "mid_score": {
+          "title": "The No-Subsidy Principle",
+          "advice": "CLTS proved that subsidized toilets get used as storage sheds. Self-built toilets get used as toilets. When people invest their own resources, they value the outcome. Remove subsidies from your model. Replace them with community investment.",
+          "actions": [
+            "Audit your model: where are you providing things for free that the community could invest in?",
+            "Replace subsidies with community contributions — labor, materials, land, time",
+            "Measure: does usage increase when people invest their own resources?"
+          ]
+        },
+        "high_score": {
+          "title": "Open-Source the Methodology",
+          "advice": "CLTS's biggest impact came from making the methodology freely available. No patents. No licensing. Any government, NGO, or community can use it. If your method works, give it away. Your impact multiplies when others copy you.",
+          "actions": [
+            "Write your complete methodology as a free, downloadable guide",
+            "Translate it into local languages. Make it accessible to non-experts.",
+            "Train government officials to implement without you. The goal is adoption, not ownership."
+          ]
+        }
+      },
+      "warning": "Shame can be harmful if not managed carefully. CLTS facilitators must balance triggering disgust with maintaining dignity. In some contexts, shame-based approaches cause trauma. Know your community's limits."
+    },
+    {
+      "id": "mouzawak",
+      "name": "Kamal Mouzawak",
+      "title": "Founder, Souk el Tayeb",
+      "country": "LB",
+      "zone": "mena",
+      "country_tier": "T2",
+      "bio": "Created Lebanon's first farmers market, connecting small farmers directly to consumers. Promotes traditional food culture as a vehicle for community building and economic empowerment. Proved that food is culture, and preserving food preserves communities.",
+      "philosophy": "Food is culture. When you preserve traditional food, you preserve traditional communities.",
+      "quote": "",
+      "categories": ["food", "community", "work", "women"],
+      "specialties": ["cultural_preservation", "farmer_empowerment", "direct_market_access", "food_culture"],
+      "barrier_strengths": ["high_pdi", "low_idv", "high_uai"],
+      "model_stages": {
+        "idea": "Lebanon's small farmers can't access markets. Traditional food culture is disappearing. A farmers market solves both.",
+        "proof": "Launch one weekly market. 10 farmers. Measure farmer income change.",
+        "scale": "Expand to multiple locations. Add 'Tawlet' (community kitchen) restaurants. Build the brand.",
+        "system": "Souk el Tayeb became Lebanon's food culture institution. Multiple markets, restaurants, and cultural programs."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "The Direct Connection",
+          "advice": "Mouzawak's first move: put farmers in the same room as consumers. No middlemen. No packaging. Just farmer and buyer, face to face. The relationship is the product. Create the simplest possible direct connection between producer and consumer.",
+          "actions": [
+            "Organize a weekly gathering where producers meet consumers — market, pop-up, or community meal",
+            "Focus on the story: who grew this? Where? How? The narrative adds value.",
+            "Measure: are farmers earning more than through traditional channels?"
+          ]
+        },
+        "mid_score": {
+          "title": "Culture as Brand",
+          "advice": "Souk el Tayeb isn't just a market — it's a cultural movement. Traditional recipes, heirloom ingredients, food stories. The cultural narrative is what makes it premium. Don't just sell products. Sell the culture behind them.",
+          "actions": [
+            "Collect stories from your producers — their family recipes, traditional methods, local ingredients",
+            "Create a brand identity rooted in cultural heritage, not just product quality",
+            "Host cultural events alongside the market — cooking classes, food festivals, storytelling"
+          ]
+        },
+        "high_score": {
+          "title": "The Ecosystem",
+          "advice": "Souk el Tayeb expanded from markets to Tawlet (community kitchen restaurants) to cultural programs to policy advocacy. The ecosystem creates multiple revenue streams and deepens cultural impact. Build the ecosystem around your core offering.",
+          "actions": [
+            "Expand from your core offering to adjacent services (market → restaurant → education → policy)",
+            "Create multiple revenue streams: direct sales, experiences, consulting, licensing",
+            "Advocate for policies that protect traditional food systems and small farmers"
+          ]
+        }
+      },
+      "warning": "Lebanon's economic crisis and infrastructure damage proved that food culture businesses are vulnerable to political instability. Build resilience through diversified revenue and strong community relationships that survive crises."
+    },
+    {
+      "id": "youn",
+      "name": "Andrew Youn",
+      "title": "Founder, One Acre Fund",
+      "country": "KE/RW",
+      "zone": "sub_saharan_africa",
+      "country_tier": "T4",
+      "bio": "Created a bundled service model for smallholder farmers: seeds, fertilizer, training, financing, market access — all delivered together. Serves 1.5M+ farm families across 7 African countries. Proved that bundled services beat single interventions.",
+      "philosophy": "Farmers don't need one thing. They need everything — delivered together, on time, at their doorstep.",
+      "quote": "",
+      "categories": ["food", "poverty", "work", "financial"],
+      "specialties": ["bundled_services", "agricultural_development", "last_mile_delivery", "farmer_support"],
+      "barrier_strengths": ["high_pdi", "low_idv", "restrained"],
+      "model_stages": {
+        "idea": "African farmers aren't failing because they're lazy. They're failing because they lack access to seeds, fertilizer, knowledge, and markets — all at once.",
+        "proof": "Serve 400 farmers in western Kenya. Prove that bundled services double farm income.",
+        "scale": "Build a field officer network. 1 officer per 200 farmers. Expand country by country.",
+        "system": "1.5M+ farm families. 7 countries. 8,000+ staff. The largest direct-to-farmer organization in Africa."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Bundle, Don't Isolate",
+          "advice": "Youn's insight: giving farmers seeds alone doesn't work. They need seeds + fertilizer + training + financing + market access. The bundle is the intervention. Map everything your community needs and deliver it together, not piecemeal.",
+          "actions": [
+            "List all the inputs your community needs to succeed — not just the main one",
+            "Design a bundle: core service + training + financing + market access",
+            "Deliver the bundle as a package. One visit. One relationship. Everything together."
+          ]
+        },
+        "mid_score": {
+          "title": "The Field Officer Model",
+          "advice": "One Acre Fund's field officers visit 200 farmers each, providing in-person training and support weekly during growing season. The human touch is non-negotiable. Build a field team that visits, trains, and supports in person.",
+          "actions": [
+            "Recruit local field officers — 1 per 200 families in your target community",
+            "Train them in your full bundle of services, not just one component",
+            "Visit every family weekly during critical periods. The visit is the intervention."
+          ]
+        },
+        "high_score": {
+          "title": "Last-Mile Delivery Infrastructure",
+          "advice": "One Acre Fund delivers inputs to farmers' doorsteps — not to a central warehouse. The last mile is where most organizations fail. Build delivery infrastructure that reaches the individual farmer, not just the community.",
+          "actions": [
+            "Map your delivery chain from supply to doorstep. Identify the bottleneck.",
+            "Invest in last-mile logistics: local distribution points, motorcycle delivery, community agents",
+            "Measure delivery success by doorstep arrival, not warehouse departure."
+          ]
+        }
+      },
+      "warning": "One Acre Fund operates in 7 countries with 8,000+ staff. The operational complexity is enormous. Don't try to scale geography before you've perfected the model in one location."
+    },
+    {
+      "id": "slaughter",
+      "name": "Chuck Slaughter",
+      "title": "Founder, Living Goods",
+      "country": "UG",
+      "zone": "sub_saharan_africa",
+      "country_tier": "T4",
+      "bio": "Built a network of community health workers equipped with smartphone diagnostic tools. Technology + human touch = dramatically reduced child mortality. Proved that giving health workers the right tools transforms outcomes.",
+      "philosophy": "Give community health workers the tools of the 21st century and they'll deliver 21st-century outcomes.",
+      "quote": "",
+      "categories": ["health", "work", "community", "women"],
+      "specialties": ["health_workers", "technology_enablement", "government_integration", "diagnostic_tools"],
+      "barrier_strengths": ["high_pdi", "low_idv"],
+      "model_stages": {
+        "idea": "Community health workers exist everywhere. But they lack tools, training, and data. Give them smartphones.",
+        "proof": "Equip 50 health workers with diagnostic apps. Measure child mortality change in their catchment areas.",
+        "scale": "Build the tech platform. Train thousands of workers. Integrate with government health systems.",
+        "system": "Living Goods reduced child mortality by 27% in partner districts. Now integrated into government systems."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Tool the Existing Network",
+          "advice": "Slaughter didn't create a new health system. He equipped the existing one with better tools. Your community already has informal networks — volunteers, leaders, connectors. Give them tools, not a new organization.",
+          "actions": [
+            "Map the existing informal networks in your community — who's already helping?",
+            "Give them one tool that makes their existing work more effective — a checklist, an app, a form",
+            "Measure: does the tool improve their outcomes? If yes, add more tools."
+          ]
+        },
+        "mid_score": {
+          "title": "The Smartphone Health Worker",
+          "advice": "Living Goods turned community health workers into diagnostic professionals with smartphone apps. The app guides them through assessments, suggests treatments, and flags emergencies. Technology amplifies human capability. Give your frontline workers a decision-support tool.",
+          "actions": [
+            "Build or adopt a simple decision-support tool for your frontline workers — mobile app, checklist, or flowchart",
+            "Train workers to use it during every interaction",
+            "Collect data from every interaction. The data becomes your proof of impact."
+          ]
+        },
+        "high_score": {
+          "title": "Government Integration",
+          "advice": "Living Goods' biggest achievement: getting their model integrated into Uganda's government health system. The tech platform, the training curriculum, the data system — all adopted by the Ministry of Health. Government integration is the path to scale.",
+          "actions": [
+            "Generate rigorous impact data that meets government standards",
+            "Pilot with one government district. Show results. Then advocate for adoption.",
+            "Design your model to work within government systems, not alongside them."
+          ]
+        }
+      },
+      "warning": "Technology maintenance in remote areas is a persistent challenge. Phones break. Apps need updates. Connectivity is unreliable. Build offline capability and local tech support from the start."
+    },
+    {
+      "id": "elumelu",
+      "name": "Tony O. Elumelu",
+      "title": "Founder, Tony Elumelu Foundation",
+      "country": "NG",
+      "zone": "sub_saharan_africa",
+      "country_tier": "T3",
+      "bio": "Billionaire banker who coined 'Africapitalism' — the idea that Africa's private sector should drive development. TEF Entrepreneurship Programme has funded 15,000+ African entrepreneurs across 54 countries with $5,000 seed capital + mentorship + training.",
+      "philosophy": "Africapitalism: the private sector must lead Africa's development. Entrepreneurship is the answer, not aid.",
+      "quote": "",
+      "categories": ["financial", "work", "community", "poverty"],
+      "specialties": ["entrepreneurship_funding", "pan_african", "private_sector", "seed_capital"],
+      "barrier_strengths": ["high_pdi", "low_idv"],
+      "model_stages": {
+        "idea": "Africa doesn't need more aid. It needs more entrepreneurs. Fund them.",
+        "proof": "Fund 1,000 entrepreneurs with $5,000 each. Track survival rates and job creation.",
+        "scale": "Build a pan-African network. 15,000+ entrepreneurs across 54 countries. Alumni network.",
+        "system": "TEF became Africa's largest entrepreneurship program. Policy advocacy. Government partnerships."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Seed Capital + Belief",
+          "advice": "Elumelu's model: $5,000 seed capital + 12 weeks of training + mentorship. The money matters, but the belief matters more. Many African entrepreneurs have never been told their idea is worth investing in. Start by investing — even small amounts — in the people around you.",
+          "actions": [
+            "Identify 5 entrepreneurs in your community who have ideas but no capital",
+            "Provide small seed funding ($100-$500) + 4 weeks of basic business training",
+            "Track: how many survive 12 months? How many create jobs? That's your proof."
+          ]
+        },
+        "mid_score": {
+          "title": "The Alumni Network",
+          "advice": "TEF's most valuable asset isn't the money — it's the 15,000+ entrepreneur alumni network. They mentor each other, partner on deals, share markets. Build your alumni network from day one. The network is the real product.",
+          "actions": [
+            "Create an alumni network for everyone who completes your program",
+            "Facilitate monthly connections: WhatsApp group, meetups, peer mentoring",
+            "Track: how many partnerships, referrals, and deals happen within the network?"
+          ]
+        },
+        "high_score": {
+          "title": "Policy Advocacy",
+          "advice": "Elumelu uses his influence to advocate for pro-entrepreneurship policies across Africa. The foundation doesn't just fund entrepreneurs — it changes the environment they operate in. Once you have proof, advocate for policy change.",
+          "actions": [
+            "Document your impact data rigorously — jobs created, income increased, communities changed",
+            "Engage government officials with your data. Show them what works.",
+            "Advocate for specific policy changes: reduced registration fees, tax incentives for social enterprises"
+          ]
+        }
+      },
+      "warning": "Not every entrepreneur succeeds. TEF's model accepts that many funded businesses will fail. The portfolio approach — fund many, expect some failures — is necessary. Don't measure success by individual business survival. Measure by ecosystem growth."
+    },
+    {
+      "id": "giwa-tubosun",
+      "name": "Temie Giwa-Tubosun",
+      "title": "Founder, LifeBank",
+      "country": "NG",
+      "zone": "sub_saharan_africa",
+      "country_tier": "T3",
+      "bio": "Created a health supply chain company that delivers blood, oxygen, and medical supplies to hospitals in Lagos using motorcycles, boats, and drones. A near-death experience during childbirth drove her mission. Proved that personal pain can become public purpose.",
+      "philosophy": "Personal pain can become public purpose. Your worst experience might be your best qualification.",
+      "quote": "",
+      "categories": ["health", "work", "disaster", "women"],
+      "specialties": ["supply_chain", "health_logistics", "personal_motivation", "tech_delivery"],
+      "barrier_strengths": ["high_pdi", "low_idv"],
+      "model_stages": {
+        "idea": "Hospitals have blood. Patients need blood. The problem is logistics, not supply.",
+        "proof": "Deliver 100 blood units to 10 hospitals. Measure: did any patient die waiting?",
+        "scale": "Build the tech platform. Add motorcycles, boats, drones. Expand city by city.",
+        "system": "LifeBank became Nigeria's critical health supply chain. Delivering blood, oxygen, vaccines."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Your Pain Is Your Purpose",
+          "advice": "Giwa-Tubosun nearly died in childbirth because the hospital didn't have blood. That experience became LifeBank. Your personal pain might be pointing you toward your purpose. Don't ignore it.",
+          "actions": [
+            "Write down the worst experience you've had with the problem you're solving",
+            "That experience is your credibility. Share it. It builds trust.",
+            "Use your personal pain to design a solution that prevents others from experiencing the same thing."
+          ]
+        },
+        "mid_score": {
+          "title": "Solve the Logistics, Not the Supply",
+          "advice": "LifeBank's insight: Nigeria has enough blood in blood banks. The problem is getting it to hospitals in time. Don't create new supply — fix the delivery. Map the logistics gap in your problem space.",
+          "actions": [
+            "Map where the resource exists and where it's needed. The gap is your opportunity.",
+            "Build the simplest delivery mechanism: motorcycle, bicycle, WhatsApp coordination",
+            "Measure delivery time. Cut it in half. That's your value proposition."
+          ]
+        },
+        "high_score": {
+          "title": "Technology as Multiplier",
+          "advice": "LifeBank evolved from motorcycle delivery to boats to drones. Each technology upgrade expanded reach and reduced delivery time. But the first deliveries were on motorcycles. Start with the simplest technology. Upgrade when demand justifies it.",
+          "actions": [
+            "Start with the simplest delivery technology that works in your context",
+            "Upgrade based on demand data, not speculation. Let the numbers tell you when to invest.",
+            "Build the tech platform that tracks every delivery. Data is your competitive advantage."
+          ]
+        }
+      },
+      "warning": "Health supply chain is life-or-death. If your delivery fails, someone might die. Build redundancy, backup systems, and quality checks. This is not a 'move fast and break things' domain."
+    },
+    {
+      "id": "costa",
+      "name": "Mariana Costa Checa",
+      "title": "Co-founder, Laboratoria",
+      "country": "PE",
+      "zone": "latin_america",
+      "country_tier": "T2",
+      "bio": "Built a coding bootcamp for low-income women in Latin America. Trained 2,000+ women as web developers. 80%+ employment rate. Proved that tech skills + underserved populations = transformative outcomes.",
+      "philosophy": "The best way to fight inequality is to give people the skills the market values most. Right now, that's tech.",
+      "quote": "",
+      "categories": ["women", "work", "education", "financial"],
+      "specialties": ["skills_training", "women_in_tech", "employment_outcomes", "income_transformation"],
+      "barrier_strengths": ["medium_pdi", "low_idv"],
+      "model_stages": {
+        "idea": "Low-income Latin American women have the talent. They lack access to tech training.",
+        "proof": "Train 30 women in web development. Track employment and income change.",
+        "scale": "Build an ISA model — students pay after they get jobs. Self-funding at scale.",
+        "system": "Laboratoria operates in 5 countries. 80%+ employment rate. Income doubles on average."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Identify the High-Value Skill Gap",
+          "advice": "Costa Checa didn't offer generic training. She identified the specific skill (web development) that the market valued most and that low-income women could learn in 6 months. Find the high-value skill gap in your community.",
+          "actions": [
+            "Survey local employers: what skills do they need but can't find?",
+            "Survey your target community: what skills do they want to learn?",
+            "The overlap is your training program. Don't teach what's easy. Teach what's valued."
+          ]
+        },
+        "mid_score": {
+          "title": "The Income Share Agreement",
+          "advice": "Laboratoria's ISA model: students pay nothing upfront. After they get a job, they pay a percentage of income for a set period. This aligns incentives — the school only succeeds if students get jobs. Design your funding model to align with outcomes.",
+          "actions": [
+            "Design a payment model where your revenue depends on student success",
+            "ISA, employer sponsorship, or outcome-based grants — pick what works in your context",
+            "Track employment and income outcomes for every graduate. That data is your currency."
+          ]
+        },
+        "high_score": {
+          "title": "Employer Partnership Pipeline",
+          "advice": "Laboratoria's 80%+ employment rate comes from deep employer partnerships. Companies co-design the curriculum, provide mentors, and hire graduates. The employer relationship is as important as the training. Build the employer pipeline alongside the training program.",
+          "actions": [
+            "Partner with 10+ employers who commit to interviewing your graduates",
+            "Co-design curriculum with employer input — teach what they actually need",
+            "Track employer satisfaction. If they hire more graduates, you're doing it right."
+          ]
+        }
+      },
+      "warning": "Income Share Agreements have faced criticism for potentially burdening students who don't get high-paying jobs. Design your ISA with caps and protections. Don't profit from your students' struggles."
+    },
+    {
+      "id": "lyra",
+      "name": "Edu Lyra",
+      "title": "Founder, Gerando Falcões",
+      "country": "BR",
+      "zone": "latin_america",
+      "country_tier": "T2",
+      "bio": "Grew up in a São Paulo favela. Built one of Brazil's largest social enterprises for favela development. 300,000+ people impacted. Proved that the most authentic voice comes from inside the community, not outside it.",
+      "philosophy": "The most powerful social entrepreneur is the one who lived the problem. Authenticity is your unfair advantage.",
+      "quote": "",
+      "categories": ["community", "poverty", "education", "work"],
+      "specialties": ["authentic_leadership", "favela_development", "community_voice", "systemic_change"],
+      "barrier_strengths": ["medium_pdi", "low_idv"],
+      "model_stages": {
+        "idea": "I grew up here. I know the problems. I know the people. That's my advantage.",
+        "proof": "Build one community program in your own neighborhood. Your credibility comes from your address.",
+        "scale": "Expand to neighboring favelas. Recruit leaders from each community. They lead, you support.",
+        "system": "Gerando Falcões became a national model. Policy advocacy. Government partnerships. 300,000+ people."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Lead From Inside",
+          "advice": "Lyra's unfair advantage: he grew up in the favela. He didn't study poverty — he lived it. If you're from the community you're serving, that's your greatest asset. Don't hide it. Lead with it.",
+          "actions": [
+            "Share your personal story with your community. Authenticity builds trust faster than credentials.",
+            "Start your program in your own neighborhood. Proximity is credibility.",
+            "Recruit other community members as co-leaders. They share your credibility."
+          ]
+        },
+        "mid_score": {
+          "title": "Community-Led Expansion",
+          "advice": "Gerando Falcões expanded by recruiting leaders from each new favela. They didn't send outsiders — they empowered insiders. Each community leader has the authenticity and trust that no outsider can replicate.",
+          "actions": [
+            "For each new community, recruit a local leader before starting any program",
+            "Give them autonomy to adapt your model to their community's specific needs",
+            "Your role: train, resource, and support. Their role: lead, adapt, and own."
+          ]
+        },
+        "high_score": {
+          "title": "Systemic Advocacy",
+          "advice": "Lyra moved from direct service to systemic change — advocating for favela communities at the national level. He uses data from Gerando Falcões' programs to push for policy reform. Direct service proves the model. Policy changes the system.",
+          "actions": [
+            "Collect rigorous impact data from your programs",
+            "Build relationships with policymakers. Share your data. Show what works.",
+            "Advocate for specific policy changes that would benefit your communities at scale."
+          ]
+        }
+      },
+      "warning": "Authentic leaders face burnout. When you live the problem you're solving, there's no separation between work and life. Build a team that shares the load. Your community needs you healthy, not heroic."
+    },
+    {
+      "id": "hertz",
+      "name": "David Hertz",
+      "title": "Founder, Gastromotiva",
+      "country": "BR",
+      "zone": "latin_america",
+      "country_tier": "T2",
+      "bio": "Built a social gastronomy movement training low-income youth for restaurant careers. 'Refettorio' restaurants serve dignified meals to vulnerable populations using surplus food. Proved that food can be both social change and cultural experience.",
+      "philosophy": "Food is the most universal language of care. Feed people with dignity and you transform communities.",
+      "quote": "",
+      "categories": ["food", "work", "community", "poverty"],
+      "specialties": ["social_gastronomy", "youth_employment", "food_waste", "dignified_service"],
+      "barrier_strengths": ["medium_pdi", "low_idv"],
+      "model_stages": {
+        "idea": "Food waste and food insecurity exist side by side. Connect them through dignified restaurants.",
+        "proof": "Open one Refettorio. Train 20 youth. Serve dignified meals to 100 vulnerable people daily.",
+        "scale": "Expand Refettorios to multiple cities. Partner with events (Olympics, G20). Build the brand.",
+        "system": "Gastromotiva trained thousands. Refettorios in multiple cities. Global partnerships."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Dignity on the Plate",
+          "advice": "Hertz's first Refettorio wasn't a soup kitchen. It was a restaurant — white tablecloths, real menus, chef-prepared meals. The food came from surplus ingredients. The difference: people were served with dignity, not pity. Design every interaction to preserve dignity.",
+          "actions": [
+            "Audit your service: does it feel like charity or like a dignified experience?",
+            "Upgrade the presentation — tablecloths, menus, real plates — even if the food is donated",
+            "Ask your community: 'Does this feel dignified?' If not, redesign."
+          ]
+        },
+        "mid_score": {
+          "title": "The Dual Impact Model",
+          "advice": "Gastromotiva trains youth for careers AND feeds vulnerable populations. Two impacts from one model. Look for dual-impact opportunities: how can your service create value for two groups simultaneously?",
+          "actions": [
+            "Identify two populations that benefit from your model — trainees and beneficiaries",
+            "Design the training so trainees serve beneficiaries as part of their learning",
+            "Measure both outcomes: trainee employment AND beneficiary well-being"
+          ]
+        },
+        "high_score": {
+          "title": "Cultural Brand Partnerships",
+          "advice": "Hertz partnered with the 2016 Rio Olympics, G20, and global chefs to build Gastromotiva's brand. These partnerships brought visibility, credibility, and funding. Target high-profile cultural events that align with your mission.",
+          "actions": [
+            "Identify 3 high-profile events or organizations that align with your mission",
+            "Create a partnership proposal that offers them social impact credibility",
+            "Use the visibility to attract funding, media, and policy attention."
+          ]
+        }
+      },
+      "warning": "Refettorio restaurants depend on surplus food donations, which are unpredictable. Build relationships with multiple food suppliers and plan for supply gaps. Don't let food waste become food insecurity for your own organization."
+    },
+    {
+      "id": "drayton",
+      "name": "Bill Drayton",
+      "title": "Founder, Ashoka",
+      "country": "US",
+      "zone": "north_america",
+      "country_tier": "T1",
+      "bio": "Pioneered the concept of 'social entrepreneurship' and built Ashoka into the world's largest network of social entrepreneurs. 3,800+ Ashoka Fellows in 90+ countries. Coined 'Everyone a Changemaker.' Proved that identifying and supporting social entrepreneurs is itself a social enterprise.",
+      "philosophy": "Everyone a Changemaker. The world needs everyone to see themselves as an agent of change, not a passive recipient.",
+      "quote": "",
+      "categories": ["community", "education", "work", "financial"],
+      "specialties": ["ecosystem_building", "social_entrepreneur_identification", "system_change", "global_networks"],
+      "barrier_strengths": ["low_pdi", "high_idv"],
+      "model_stages": {
+        "idea": "Social entrepreneurs exist everywhere. They just need to be found and supported.",
+        "proof": "Select 10 Fellows. Fund them. Track their impact over 5 years.",
+        "scale": "Build a selection engine. 3,800+ Fellows in 90+ countries. Each one changes a system.",
+        "system": "Ashoka created the social entrepreneurship field. 'Everyone a Changemaker' is a global movement."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Find the Hidden Changemakers",
+          "advice": "Drayton's genius: he didn't create social entrepreneurs. He found them. They were already in communities, already solving problems, already changing systems. Your job: find the changemakers in your community and amplify them.",
+          "actions": [
+            "Ask: who in your community is already solving problems that nobody asked them to solve?",
+            "Those are your changemakers. Connect them. Support them. Amplify them.",
+            "You don't need to be the changemaker. You need to be the one who finds them."
+          ]
+        },
+        "mid_score": {
+          "title": "The Ecosystem Approach",
+          "advice": "Ashoka doesn't fund one organization. It builds an ecosystem — Fellows, partners, schools, companies — all creating changemakers. Your role shifts from direct service to ecosystem building. Don't build one startup. Build the infrastructure for 1,000 startups.",
+          "actions": [
+            "Map the ecosystem: who are the entrepreneurs, funders, mentors, and institutions in your space?",
+            "Connect them. Host convenings. Create a shared directory. Facilitate introductions.",
+            "Your value: the connections you create, not the services you deliver."
+          ]
+        },
+        "high_score": {
+          "title": "Everyone a Changemaker",
+          "advice": "Drayton's ultimate vision: a world where everyone sees themselves as an agent of change. This means embedding changemaker skills — empathy, teamwork, leadership — into education, workplaces, and communities. Shift from supporting entrepreneurs to building a changemaker culture.",
+          "actions": [
+            "Design programs that teach changemaker skills to everyone, not just entrepreneurs",
+            "Partner with schools, companies, and governments to embed these skills in institutions",
+            "Measure: how many people in your community see themselves as agents of change?"
+          ]
+        }
+      },
+      "warning": "Ecosystem building is slow and hard to measure. Funders want tangible outputs — jobs created, people served. Ecosystem builders create connections and capacity that are harder to quantify. Build your measurement framework for systemic change, not just direct service."
+    },
+    {
+      "id": "tatsuya",
+      "name": "Yoshioka Tatsuya",
+      "title": "Founder, Peace Boat",
+      "country": "JP",
+      "zone": "east_asia",
+      "country_tier": "T1",
+      "bio": "Created global voyages combining travel with peace-building workshops and SDG education. 95+ voyages. 60,000+ participants. Nobel Peace Prize nomination 2008. UN Special Consultative Status. Proved that experiential education creates lasting change.",
+      "philosophy": "Experiential education creates lasting change. Visit the problem, don't just read about it.",
+      "quote": "",
+      "categories": ["education", "community", "disaster", "peace"],
+      "specialties": ["experiential_education", "global_awareness", "peace_building", "cultural_exchange"],
+      "barrier_strengths": ["high_uai", "high_lto"],
+      "model_stages": {
+        "idea": "Classroom education about global issues doesn't change behavior. Direct experience does.",
+        "proof": "Organize one voyage. 200 participants. 10 port visits. Measure attitude change.",
+        "scale": "Build a fleet. 95+ voyages. Partner with universities, NGOs, governments.",
+        "system": "Peace Boat became a global institution. Nobel nomination. UN status. Global port network."
+      },
+      "playbook": {
+        "low_score": {
+          "title": "Experience Over Information",
+          "advice": "Tatsuya's insight: reading about conflict doesn't create peacebuilders. Visiting conflict zones does. If you're building an education program, replace lectures with experiences. Take people to the problem.",
+          "actions": [
+            "Design an experiential component for your program — a site visit, a simulation, a community immersion",
+            "Replace at least 50% of your teaching content with direct experience",
+            "Measure: does the experience change behavior more than information alone?"
+          ]
+        },
+        "mid_score": {
+          "title": "The Journey Model",
+          "advice": "Peace Boat's voyages are structured journeys — each port brings a new issue, a new community, a new perspective. The journey format creates cumulative learning. Design your program as a journey, not a workshop.",
+          "actions": [
+            "Structure your program as a sequence of experiences that build on each other",
+            "Each 'port' (session, site, community) addresses a different dimension of the problem",
+            "Include reflection time between experiences. Processing is as important as exposure."
+          ]
+        },
+        "high_score": {
+          "title": "Institutional Partnerships",
+          "advice": "Peace Boat partnered with the UN, universities, and governments to give their voyages institutional credibility. Academic credit, government endorsements, and UN consultative status amplified their reach and legitimacy.",
+          "actions": [
+            "Partner with 2-3 institutions that give your program academic or professional credibility",
+            "Offer credit, certification, or professional development hours",
+            "Apply for UN consultative status or equivalent institutional recognition"
+          ]
+        }
+      },
+      "warning": "Peace Boat is limited to those who can travel. The experiential model excludes people with mobility constraints, financial barriers, or family obligations. Build alternative experiences for those who can't travel — virtual immersions, local site visits, community exchanges."
+    }
+  ]
+}

@@ -37,12 +37,12 @@ The Socio-Economic Evaluator is a "Virtual Evaluator for Social Impact Ideas" �
 
 ```
 socio-economic-evaluator/
-├── evaluator.py              # 7-layer evaluation engine (~2400 lines)
+├── evaluator.py              # 7-layer evaluation engine (~2500 lines)
 ├── server.py                 # Local dev server (stdlib HTTP)
 ├── app.py                    # Flask wrapper for Render deployment
 ├── index.html                # Landing page (semantic HTML, references styles.css + app.js)
-├── styles.css                # Design system + all styles (~1990 lines)
-├── app.js                    # Application JavaScript (~1270 lines)
+├── styles.css                # Design system + all styles (~2430 lines)
+├── app.js                    # Application JavaScript (~1458 lines)
 ├── api/
 │   └── eval.mjs              # Vercel/Netlify dual-handler (Gemini Flash-Lite)
 ├── netlify/
@@ -54,7 +54,8 @@ socio-economic-evaluator/
 │   └── zones.json               # 10 global zones
 ├── case-studies/
 │   ├── library.json             # 55 case studies (flat structure)
-│   └── zones-library.json       # 110 zone-based case studies + 57 figures
+│   ├── zones-library.json       # 110 zone-based case studies + 57 figures
+│   └── mentor-personas.json     # 20 curated mentor personas with playbooks
 ├── engine/
 │   ├── evaluate.md              # 7-layer prompt chain design
 │   ├── knowledge-engine.md      # Case study matching system docs
@@ -143,6 +144,7 @@ User Input (5 fields)
 | `find_competitive_positioning()` | ~1400 | Fuzzy-match against 165 case studies, radar chart data |
 | `score_idea_globally()` | ~1450 | Evaluate against all 136 countries, top/bottom 5 + regions |
 | `generate_marketplace_listing()` | ~1520 | Badge (gold/silver/bronze), SDG tags, hook |
+| `match_mentor_personas()` | ~2293 | Top 3 mentor persona matches with score-tier playbooks |
 | `format_report()` | 1129 | Text report assembly |
 | `evaluate()` | 1550+ | Main pipeline orchestrator (includes innovation features)
 
@@ -162,7 +164,7 @@ User Input (5 fields)
 
 ## Innovation Toolkit (Session 7)
 
-Four features that leverage SEE's unique data assets. These appear as a tabbed panel after evaluation and as a standalone gallery section.
+Five features that leverage SEE's unique data assets. These appear as a tabbed panel after evaluation and as standalone gallery sections.
 
 | Feature | Data Source | What It Does |
 |---|---|---|
@@ -170,16 +172,23 @@ Four features that leverage SEE's unique data assets. These appear as a tabbed p
 | **Competitive Positioning** | 165 case studies (library.json + zones-library.json) | Radar chart + top 3 comparable organizations + success/failure patterns |
 | **Global Cultural Heatmap** | 136 countries (hofstede-database.json) | Top/bottom 5 countries + regional averages (11 zones) |
 | **Social Impact Marketplace** | Evaluation results + localStorage | Curated gallery with badge system (gold/silver/bronze/developing) |
+| **Mentor Council** | 20 mentor personas (case-studies/mentor-personas.json) | Top 3 matched personas with score-tier playbooks (low/mid/high), journey stages, and warnings |
 
 **Frontend rendering:**
-- `app.js`: `renderInnovationPanel()`, `renderLeanCanvas()`, `renderCompetitivePositioning()`, `buildRadarSVG()`, `renderGlobalHeatmap()`, `renderMarketplaceGallery()`
-- `styles.css`: `.innovation-panel`, `.canvas-grid`, `.positioning-layout`, `.heatmap-layout`, `.marketplace-section`
-- Innovation panel is hidden until evaluation completes; marketplace gallery is always visible
+- `app.js`: `renderInnovationPanel()`, `renderLeanCanvas()`, `renderCompetitivePositioning()`, `buildRadarSVG()`, `renderGlobalHeatmap()`, `renderMarketplaceGallery()`, `renderMentorCouncil()`, `renderMentorsGallery()`
+- `styles.css`: `.innovation-panel`, `.canvas-grid`, `.positioning-layout`, `.heatmap-layout`, `.marketplace-section`, `.mentor-council-grid`, `.mentors-section`
+- Innovation panel is hidden until evaluation completes; marketplace and mentors galleries are always visible
 - Marketplace uses localStorage to persist user evaluations across sessions (max 20 entries)
+- Mentors section loads from `case-studies/mentor-personas.json` via fetch; filters by zone (snake_case: `south_asia`, `east_asia`, `southeast_asia`, `sub_saharan_africa`, `mena`, `latin_america`, `north_america`)
 
 **Backend:**
-- `evaluator.py`: `generate_lean_canvas()`, `find_competitive_positioning()`, `score_idea_globally()`, `generate_marketplace_listing()`
-- `api/eval.mjs`: System prompt requests `lean_canvas`, `competitive_positioning`, `marketplace_listing` fields from Gemini
+- `evaluator.py`: `generate_lean_canvas()`, `find_competitive_positioning()`, `score_idea_globally()`, `generate_marketplace_listing()`, `match_mentor_personas()`
+- `api/eval.mjs`: System prompt requests `lean_canvas`, `competitive_positioning`, `marketplace_listing`, `mentor_council` fields from Gemini
+
+**Mentor persona matching** (`evaluator.py` `match_mentor_personas()`):
+- Scoring: +5 category match, +3 zone match, +2 barrier overlap (high_pdi, low_idv, restrained), +2 tier match
+- Returns top 3 personas with personalized playbook based on score tier: `low_score` (<4), `mid_score` (4-6), `high_score` (8+)
+- Each persona has: `model_stages` (idea/proof/scale/system), `playbook` (low/mid/high with title/advice/actions), `warning`
 
 ## Canonical References
 

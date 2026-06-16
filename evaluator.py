@@ -2290,6 +2290,111 @@ def load_country_data(country_code: str) -> dict:
 
     return country_data
 
+# ─────────────────────────────────────────────────────────
+# MENTOR PERSONA MATCHING — Case-study-to-persona mapping
+# ─────────────────────────────────────────────────────────
+
+def match_mentor_personas(parsed: dict, all_analysis: dict) -> list:
+    """Match evaluation data to top 3 mentor personas from the curated library.
+    
+    Scoring:
+      +5  category matches idea_type
+      +3  zone matches user's country zone
+      +3  specialties overlap with user's barriers
+      +2  country_tier matches user's tier
+      +2  zone-adjacent (same tier family)
+    """
+    try:
+        with open(CASE_STUDIES_DIR / "mentor-personas.json") as f:
+            mentor_data = json.load(f)
+    except FileNotFoundError:
+        return []
+
+    personas = mentor_data.get("personas", [])
+    if not personas:
+        return []
+
+    idea_type = parsed["idea_type"]
+    country_code = parsed["country"]
+    user_zone = get_zone_for_country(country_code)
+    user_tier = parsed["community"]["economic_tier"]
+
+    # Extract barrier keywords from cultural analysis
+    cultural = all_analysis.get("cultural_analysis", {})
+    barriers = cultural.get("barriers", [])
+    barrier_names = set()
+    for b in barriers:
+        name = b.get("name", "").lower() if isinstance(b, dict) else str(b).lower()
+        barrier_names.add(name)
+
+    scored = []
+    for persona in personas:
+        score = 0
+
+        # Category match (+5)
+        if idea_type in persona.get("categories", []):
+            score += 5
+
+        # Zone match (+3)
+        if persona.get("zone") == user_zone:
+            score += 3
+
+        # Barrier/specialty overlap (+3)
+        persona_specialties = set(persona.get("specialties", []))
+        persona_barriers = set(persona.get("barrier_strengths", []))
+        # Check if persona's strengths address user's barriers
+        if "high_pdi" in str(barriers).lower() and "high_pdi" in persona_barriers:
+            score += 2
+        if "low_idv" in str(barriers).lower() and "low_idv" in persona_barriers:
+            score += 2
+        if "restrained" in str(barriers).lower() and "restrained" in persona_barriers:
+            score += 1
+
+        # Tier match (+2)
+        if persona.get("country_tier") == user_tier:
+            score += 2
+
+        scored.append((score, persona))
+
+    # Sort by score descending, take top 3
+    scored.sort(key=lambda x: x[0], reverse=True)
+    top_3 = [p for _, p in scored[:3]]
+
+    # Generate personalized playbook for each
+    total_score = all_analysis.get("verdict", {}).get("total_score", 5)
+    if isinstance(total_score, (int, float)):
+        if total_score >= 8:
+            score_tier = "high_score"
+        elif total_score >= 4:
+            score_tier = "mid_score"
+        else:
+            score_tier = "low_score"
+    else:
+        score_tier = "mid_score"
+
+    results = []
+    for persona in top_3:
+        playbook = persona.get("playbook", {}).get(score_tier, {})
+        results.append({
+            "id": persona.get("id"),
+            "name": persona.get("name"),
+            "title": persona.get("title"),
+            "country": persona.get("country"),
+            "zone": persona.get("zone"),
+            "bio": persona.get("bio"),
+            "philosophy": persona.get("philosophy"),
+            "quote": persona.get("quote"),
+            "playbook_title": playbook.get("title", ""),
+            "playbook_advice": playbook.get("advice", ""),
+            "playbook_actions": playbook.get("actions", []),
+            "warning": persona.get("warning"),
+            "model_stages": persona.get("model_stages", {}),
+            "score_tier": score_tier,
+        })
+
+    return results
+
+
 def evaluate(idea_text: str) -> str:
     """Run full 7-layer evaluation on an idea."""
     # Layer 1: Parse
@@ -2342,6 +2447,10 @@ def evaluate(idea_text: str) -> str:
     all_analysis["competitive_positioning"] = competitive
     all_analysis["global_heatmap"] = heatmap
     all_analysis["marketplace_listing"] = marketplace
+
+    # Mentor Personas — case-study-to-persona matching
+    mentor_council = match_mentor_personas(parsed, all_analysis)
+    all_analysis["mentor_council"] = mentor_council
 
     # Format report
     report = format_report(parsed, all_analysis)
