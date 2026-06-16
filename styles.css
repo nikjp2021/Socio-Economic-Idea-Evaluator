@@ -3405,6 +3405,20 @@ body.gate-active {
   padding: 5rem 0 4rem;
   background: #fff;
 }
+.lookup-intro {
+  text-align: center;
+  margin: 2.5rem auto 0;
+  max-width: 640px;
+}
+.lookup-intro .section-title {
+  margin-bottom: 0.75rem;
+}
+.lookup-intro .section-sub {
+  margin: 0;
+  color: #555;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
 .lookup-hero-image {
   border-radius: 16px;
   overflow: hidden;
