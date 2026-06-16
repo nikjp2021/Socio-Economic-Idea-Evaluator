@@ -5,1594 +5,366 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEE — Tell Us Your Idea. We Will Be Honest.</title>
   <meta name="description" content="Evaluate your social impact idea against 136 countries, 165 real organizations, and the UN Sustainable Development Goals. Free.">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --cream: #faf7f2;
-      --cream-dark: #f0ebe3;
-      --ink: #1a1612;
-      --ink-light: #3d3529;
-      --ink-muted: #8a7e6e;
-      --forest: #2d5a27;
-      --forest-light: #4a8c3f;
-      --forest-dim: rgba(45,90,39,0.08);
-      --amber: #c47a0a;
-      --amber-light: #e6a817;
-      --amber-dim: rgba(196,122,10,0.08);
-      --terracotta: #b5543a;
-      --terracotta-dim: rgba(181,84,58,0.08);
-      --sky: #2563a8;
-      --sky-dim: rgba(37,99,168,0.08);
-      --font-display: 'Instrument Serif', 'DM Serif Display', serif;
-      --font-body: 'DM Sans', -apple-system, sans-serif;
-    }
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--font-body);
-      background: var(--cream);
-      color: var(--ink);
-      line-height: 1.65;
-      font-size: 17px;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    /* Warm texture overlay */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 9999;
-      opacity: 0.025;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-
-    h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 400; line-height: 1.1; }
-    a { color: inherit; }
-
-    /* Container */
-    .wrap { max-width: 72rem; margin: 0 auto; padding: 0 2rem; }
-
-    /* ═══ NAV ═══ */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 1rem 2rem;
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(250,247,242,0.92);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(26,22,18,0.06);
-      transition: all 0.3s;
-    }
-    .nav.scrolled { box-shadow: 0 2px 20px rgba(26,22,18,0.06); }
-    .nav-logo {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      color: var(--forest);
-      text-decoration: none;
-      display: flex; align-items: center; gap: 0.5rem;
-    }
-    .nav-logo .leaf { color: var(--forest); font-size: 1.25rem; }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a {
-      font-size: 0.875rem; font-weight: 600;
-      color: var(--ink-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-      letter-spacing: 0.01em;
-    }
-    .nav-links a:hover { color: var(--ink); }
-    .nav-cta {
-      font-size: 0.875rem; font-weight: 700;
-      color: var(--cream);
-      background: var(--forest);
-      padding: 0.625rem 1.5rem;
-      border-radius: 100px;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .nav-cta:hover { background: var(--forest-light); transform: translateY(-1px); }
-
-    /* ═══ HERO ═══ */
-    .hero {
-      min-height: 100vh;
-      display: flex; align-items: center;
-      padding: 8rem 0 4rem;
-      position: relative;
-      overflow: hidden;
-    }
-    /* Golden hour gradient — feels like sunrise over a village */
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -20%; right: -10%;
-      width: 70%; height: 80%;
-      background: radial-gradient(ellipse, rgba(230,168,23,0.12) 0%, rgba(196,122,10,0.06) 40%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: -10%; left: -10%;
-      width: 50%; height: 60%;
-      background: radial-gradient(ellipse, rgba(45,90,39,0.06) 0%, transparent 60%);
-      pointer-events: none;
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      font-size: 0.75rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.15em;
-      color: var(--forest);
-      background: var(--forest-dim);
-      border: 1px solid rgba(45,90,39,0.15);
-      padding: 0.5rem 1.25rem;
-      border-radius: 100px;
-      margin-bottom: 2rem;
-    }
-    .hero-badge .dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--forest);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-    .hero-title {
-      font-size: clamp(2.75rem, 5.5vw, 4.75rem);
-      color: var(--ink);
-      margin-bottom: 1.5rem;
-      line-height: 1.05;
-    }
-    .hero-title em {
-      font-style: italic;
-      color: var(--forest);
-    }
-
-    .hero-sub {
-      font-size: 1.125rem;
-      color: var(--ink-muted);
-      max-width: 28rem;
-      margin-bottom: 2.5rem;
-      line-height: 1.7;
-    }
-
-    .hero-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      font-family: var(--font-body);
-      font-size: 1rem; font-weight: 700;
-      color: var(--cream);
-      background: var(--forest);
-      padding: 1rem 2rem;
-      border-radius: 100px;
-      border: none; cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-      box-shadow: 0 2px 12px rgba(45,90,39,0.2);
-    }
-    .btn-primary:hover {
-      background: var(--forest-light);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(45,90,39,0.25);
-    }
-    .btn-secondary {
-      font-size: 0.9375rem; font-weight: 600;
-      color: var(--ink-light);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      transition: color 0.2s;
-    }
-    .btn-secondary:hover { color: var(--forest); }
-
-    .hero-proof {
-      display: flex; gap: 2.5rem;
-      margin-top: 3.5rem;
-      padding-top: 2.5rem;
-      border-top: 1px solid rgba(26,22,18,0.08);
-    }
-    .proof-num {
-      font-family: var(--font-display);
-      font-size: 2.25rem;
-      color: var(--ink);
-    }
-    .proof-label {
-      font-size: 0.75rem; font-weight: 600;
-      color: var(--ink-muted);
-      text-transform: uppercase; letter-spacing: 0.08em;
-      margin-top: 0.25rem;
-    }
-
-    /* Hero visual — warm card */
-    .hero-visual { position: relative; }
-    .impact-card {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.08);
-      border-radius: 24px;
-      padding: 2.5rem;
-      box-shadow: 0 20px 60px rgba(26,22,18,0.08), 0 1px 3px rgba(26,22,18,0.04);
-      transform: perspective(1200px) rotateY(-2deg);
-      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .impact-card:hover { transform: perspective(1200px) rotateY(0deg); }
-
-    .card-verdict {
-      text-align: center;
-      padding-bottom: 1.5rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 1px solid rgba(26,22,18,0.06);
-    }
-    .card-verdict-badge {
-      display: inline-block;
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.12em;
-      padding: 0.375rem 1rem;
-      border-radius: 100px;
-      background: var(--amber-dim);
-      color: var(--amber);
-      border: 1px solid rgba(196,122,10,0.15);
-      margin-bottom: 0.75rem;
-    }
-    .card-score {
-      font-family: var(--font-display);
-      font-size: 4rem;
-      color: var(--ink);
-      line-height: 1;
-    }
-    .card-score span { font-size: 1.5rem; color: var(--ink-muted); }
-    .card-verdict-text {
-      font-size: 0.875rem; color: var(--ink-muted);
-      margin-top: 0.5rem; max-width: 20rem; margin-inline: auto;
-    }
-
-    .card-sdg {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 1rem;
-      background: var(--sky-dim);
-      border: 1px solid rgba(37,99,168,0.1);
-      border-radius: 14px;
-      margin-bottom: 1rem;
-    }
-    .sdg-number {
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      background: var(--sky);
-      color: white;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      flex-shrink: 0;
-    }
-    .sdg-text { font-size: 0.8125rem; font-weight: 600; color: var(--ink-light); }
-    .sdg-target { font-size: 0.6875rem; color: var(--ink-muted); margin-top: 0.125rem; }
-
-    .card-bars { margin-top: 1rem; }
-    .card-bar {
-      display: flex; align-items: center; gap: 0.625rem;
-      margin-bottom: 0.5rem;
-    }
-    .card-bar-label {
-      font-size: 0.6875rem; font-weight: 500;
-      color: var(--ink-muted);
-      width: 110px; flex-shrink: 0;
-    }
-    .card-bar-track {
-      flex: 1; height: 5px;
-      background: rgba(26,22,18,0.06);
-      border-radius: 100px;
-      overflow: hidden;
-    }
-    .card-bar-fill {
-      height: 100%; border-radius: 100px;
-      animation: grow 1.2s ease-out forwards;
-      transform-origin: left;
-    }
-    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-
-    .card-step {
-      margin-top: 1.25rem;
-      padding: 1rem 1.25rem;
-      background: var(--forest-dim);
-      border-left: 3px solid var(--forest);
-      border-radius: 0 12px 12px 0;
-    }
-    .card-step-label {
-      font-size: 0.625rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--forest);
-      margin-bottom: 0.25rem;
-    }
-    .card-step-text { font-size: 0.8125rem; font-weight: 600; color: var(--ink-light); }
-
-    /* ═══ TRUST BAR ═══ */
-    .trust-bar {
-      padding: 2.5rem 0;
-      border-top: 1px solid rgba(26,22,18,0.06);
-      border-bottom: 1px solid rgba(26,22,18,0.06);
-      background: white;
-      overflow: hidden;
-    }
-    .trust-track {
-      display: flex; gap: 3rem; align-items: center;
-      animation: scroll 30s linear infinite;
-      width: max-content;
-    }
-    .trust-track:hover { animation-play-state: paused; }
-    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-    .trust-item {
-      font-size: 0.875rem; font-weight: 700;
-      color: var(--ink-muted);
-      white-space: nowrap;
-      opacity: 0.5;
-    }
-    .trust-item .num { color: var(--forest); }
-
-    /* ═══ HOW ═══ */
-    .how { padding: 6rem 0; }
-    .section-label {
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.2em;
-      color: var(--forest);
-      margin-bottom: 1rem;
-    }
-    .section-title {
-      font-size: clamp(2rem, 4vw, 3.25rem);
-      color: var(--ink);
-      margin-bottom: 1rem;
-    }
-    .section-sub {
-      font-size: 1.0625rem;
-      color: var(--ink-muted);
-      max-width: 36rem;
-      line-height: 1.7;
-    }
-    .section-center { text-align: center; }
-    .section-center .section-sub { margin: 0 auto; }
-
-    .how-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      margin-top: 3rem;
-    }
-    .how-card {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 20px;
-      padding: 2.5rem 2rem;
-      transition: all 0.2s;
-    }
-    .how-card:hover {
-      border-color: rgba(45,90,39,0.15);
-      box-shadow: 0 8px 30px rgba(26,22,18,0.06);
-      transform: translateY(-2px);
-    }
-    .how-num {
-      font-family: var(--font-display);
-      font-size: 2.5rem;
-      color: var(--forest);
-      margin-bottom: 1rem;
-      line-height: 1;
-    }
-    .how-title {
-      font-family: var(--font-display);
-      font-size: 1.375rem;
-      color: var(--ink);
-      margin-bottom: 0.5rem;
-    }
-    .how-desc { font-size: 0.9375rem; color: var(--ink-muted); line-height: 1.6; }
-
-    /* ═══ PROOF SECTION ═══ */
-    .proof-section {
-      padding: 6rem 0;
-      background: var(--ink);
-      color: var(--cream);
-      position: relative;
-      overflow: hidden;
-    }
-    .proof-section::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--forest), var(--amber), var(--terracotta));
-    }
-    .proof-section .section-label { color: var(--amber-light); }
-    .proof-section .section-title { color: var(--cream); }
-    .proof-section .section-sub { color: rgba(250,247,242,0.6); }
-
-    .proof-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-      gap: 1.25rem;
-      margin-top: 3rem;
-    }
-    .proof-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-      padding: 1.75rem;
-      transition: all 0.2s;
-    }
-    .proof-card:hover {
-      background: rgba(255,255,255,0.07);
-      border-color: rgba(255,255,255,0.1);
-    }
-    .proof-card-emoji { font-size: 1.5rem; margin-bottom: 0.75rem; }
-    .proof-card-num {
-      font-family: var(--font-display);
-      font-size: 1.75rem;
-      color: var(--amber-light);
-      margin-bottom: 0.25rem;
-    }
-    .proof-card-title { font-size: 1rem; font-weight: 700; color: var(--cream); margin-bottom: 0.375rem; }
-    .proof-card-desc { font-size: 0.8125rem; color: rgba(250,247,242,0.5); line-height: 1.5; }
-
-    /* ═══ SDG SECTION ═══ */
-    .sdg-section { padding: 6rem 0; }
-    .sdg-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-      gap: 1rem;
-      margin-top: 3rem;
-    }
-    .sdg-card {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 14px;
-      padding: 1.25rem;
-      display: flex; align-items: center; gap: 1rem;
-      transition: all 0.2s;
-    }
-    .sdg-card:hover { border-color: rgba(37,99,168,0.2); box-shadow: 0 4px 16px rgba(37,99,168,0.06); }
-    .sdg-card-num {
-      width: 44px; height: 44px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display); font-size: 1.25rem;
-      color: white; flex-shrink: 0;
-    }
-    .sdg-card-title { font-size: 0.8125rem; font-weight: 700; color: var(--ink); }
-    .sdg-card-target { font-size: 0.6875rem; color: var(--ink-muted); margin-top: 0.125rem; }
-
-    /* ═══ INPUT ═══ */
-    .input-section {
-      padding: 6rem 0;
-      background: var(--cream-dark);
-    }
-    .input-wrap {
-      max-width: 44rem;
-      margin: 0 auto;
-    }
-    .example-row {
-      display: flex; flex-wrap: wrap; gap: 0.5rem;
-      justify-content: center;
-      margin-bottom: 2.5rem;
-    }
-    .example-chip {
-      font-size: 0.8125rem; font-weight: 600;
-      color: var(--ink-muted);
-      background: white;
-      border: 1px solid rgba(26,22,18,0.08);
-      border-radius: 100px;
-      padding: 0.5rem 1.25rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .example-chip:hover {
-      color: var(--forest);
-      border-color: rgba(45,90,39,0.2);
-      background: var(--forest-dim);
-    }
-
-    .field { margin-bottom: 1.25rem; }
-    .field label {
-      display: block;
-      font-size: 0.8125rem; font-weight: 700;
-      color: var(--ink-light);
-      margin-bottom: 0.5rem;
-    }
-    .field label .req { color: var(--terracotta); }
-    .field textarea, .field input {
-      width: 100%;
-      background: white;
-      border: 1.5px solid rgba(26,22,18,0.1);
-      border-radius: 14px;
-      padding: 1rem 1.25rem;
-      color: var(--ink);
-      font-family: var(--font-body);
-      font-size: 0.9375rem;
-      line-height: 1.6;
-      outline: none;
-      transition: all 0.2s;
-      resize: vertical;
-    }
-    .field textarea::placeholder, .field input::placeholder { color: var(--ink-muted); opacity: 0.6; }
-    .field textarea:focus, .field input:focus {
-      border-color: var(--forest);
-      box-shadow: 0 0 0 3px rgba(45,90,39,0.08);
-    }
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .form-meta {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    .form-privacy { font-size: 0.75rem; color: var(--ink-muted); font-style: italic; }
-    .form-counter { font-size: 0.75rem; color: var(--ink-muted); }
-    .form-counter.ready { color: var(--forest); font-weight: 600; }
-    .form-submit { text-align: center; }
-    .btn-eval {
-      font-family: var(--font-body);
-      font-size: 1.0625rem; font-weight: 700;
-      color: var(--cream);
-      background: var(--forest);
-      border: none;
-      padding: 1rem 2.5rem;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 2px 12px rgba(45,90,39,0.2);
-    }
-    .btn-eval:hover {
-      background: var(--forest-light);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(45,90,39,0.25);
-    }
-    .btn-eval:disabled { opacity: 0.5; cursor: wait; transform: none; box-shadow: none; }
-    .form-error {
-      background: var(--terracotta-dim);
-      border: 1px solid rgba(181,84,58,0.15);
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
-      color: var(--terracotta);
-      font-size: 0.875rem;
-      margin-top: 1rem;
-      display: none;
-    }
-    .form-error.visible { display: block; }
-
-    /* ═══ RESULTS ═══ */
-    .results {
-      max-width: 50rem;
-      margin: 0 auto;
-      display: none;
-    }
-    .results.visible { display: block; animation: fadeUp 0.5s ease-out; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Verdict */
-    .verdict {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 24px;
-      padding: 3rem;
-      text-align: center;
-      margin-bottom: 2.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .verdict::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-    }
-    .verdict.go::before { background: linear-gradient(90deg, var(--forest), var(--forest-light)); }
-    .verdict.edu::before { background: linear-gradient(90deg, var(--amber), var(--amber-light)); }
-    .verdict.pivot::before { background: linear-gradient(90deg, var(--sky), #3b82f6); }
-    .verdict.shelve::before { background: linear-gradient(90deg, var(--terracotta), #dc6b52); }
-
-    .verdict-emoji { font-size: 3rem; margin-bottom: 1rem; }
-    .verdict-headline {
-      font-family: var(--font-display);
-      font-size: clamp(1.5rem, 3vw, 2.5rem);
-      margin-bottom: 0.75rem;
-    }
-    .verdict-headline.go { color: var(--forest); }
-    .verdict-headline.edu { color: var(--amber); }
-    .verdict-headline.pivot { color: var(--sky); }
-    .verdict-headline.shelve { color: var(--terracotta); }
-
-    .verdict-score {
-      font-family: var(--font-display);
-      font-size: 5.5rem;
-      color: var(--ink);
-      line-height: 1;
-      margin-bottom: 0.5rem;
-    }
-    .verdict-score span { font-size: 2rem; color: var(--ink-muted); }
-    .verdict-badge {
-      display: inline-block;
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.12em;
-      padding: 0.5rem 1.5rem;
-      border-radius: 100px;
-      margin-bottom: 1.5rem;
-    }
-    .verdict-badge.go { background: var(--forest-dim); color: var(--forest); border: 1px solid rgba(45,90,39,0.15); }
-    .verdict-badge.edu { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(196,122,10,0.15); }
-    .verdict-badge.pivot { background: var(--sky-dim); color: var(--sky); border: 1px solid rgba(37,99,168,0.15); }
-    .verdict-badge.shelve { background: var(--terracotta-dim); color: var(--terracotta); border: 1px solid rgba(181,84,58,0.15); }
-
-    .verdict-tone {
-      font-size: 1rem;
-      color: var(--ink-muted);
-      max-width: 36rem;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-
-    /* Report sections */
-    .r-section { margin-bottom: 2.5rem; }
-    .r-title {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      color: var(--ink);
-      margin-bottom: 1.25rem;
-      display: flex; align-items: center; gap: 0.75rem;
-    }
-    .r-icon {
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
-    }
-    .r-icon.forest { background: var(--forest-dim); }
-    .r-icon.amber { background: var(--amber-dim); }
-    .r-icon.sky { background: var(--sky-dim); }
-    .r-icon.terra { background: var(--terracotta-dim); }
-
-    .r-card {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 16px;
-      padding: 1.25rem;
-      transition: border-color 0.2s;
-    }
-    .r-card:hover { border-color: rgba(26,22,18,0.1); }
-    .r-card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-      gap: 0.75rem;
-    }
-    .r-label {
-      font-size: 0.625rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--forest);
-      margin-bottom: 0.375rem;
-    }
-    .r-value { font-size: 1rem; font-weight: 700; color: var(--ink); }
-    .r-detail { font-size: 0.75rem; color: var(--ink-muted); margin-top: 0.25rem; }
-
-    /* Items */
-    .r-item {
-      display: flex; align-items: flex-start; gap: 0.75rem;
-      padding: 1rem;
-      border-radius: 14px;
-      margin-bottom: 0.5rem;
-    }
-    .r-item.positive { background: var(--forest-dim); border: 1px solid rgba(45,90,39,0.08); }
-    .r-item.warning { background: var(--amber-dim); border: 1px solid rgba(196,122,10,0.08); }
-    .r-item-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.125rem; }
-    .r-item-text { font-size: 0.875rem; color: var(--ink-light); line-height: 1.6; }
-    .r-item-issue { font-size: 0.9375rem; font-weight: 700; color: var(--ink); }
-    .r-item-fix { font-size: 0.8125rem; color: var(--ink-muted); margin-top: 0.375rem; line-height: 1.6; }
-
-    /* Score row */
-    .score-row {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem; margin-bottom: 1.25rem;
-    }
-    .score-card {
-      text-align: center;
-      padding: 1.25rem;
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 14px;
-    }
-    .score-num {
-      font-family: var(--font-display);
-      font-size: 2.25rem;
-      color: var(--ink);
-    }
-    .score-label {
-      font-size: 0.625rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--forest);
-      margin-top: 0.25rem;
-    }
-    .score-desc { font-size: 0.6875rem; color: var(--ink-muted); margin-top: 0.25rem; }
-
-    /* Bars */
-    .bar-row { margin-bottom: 0.75rem; }
-    .bar-header { display: flex; justify-content: space-between; margin-bottom: 0.375rem; }
-    .bar-name { font-size: 0.8125rem; font-weight: 500; color: var(--ink-muted); }
-    .bar-val { font-size: 0.8125rem; font-weight: 700; }
-    .bar-track { height: 6px; background: rgba(26,22,18,0.06); border-radius: 100px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 100px; animation: grow 1.2s ease-out forwards; }
-
-    /* Case study */
-    .case-card {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 16px;
-      padding: 1.5rem;
-    }
-    .case-badge {
-      font-size: 0.625rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.1em;
-      padding: 0.25rem 0.75rem;
-      border-radius: 100px;
-      display: inline-block;
-    }
-    .case-badge.real { background: var(--forest-dim); color: var(--forest); border: 1px solid rgba(45,90,39,0.15); }
-    .case-badge.hyp { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(196,122,10,0.15); }
-    .case-title {
-      font-family: var(--font-display);
-      font-size: 1.125rem;
-      color: var(--ink);
-      margin: 0.75rem 0 0.5rem;
-    }
-    .case-text { font-size: 0.8125rem; color: var(--ink-muted); line-height: 1.6; }
-    .case-text + .case-text { margin-top: 0.25rem; }
-    .case-quote {
-      font-size: 0.875rem; font-style: italic;
-      color: var(--ink-muted);
-      margin-top: 1rem; padding-top: 1rem;
-      border-top: 1px solid rgba(26,22,18,0.06);
-    }
-    .case-author { font-size: 0.75rem; color: var(--forest); margin-top: 0.25rem; }
-
-    /* Steps */
-    .step {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 14px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 0.625rem;
-    }
-    .step-label { font-size: 0.75rem; font-weight: 700; color: var(--forest); margin-bottom: 0.25rem; }
-    .step-text { font-size: 0.875rem; color: var(--ink-muted); line-height: 1.6; }
-
-    /* Funding */
-    .fund-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 1.25rem;
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 14px;
-      margin-bottom: 0.625rem;
-    }
-    .fund-source { font-size: 0.875rem; font-weight: 700; color: var(--ink); }
-    .fund-amount { font-size: 0.75rem; color: var(--ink-muted); }
-    .fund-like { font-size: 0.75rem; font-weight: 700; }
-    .fund-like.high { color: var(--forest); }
-    .fund-like.medium { color: var(--amber); }
-    .fund-like.low { color: var(--ink-muted); }
-
-    /* First step CTA */
-    .first-step {
-      background: var(--forest-dim);
-      border: 2px solid rgba(45,90,39,0.15);
-      border-radius: 24px;
-      padding: 2.5rem;
-      text-align: center;
-    }
-    .first-step-label {
-      font-size: 0.6875rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.2em;
-      color: var(--forest);
-      margin-bottom: 1rem;
-    }
-    .first-step-text {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      color: var(--ink);
-      line-height: 1.5;
-      max-width: 36rem;
-      margin: 0 auto;
-    }
-
-    /* ═══ STORIES ═══ */
-    .stories { padding: 6rem 0; }
-    .stories-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-      gap: 1.25rem;
-      margin-top: 3rem;
-    }
-    .story-card {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.06);
-      border-radius: 20px;
-      padding: 2rem;
-      transition: all 0.2s;
-    }
-    .story-card:hover {
-      border-color: rgba(45,90,39,0.15);
-      box-shadow: 0 8px 30px rgba(26,22,18,0.06);
-      transform: translateY(-2px);
-    }
-    .story-emoji { font-size: 1.75rem; margin-bottom: 1rem; }
-    .story-impact {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      color: var(--forest);
-      margin-bottom: 0.25rem;
-    }
-    .story-title {
-      font-family: var(--font-display);
-      font-size: 1.375rem;
-      color: var(--ink);
-      margin-bottom: 0.5rem;
-    }
-    .story-desc { font-size: 0.875rem; color: var(--ink-muted); line-height: 1.6; }
-
-    /* ═══ CTA ═══ */
-    .cta-section {
-      padding: 6rem 0;
-      background: var(--ink);
-      color: var(--cream);
-      text-align: center;
-      position: relative;
-    }
-    .cta-section::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--forest), var(--amber), var(--terracotta), var(--sky));
-    }
-    .cta-title {
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 4vw, 3rem);
-      color: var(--cream);
-      margin-bottom: 1rem;
-    }
-    .cta-sub {
-      font-size: 1.0625rem;
-      color: rgba(250,247,242,0.6);
-      margin-bottom: 2rem;
-    }
-    .cta-btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      font-family: var(--font-body);
-      font-size: 1.0625rem; font-weight: 700;
-      color: var(--ink);
-      background: var(--amber-light);
-      padding: 1rem 2.5rem;
-      border-radius: 100px;
-      border: none; cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .cta-btn:hover { background: var(--amber); transform: translateY(-2px); }
-    .cta-footer {
-      margin-top: 4rem;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      font-size: 0.75rem;
-      color: rgba(250,247,242,0.3);
-    }
-
-    /* ═══ RESPONSIVE ═══ */
-    @media (max-width: 900px) {
-      .hero-grid { grid-template-columns: 1fr; gap: 3rem; }
-      .hero { padding: 7rem 0 3rem; }
-      .how-grid { grid-template-columns: 1fr; }
-      .field-row { grid-template-columns: 1fr; }
-      .score-row { grid-template-columns: 1fr; }
-      .nav-links { display: none; }
-      .verdict-score { font-size: 4rem; }
-      .r-card-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 480px) {
-      .hero { padding: 6rem 0 2rem; }
-      .hero-proof { flex-wrap: wrap; gap: 1.5rem; }
-      .r-card-grid { grid-template-columns: 1fr; }
-      .stories-grid { grid-template-columns: 1fr; }
-      .proof-grid { grid-template-columns: 1fr; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-
-    /* Gate Screen Overlay */
-    .gate-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: #faf7f2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.5s ease-out, visibility 0.5s;
-    }
-    .gate-overlay::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at center, rgba(230,168,23,0.1) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .gate-overlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-    .gate-card {
-      background: white;
-      border: 1px solid rgba(26,22,18,0.08);
-      border-radius: 24px;
-      padding: 3rem 2.5rem;
-      width: 100%;
-      max-width: 24rem;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(26,22,18,0.08), 0 1px 3px rgba(26,22,18,0.04);
-      position: relative;
-      z-index: 2;
-    }
-    .gate-logo {
-      font-family: var(--font-display);
-      font-size: 2.25rem;
-      color: var(--forest);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .gate-title {
-      font-family: var(--font-display);
-      font-size: 1.75rem;
-      color: var(--ink);
-      margin-bottom: 0.5rem;
-    }
-    .gate-subtitle {
-      font-size: 0.875rem;
-      color: var(--ink-muted);
-      margin-bottom: 2rem;
-      line-height: 1.5;
-    }
-    .gate-input-wrap {
-      margin-bottom: 1.5rem;
-      position: relative;
-    }
-    .gate-card input {
-      width: 100%;
-      background: #faf7f2;
-      border: 1.5px solid rgba(26,22,18,0.1);
-      border-radius: 12px;
-      padding: 0.875rem 1.25rem;
-      font-size: 1.25rem;
-      text-align: center;
-      letter-spacing: 0.25em;
-      outline: none;
-      transition: all 0.2s;
-      font-family: monospace;
-    }
-    .gate-card input::placeholder {
-      letter-spacing: normal;
-      font-size: 0.9375rem;
-      font-family: var(--font-body);
-    }
-    .gate-card input:focus {
-      border-color: var(--forest);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(45,90,39,0.08);
-    }
-    .gate-btn {
-      width: 100%;
-      font-family: var(--font-body);
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--cream);
-      background: var(--forest);
-      border: none;
-      padding: 0.875rem;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 2px 10px rgba(45,90,39,0.15);
-    }
-    .gate-btn:hover {
-      background: var(--forest-light);
-      transform: translateY(-1px);
-    }
-    .gate-error {
-      color: var(--terracotta);
-      font-size: 0.75rem;
-      margin-top: 0.5rem;
-      display: none;
-      font-weight: 600;
-    }
-    .gate-error.visible {
-      display: block;
-      animation: shake 0.3s ease-in-out;
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-6px); }
-      75% { transform: translateX(6px); }
-    }
-    body.gate-active {
-      overflow: hidden;
-    }
-
-  </style>
+  <!-- App CSS -->
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- Gate Screen Overlay -->
-<div id="gateOverlay" class="gate-overlay">
-  <div class="gate-card">
-    <div class="gate-logo"><span class="leaf">&#x1F331;</span> SEE</div>
-    <h2 class="gate-title">Enter Access Code</h2>
-    <p class="gate-subtitle">This private evaluation platform is password-protected.</p>
-    <div class="gate-input-wrap">
-      <input type="password" id="gateCode" placeholder="Enter 4-digit code" maxlength="4" autofocus>
-      <div id="gateError" class="gate-error">Incorrect code. Try again.</div>
-    </div>
-    <button id="gateBtn" class="gate-btn">Access Platform</button>
-  </div>
-</div>
-
-<!-- Nav -->
-<nav class="nav" id="nav">
-  <a href="#" class="nav-logo"><span class="leaf">&#x1F331;</span> SEE</a>
-  <ul class="nav-links">
-    <li><a href="#how">How It Works</a></li>
-    <li><a href="#proof">Proof</a></li>
-    <li><a href="#sdgs">Goals</a></li>
-  </ul>
-  <a href="#start" class="nav-cta">Evaluate My Idea</a>
-</nav>
-
-<!-- Hero -->
-<section class="hero">
-  <div class="wrap">
-    <div class="hero-grid">
-      <div>
-        <div class="hero-badge"><span class="dot"></span> A Rigorous Evaluator for Social Impact Ideas</div>
-        <h1 class="hero-title">Tell us your idea.<br>We will be <em>honest.</em></h1>
-        <p class="hero-sub">Describe your idea in 5 questions. We'll evaluate it against 136 countries, 165 real organizations, and 17 UN SDGs. No business plan needed. No sign-up.</p>
-        <div class="hero-not" style="margin-top:1rem;padding:0.75rem 1rem;background:rgba(0,0,0,0.03);border-left:3px solid var(--amber,#c47a0a);font-size:0.8125rem;line-height:1.6;border-radius:4px;">
-          <strong>Good to know:</strong> This is not a guarantee of success. This is not a business plan generator. This is not a funding application. This IS a grounded assessment of whether your idea can work in your specific context — and what to do next if it can.
-        </div>
-        <div class="hero-actions">
-          <a href="#start" class="btn-primary">Evaluate My Idea &#x2192;</a>
-          <a href="#proof" class="btn-secondary">See who's done it</a>
-        </div>
-        <div class="hero-proof">
-          <div><div class="proof-num" data-count="136">0</div><div class="proof-label">Countries</div></div>
-          <div><div class="proof-num" data-count="165">0</div><div class="proof-label">Real Examples</div></div>
-          <div><div class="proof-num" data-count="17">0</div><div class="proof-label">UN SDGs</div></div>
-        </div>
+  <!-- ═══════════════════════════════════════════
+       GATE SCREEN — Investor Preview Access
+       ═══════════════════════════════════════════ -->
+  <div class="gate-overlay" id="gateOverlay">
+    <div class="gate-card">
+      <div class="gate-logo">&#x1F33F;</div>
+      <h2 class="gate-title">SEE</h2>
+      <p class="gate-subtitle">Socio-Economic Evaluator</p>
+      <p class="gate-desc">Preview access for investors and partners.</p>
+      <div class="gate-input-wrap">
+        <input type="text" id="gateCode" placeholder="Access code" maxlength="10" autocomplete="off">
+        <button id="gateBtn" class="gate-btn">Enter</button>
       </div>
-      <div class="hero-visual">
-        <div class="impact-card">
-          <div class="card-verdict">
-            <div class="card-verdict-badge">GOOD, BUT FIX ONE THING FIRST</div>
-            <div class="card-score">7.2<span>/10</span></div>
-            <div class="card-verdict-text">Run an awareness campaign first, then launch.</div>
+      <p class="gate-error" id="gateError">Invalid code. Please try again.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       NAVIGATION
+       ═══════════════════════════════════════════ -->
+  <nav class="nav" id="nav">
+    <a href="#" class="nav-logo"><span class="leaf">&#x1F33F;</span> SEE</a>
+    <ul class="nav-links">
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#sdg">SDGs</a></li>
+      <li><a href="#try">Try It</a></li>
+      <li><a href="#marketplace">Marketplace</a></li>
+    </ul>
+    <a href="#try" class="nav-cta">Evaluate Your Idea</a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <div class="hero-badge"><span class="dot"></span>Live &mdash; Try It Free</div>
+          <h1 class="hero-title">Tell Us Your Idea.<br>We Will Be <em>Honest.</em></h1>
+          <p class="hero-sub">Evaluate your social impact idea against 136 countries, 165 real organizations, and the UN Sustainable Development Goals. Get a verdict, a plan, and a first step. No login required.</p>
+          <div class="hero-actions">
+            <a href="#try" class="btn-primary">Try It Free &#x2192;</a>
+            <a href="#how" class="btn-secondary">See How It Works</a>
           </div>
-          <div class="card-sdg">
-            <div class="sdg-number">3</div>
-            <div><div class="sdg-text">Goal 3: Good Health</div><div class="sdg-target">Making sure people stay healthy — body and mind</div></div>
-          </div>
-          <div class="card-bars">
-            <div class="card-bar"><span class="card-bar-label">Community Need</span><div class="card-bar-track"><div class="card-bar-fill" style="width:85%;background:var(--forest)"></div></div></div>
-            <div class="card-bar"><span class="card-bar-label">Can Start Today</span><div class="card-bar-track"><div class="card-bar-fill" style="width:70%;background:var(--amber)"></div></div></div>
-            <div class="card-bar"><span class="card-bar-label">Culture Fit</span><div class="card-bar-track"><div class="card-bar-fill" style="width:60%;background:var(--amber)"></div></div></div>
-          </div>
-          <div class="card-step">
-            <div class="card-step-label">Your First Step</div>
-            <div class="card-step-text">Find 3 isolated seniors in your area. Ask: "When was the last time someone checked on you?"</div>
+          <div class="hero-proof">
+            <div class="proof-item">
+              <div class="proof-num" data-count="136">0</div>
+              <div class="proof-label">Countries</div>
+            </div>
+            <div class="proof-item">
+              <div class="proof-num" data-count="165">0</div>
+              <div class="proof-label">Case Studies</div>
+            </div>
+            <div class="proof-item">
+              <div class="proof-num" data-count="17">0</div>
+              <div class="proof-label">UN Goals</div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- Trust Bar -->
-<div class="trust-bar">
-  <div class="trust-track">
-    <span class="trust-item"><span class="num">100M+</span> people reached by BRAC</span>
-    <span class="trust-item"><span class="num">50M+</span> users on M-Pesa</span>
-    <span class="trust-item"><span class="num">34M+</span> children educated by Pratham</span>
-    <span class="trust-item"><span class="num">10.8M+</span> surgeries at Aravind</span>
-    <span class="trust-item"><span class="num">326M+</span> trees planted via Ant Forest</span>
-    <span class="trust-item"><span class="num">98,935</span> students served by KATARIBA</span>
-    <span class="trust-item"><span class="num">100M+</span> people reached by BRAC</span>
-    <span class="trust-item"><span class="num">50M+</span> users on M-Pesa</span>
-    <span class="trust-item"><span class="num">34M+</span> children educated by Pratham</span>
-    <span class="trust-item"><span class="num">10.8M+</span> surgeries at Aravind</span>
-    <span class="trust-item"><span class="num">326M+</span> trees planted via Ant Forest</span>
-    <span class="trust-item"><span class="num">98,935</span> students served by KATARIBA</span>
-  </div>
-</div>
-
-<!-- How It Works -->
-<section class="how" id="how">
-  <div class="wrap section-center">
-    <div class="section-label">How It Works</div>
-    <h2 class="section-title">From idea to tested plan<br>in three steps.</h2>
-    <p class="section-sub">No business plan needed. No pitch deck. Just answer five questions and get a grounded evaluation backed by 165 real examples.</p>
-    <div class="how-grid">
-      <div class="how-card">
-        <div class="how-num">1</div>
-        <div class="how-title">Tell Us Your Idea</div>
-        <div class="how-desc">What's the problem? What's your goal? Where? What's your budget? What are your constraints?</div>
-      </div>
-      <div class="how-card">
-        <div class="how-num">2</div>
-        <div class="how-title">We Ground It</div>
-        <div class="how-desc">Your idea is checked against 136 countries, 165 real organizations, 6 cultural dimensions, and 17 UN SDGs.</div>
-      </div>
-      <div class="how-card">
-        <div class="how-num">3</div>
-        <div class="how-title">You Build It</div>
-        <div class="how-desc">Get a 2-week plan, funding pathways, and a first step you can take today. No theory — just action.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Proof Section -->
-<section class="proof-section" id="proof">
-  <div class="wrap section-center">
-    <div class="section-label">Real Organizations. Real Impact.</div>
-    <h2 class="section-title">They started where you are.</h2>
-    <p class="section-sub">Every case study in our database is a real organization with verified impact numbers. Not theory — proof.</p>
-    <div class="proof-grid">
-      <div class="proof-card"><div class="proof-card-emoji">&#x1F6B2;</div><div class="proof-card-num">100M+</div><div class="proof-card-title">BRAC — Bangladesh</div><div class="proof-card-desc">Started with one woman on a bicycle. Now the world's largest NGO.</div></div>
-      <div class="proof-card"><div class="proof-card-emoji">&#x1F4F1;</div><div class="proof-card-num">50M+</div><div class="proof-card-title">M-Pesa — Kenya</div><div class="proof-card-desc">Mobile money on $10 phones. 194,000 families lifted out of poverty.</div></div>
-      <div class="proof-card"><div class="proof-card-emoji">&#x1F4DA;</div><div class="proof-card-num">34M+</div><div class="proof-card-title">Pratham — India</div><div class="proof-card-desc">$20 per child per year. MIT proved it works. 15+ countries adopted it.</div></div>
-      <div class="proof-card"><div class="proof-card-emoji">&#x1F441;</div><div class="proof-card-num">10.8M+</div><div class="proof-card-title">Aravind — India</div><div class="proof-card-desc">70% of surgeries free. Still profitable. Efficiency beats charity.</div></div>
-      <div class="proof-card"><div class="proof-card-emoji">&#x1F91D;</div><div class="proof-card-num">98,935</div><div class="proof-card-title">KATARIBA — Japan</div><div class="proof-card-desc">Not teachers. Not parents. Older peers who believe in you.</div></div>
-      <div class="proof-card"><div class="proof-card-emoji">&#x1F332;</div><div class="proof-card-num">326M+</div><div class="proof-card-title">Ant Forest — China</div><div class="proof-card-desc">600 million people planted real trees by walking. Gamification into a forest.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- Goals Section -->
-<section class="sdg-section" id="sdgs">
-  <div class="wrap section-center">
-    <div class="section-label">The UN's 17 Goals for a Better World by 2030</div>
-    <h2 class="section-title">Your impact, measured globally.</h2>
-    <p class="section-sub">The United Nations set 17 goals to make life better for everyone by 2030. Your idea connects to these goals. Funders think in these goals — so should you.</p>
-    <div class="sdg-grid">
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#E5243B">1</div><div><div class="sdg-card-title">End Poverty</div><div class="sdg-card-target">No one should live in extreme poverty</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#DDA63A">2</div><div><div class="sdg-card-title">End Hunger</div><div class="sdg-card-target">Everyone should have enough to eat</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#4C9F38">3</div><div><div class="sdg-card-title">Good Health</div><div class="sdg-card-target">Everyone should live a healthy life</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#C5192D">4</div><div><div class="sdg-card-title">Quality Education</div><div class="sdg-card-target">Every child should learn, not just attend school</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#FF3A21">5</div><div><div class="sdg-card-title">Gender Equality</div><div class="sdg-card-target">Women and girls should have equal chances</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#26BDE2">6</div><div><div class="sdg-card-title">Clean Water</div><div class="sdg-card-target">Everyone should have clean water and toilets</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#FCC30B">8</div><div><div class="sdg-card-title">Good Jobs</div><div class="sdg-card-target">Everyone should have decent work and fair pay</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#A21942">10</div><div><div class="sdg-card-title">Less Inequality</div><div class="sdg-card-target">The gap between rich and poor should shrink</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#FD6925">11</div><div><div class="sdg-card-title">Better Cities</div><div class="sdg-card-target">Cities should be safe, clean, and inclusive</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#3F7E44">13</div><div><div class="sdg-card-title">Climate Action</div><div class="sdg-card-target">Protect the planet from climate change</div></div></div>
-      <div class="sdg-card"><div class="sdg-card-num" style="background:#0A97D9">16</div><div><div class="sdg-card-title">Peace & Justice</div><div class="sdg-card-target">Everyone deserves safety and fairness</div></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- Input -->
-<section class="input-section" id="start">
-  <div class="wrap section-center">
-    <div class="section-label">Start Here</div>
-    <h2 class="section-title">What's your idea?</h2>
-    <p class="section-sub">Be specific. The more detail, the more grounded your evaluation.</p>
-
-    <div class="input-wrap">
-      <div class="example-row">
-        <button class="example-chip" data-problem="Local coffee shops near London Bridge are losing foot traffic to chains. Independent food vendors can't compete on price or visibility." data-goal="Open a small Indian street food stall that serves evening commuters. Target: 20 customers/day at £5-8 each." data-country="United Kingdom — London, near London Bridge" data-budget="£500 initial capital" data-constraints="Solo operator. Can only work evenings (6-10pm). No kitchen — need street food cart. First-time food business owner.">Indian street food in London</button>
-        <button class="example-chip" data-problem="Elderly people in rural Japan live alone with no one to talk to. Depression and isolation are rising. Traditional community structures (chonaikai) are weakening." data-goal="Create a WhatsApp group that connects isolated seniors with volunteers who check in daily. Target: 50 seniors in the first month." data-country="Japan — Rural Shizuoka Prefecture" data-budget="¥0 (just my phone)" data-constraints="Solo project. No budget. I have a smartphone. Seniors may not be tech-savvy. Need to find volunteers.">Elder care WhatsApp in Japan</button>
-        <button class="example-chip" data-problem="Teenage girls in rural Bangladesh miss school during periods because they can't afford sanitary pads. Shame prevents them from asking for help." data-goal="Sell affordable sanitary pads through local women who already visit homes. Target: reach 200 girls in 3 villages." data-country="Bangladesh — Rural Sylhet Division" data-budget="$200 initial stock" data-constraints="I know 3 women in the village who could distribute. Cultural shame around menstruation. No direct access to girls — must go through mothers.">Sanitary pads in Bangladesh</button>
-        <button class="example-chip" data-problem="Kids in Nairobi slums have no access to coding education. Schools don't teach it. Private classes cost more than families earn in a week." data-goal="Teach basic coding to 30 kids using donated phones. Weekend classes in a community center." data-country="Kenya — Nairobi, Kibera slum" data-budget="$0 (donated phones)" data-constraints="I have 5 friends who can teach on weekends. No budget. Community center available on Saturdays. Kids aged 10-16.">Coding classes in Nairobi</button>
-      </div>
-
-      <div class="field">
-        <label>What's the problem? <span class="req">*</span></label>
-        <textarea id="fieldProblem" rows="3" placeholder="e.g. Elderly people in rural Japan live alone with no one to talk to. Depression is rising."></textarea>
-      </div>
-      <div class="field">
-        <label>What do you want to achieve? <span class="req">*</span></label>
-        <textarea id="fieldGoal" rows="3" placeholder="e.g. Create a WhatsApp group that connects 50 isolated seniors with daily volunteer check-ins."></textarea>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Where? <span class="req">*</span></label>
-          <input type="text" id="fieldCountry" placeholder="e.g. Rural Shizuoka, Japan">
-        </div>
-        <div class="field">
-          <label>Budget</label>
-          <input type="text" id="fieldBudget" placeholder="e.g. $0 / £500 / ¥10,000">
+        <!-- Hero visual — animated preview card -->
+        <div class="hero-visual">
+          <div class="impact-card">
+            <div class="card-verdict">
+              <div class="card-verdict-badge">GO WITH EDUCATION</div>
+              <div class="card-score">7.5<span>/10</span></div>
+              <div class="card-verdict-text">This idea has real potential. Fix one cultural barrier first, then test it.</div>
+            </div>
+            <div class="card-sdg">
+              <div class="sdg-number">4</div>
+              <div>
+                <div class="sdg-text">Quality Education</div>
+                <div class="sdg-target">Ensure inclusive and equitable quality education</div>
+              </div>
+            </div>
+            <div class="card-bars">
+              <div class="card-bar">
+                <div class="card-bar-label">Cultural Fit</div>
+                <div class="card-bar-track"><div class="card-bar-fill" style="width:72%;background:var(--forest)"></div></div>
+              </div>
+              <div class="card-bar">
+                <div class="card-bar-label">Bootstrapper</div>
+                <div class="card-bar-track"><div class="card-bar-fill" style="width:85%;background:var(--amber)"></div></div>
+              </div>
+              <div class="card-bar">
+                <div class="card-bar-label">Impact</div>
+                <div class="card-bar-track"><div class="card-bar-fill" style="width:68%;background:var(--sky)"></div></div>
+              </div>
+            </div>
+            <div class="card-step">
+              <div class="card-step-label">Your First Step</div>
+              <div class="card-step-text">Talk to 5 mothers in your neighborhood about their children's homework struggles.</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="field">
-        <label>Your constraints</label>
-        <textarea id="fieldConstraints" rows="3" placeholder="e.g. Solo. Evenings only. No kitchen. First-time business owner. Cultural barriers around the topic."></textarea>
-      </div>
-      <div class="form-meta">
-        <span class="form-privacy">Your idea is sent to our server for evaluation. We do not store your input.</span>
-        <span id="fieldCounter" class="form-counter">0 / 50 characters minimum</span>
-      </div>
-      <div class="form-submit">
-        <button id="evalBtn" class="btn-eval">Can This Work?</button>
-      </div>
-      <div id="tryError" class="form-error"></div>
+    </div>
+  </section>
 
-      <div id="tryResults" class="results">
-        <div id="resultContent"></div>
-      </div>
+  <!-- ═══════════════════════════════════════════
+       TRUST BAR
+       ═══════════════════════════════════════════ -->
+  <div class="trust-bar">
+    <div class="trust-track">
+      <span class="trust-item"><span class="num">136</span> Countries Analyzed</span>
+      <span class="trust-item"><span class="num">6</span> Cultural Dimensions</span>
+      <span class="trust-item"><span class="num">165</span> Real Case Studies</span>
+      <span class="trust-item"><span class="num">17</span> UN SDGs</span>
+      <span class="trust-item"><span class="num">57</span> Influential Figures</span>
+      <span class="trust-item"><span class="num">11</span> Global Zones</span>
+      <!-- Duplicate for seamless loop -->
+      <span class="trust-item"><span class="num">136</span> Countries Analyzed</span>
+      <span class="trust-item"><span class="num">6</span> Cultural Dimensions</span>
+      <span class="trust-item"><span class="num">165</span> Real Case Studies</span>
+      <span class="trust-item"><span class="num">17</span> UN SDGs</span>
+      <span class="trust-item"><span class="num">57</span> Influential Figures</span>
+      <span class="trust-item"><span class="num">11</span> Global Zones</span>
     </div>
   </div>
-</section>
 
-<!-- CTA -->
-<section class="cta-section">
-  <div class="wrap">
-    <h2 class="cta-title">Every big thing started<br>with someone who tried.</h2>
-    <p class="cta-sub">Free. No sign-up. No data collected. Just type and evaluate.</p>
-    <a href="#start" class="cta-btn">Evaluate My Idea &#x2192;</a>
-    <div class="cta-footer">&copy; 2026 Socio-Economic Evaluator &mdash; Built on the Shizuoka Method</div>
-  </div>
-</section>
+  <!-- ═══════════════════════════════════════════
+       HOW IT WORKS
+       ═══════════════════════════════════════════ -->
+  <section class="how reveal" id="how">
+    <div class="wrap">
+      <div class="section-center">
+        <div class="section-label">How It Works</div>
+        <h2 class="section-title">Three Steps. No Login.</h2>
+        <p class="section-sub">Describe your idea in plain language. We evaluate it against real-world data and give you an honest verdict with a plan you can start today.</p>
+      </div>
+      <div class="how-grid">
+        <div class="how-card">
+          <div class="how-num">01</div>
+          <h3 class="how-title">Tell Us Your Problem</h3>
+          <p class="how-desc">Describe the problem you want to solve and who it affects. Be specific &mdash; "mothers in rural Kenya struggle to get homework help" beats "education is broken."</p>
+        </div>
+        <div class="how-card">
+          <div class="how-num">02</div>
+          <h3 class="how-title">We Analyze It</h3>
+          <p class="how-desc">We check cultural fit for your target country, match real case studies, map to UN Sustainable Development Goals, and score bootstrapper feasibility.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-num">03</div>
+          <h3 class="how-title">Get Your Verdict</h3>
+          <p class="how-desc">A honest verdict: GO, GO WITH EDUCATION, PIVOT, or SHELVE. Plus a 14-day plan, funding options, and your first step &mdash; all for $0.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- ═══════════════════════════════════════════
+       PROOF SECTION — Dark background
+       ═══════════════════════════════════════════ -->
+  <section class="proof-section reveal">
+    <div class="wrap">
+      <div class="section-center">
+        <div class="section-label">Built on Real Evidence</div>
+        <h2 class="section-title">Not Guesswork. Data.</h2>
+        <p class="section-sub">We did not invent a framework. We studied how real organizations solved real problems &mdash; then built an evaluator from their patterns.</p>
+      </div>
+      <div class="proof-grid">
+        <div class="proof-card">
+          <div class="proof-card-emoji">&#x1F30D;</div>
+          <div class="proof-card-num">136</div>
+          <div class="proof-card-title">Countries</div>
+          <div class="proof-card-desc">Hofstede cultural dimensions for every major economy</div>
+        </div>
+        <div class="proof-card">
+          <div class="proof-card-emoji">&#x1F4DA;</div>
+          <div class="proof-card-num">165</div>
+          <div class="proof-card-title">Case Studies</div>
+          <div class="proof-card-desc">Real organizations solving problems you are trying to solve</div>
+        </div>
+        <div class="proof-card">
+          <div class="proof-card-emoji">&#x1F3D7;</div>
+          <div class="proof-card-num">57</div>
+          <div class="proof-card-title">Figures</div>
+          <div class="proof-card-desc">Influential leaders who shaped social impact thinking</div>
+        </div>
+        <div class="proof-card">
+          <div class="proof-card-emoji">&#x1F30F;</div>
+          <div class="proof-card-num">11</div>
+          <div class="proof-card-title">Zones</div>
+          <div class="proof-card-desc">Regional patterns across Sub-Saharan Africa, South Asia, Latin America, and more</div>
+        </div>
+        <div class="proof-card">
+          <div class="proof-card-emoji">&#x1F4CA;</div>
+          <div class="proof-card-num">6</div>
+          <div class="proof-card-title">Dimensions</div>
+          <div class="proof-card-desc">Hofstede's cultural model: power distance, individualism, uncertainty, and more</div>
+        </div>
+        <div class="proof-card">
+          <div class="proof-card-emoji">&#x1F3AF;</div>
+          <div class="proof-card-num">17</div>
+          <div class="proof-card-title">UN SDGs</div>
+          <div class="proof-card-desc">Every idea mapped to the Sustainable Development Goals</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<script>
-// Authorization check (Access code gate)
-const gateOverlay = document.getElementById('gateOverlay');
-const gateCode = document.getElementById('gateCode');
-const gateBtn = document.getElementById('gateBtn');
-const gateError = document.getElementById('gateError');
+  <!-- ═══════════════════════════════════════════
+       SDG SECTION
+       ═══════════════════════════════════════════ -->
+  <section class="sdg-section reveal" id="sdg">
+    <div class="wrap">
+      <div class="section-center">
+        <div class="section-label">Global Goals</div>
+        <h2 class="section-title">Mapped to the UN Sustainable Development Goals</h2>
+        <p class="section-sub">Your idea is evaluated against 17 global goals that 193 countries committed to achieving by 2030.</p>
+      </div>
+      <div class="sdg-grid">
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#E5243B">1</div><div><div class="sdg-card-title">No Poverty</div><div class="sdg-card-target">End poverty in all its forms</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#DDA63A">2</div><div><div class="sdg-card-title">Zero Hunger</div><div class="sdg-card-target">End hunger, achieve food security</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#4C9F38">3</div><div><div class="sdg-card-title">Good Health</div><div class="sdg-card-target">Ensure healthy lives and well-being</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#C5192D">4</div><div><div class="sdg-card-title">Quality Education</div><div class="sdg-card-target">Ensure inclusive, equitable education</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#FF3A21">5</div><div><div class="sdg-card-title">Gender Equality</div><div class="sdg-card-target">Achieve gender equality and empower women</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#26BDE2">6</div><div><div class="sdg-card-title">Clean Water</div><div class="sdg-card-target">Ensure availability of water and sanitation</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#FCC30B">7</div><div><div class="sdg-card-title">Clean Energy</div><div class="sdg-card-target">Ensure access to affordable energy</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#A21942">8</div><div><div class="sdg-card-title">Decent Work</div><div class="sdg-card-target">Promote sustained, inclusive economic growth</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#FD6925">9</div><div><div class="sdg-card-title">Industry &amp; Innovation</div><div class="sdg-card-target">Build resilient infrastructure, foster innovation</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#DD1367">10</div><div><div class="sdg-card-title">Reduced Inequalities</div><div class="sdg-card-target">Reduce inequality within and among countries</div></div></div>
+        <div class="sdg-card"><div class="sdg-card-num" style="background:#FD9D24">11</div><div><div class="sdg-card-title">Sustainable Cities</div><div class="sdg-card-target">Make cities inclusive, safe, and sustainable</div></div></div>
+      </div>
+    </div>
+  </section>
 
-if (localStorage.getItem('see_unlocked') !== 'true') {
-  document.body.classList.add('gate-active');
-} else {
-  gateOverlay.classList.add('hidden');
-}
+  <!-- ═══════════════════════════════════════════
+       EVALUATOR INPUT
+       ═══════════════════════════════════════════ -->
+  <section class="input-section" id="try">
+    <div class="wrap">
+      <div class="section-center">
+        <div class="section-label">Try It Now</div>
+        <h2 class="section-title">Describe Your Idea</h2>
+        <p class="section-sub">Be specific. The more detail you give us, the more honest and useful your evaluation will be.</p>
+      </div>
 
-function verifyGateCode() {
-  if (gateCode.value.trim() === '9999') {
-    localStorage.setItem('see_unlocked', 'true');
-    gateOverlay.classList.add('hidden');
-    document.body.classList.remove('gate-active');
-  } else {
-    gateError.classList.add('visible');
-    gateCode.value = '';
-    gateCode.focus();
-    setTimeout(() => {
-      gateError.classList.remove('visible');
-    }, 3000);
-  }
-}
+      <div class="input-wrap">
+        <!-- Example chips -->
+        <div class="example-row">
+          <button class="example-chip" data-problem="Mothers in rural Kenya spend 2 hours daily helping children with homework because they have no support. Teachers are too far away and tutoring costs more than a day's wages." data-goal="Create a WhatsApp-based homework help group where local university students volunteer 30 minutes per day to answer questions from mothers in their community." data-country="Kenya" data-budget="Zero. Use WhatsApp groups that already exist." data-constraints="Must work on basic Android phones with slow internet. No app downloads.">&#x1F4A1; Homework help in Kenya</button>
+          <button class="example-chip" data-problem="Elderly people in rural Japan live alone and have no one to check on them. They fall, get sick, or run out of food and nobody notices for days. Loneliness is also a major health risk." data-goal="Create a neighborhood buddy system where younger residents check on elderly neighbors daily. Simple: one visit per day, knock on the door, ask if they need anything." data-country="Japan" data-budget="Zero to start. Maybe small stipends for volunteers later." data-constraints="Must respect independence. Cannot feel like charity.">&#x1F468;&#x200D;&#x1F469;&#x200D;&#x1F467; Elderly care in Japan</button>
+          <button class="example-chip" data-problem="Young women in Bangladesh drop out of school at 14 because families cannot afford supplies and there are no role models. Only 28% of girls finish secondary school in rural areas." data-goal="Create a mentorship program connecting university students with secondary school girls. Monthly visits, exam prep help, and showing families that educated girls earn more." data-country="Bangladesh" data-budget="Under $200 for initial travel and materials." data-constraints="Must work within existing school system. Cannot require families to pay.">&#x1F393; Girls' education in Bangladesh</button>
+          <button class="example-chip" data-problem="Small farmers in Nigeria lose 40% of their harvest because they cannot store food properly. No cold storage, no buyers come to remote areas, and food rots within days of harvest." data-goal="Create a simple solar-powered cold storage unit using locally available materials. Share it among 20 farmers in one village." data-country="Nigeria" data-budget="Under $500 for prototype. Scale with grants." data-constraints="Must work without reliable electricity. Should be maintainable by farmers themselves.">&#x1F33E; Farmer food storage in Nigeria</button>
+        </div>
 
-gateBtn.addEventListener('click', verifyGateCode);
-gateCode.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') verifyGateCode();
-});
+        <!-- Form -->
+        <form id="evalForm" onsubmit="return false;">
+          <div class="field">
+            <label>The Problem <span class="req">*</span></label>
+            <textarea id="fieldProblem" rows="4" placeholder="What problem are you trying to solve? Who is affected? How bad is it? Give us a real, specific problem — not a category."></textarea>
+          </div>
+          <div class="field">
+            <label>Your Goal <span class="req">*</span></label>
+            <textarea id="fieldGoal" rows="4" placeholder="What do you want to achieve? How will it help? What does success look like?"></textarea>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Country / Region</label>
+              <input type="text" id="fieldCountry" placeholder="e.g. Kenya, rural India, Southeast Brazil">
+            </div>
+            <div class="field">
+              <label>Starting Budget</label>
+              <input type="text" id="fieldBudget" placeholder="e.g. Zero, Under $100, $500">
+            </div>
+          </div>
+          <div class="field">
+            <label>Constraints</label>
+            <textarea id="fieldConstraints" rows="2" placeholder="Any limitations we should know about? e.g. no electricity, must work offline, cannot require app downloads"></textarea>
+          </div>
+          <div class="form-meta">
+            <div class="form-privacy">Your data is processed only for evaluation. We do not store your idea.</div>
+            <div class="form-counter" id="fieldCounter">0 / 50 characters minimum</div>
+          </div>
+          <div class="form-submit">
+            <button type="button" class="btn-eval" id="evalBtn">Can This Work?</button>
+          </div>
+          <div class="form-error" id="tryError"></div>
+        </form>
 
-// Nav scroll
-window.addEventListener('scroll', () => {
-  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
-});
+        <!-- Loading overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="loading-spinner"></div>
+          <div class="loading-title">Evaluating Your Idea</div>
+          <ul class="loading-steps"></ul>
+        </div>
 
-// Chips
-document.querySelectorAll('.example-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.getElementById('fieldProblem').value = chip.dataset.problem || '';
-    document.getElementById('fieldGoal').value = chip.dataset.goal || '';
-    document.getElementById('fieldCountry').value = chip.dataset.country || '';
-    document.getElementById('fieldBudget').value = chip.dataset.budget || '';
-    document.getElementById('fieldConstraints').value = chip.dataset.constraints || '';
-    updateCounter();
-    document.getElementById('fieldProblem').focus();
-  });
-});
+        <!-- Results -->
+        <div class="results" id="tryResults">
+          <div id="resultContent"></div>
+          <!-- Innovation Panel (populated by JS after evaluation) -->
+          <div class="innovation-panel" id="innovationPanel" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-// Counter
-function updateCounter() {
-  const p = document.getElementById('fieldProblem').value.trim();
-  const g = document.getElementById('fieldGoal').value.trim();
-  const total = p.length + g.length;
-  const counter = document.getElementById('fieldCounter');
-  counter.textContent = `${total} / 50 characters minimum`;
-  counter.className = total >= 50 ? 'form-counter ready' : 'form-counter';
-}
-['fieldProblem','fieldGoal'].forEach(id => document.getElementById(id).addEventListener('input', updateCounter));
+  <!-- ═══════════════════════════════════════════
+       MARKETPLACE — Social Impact Ideas Gallery
+       ═══════════════════════════════════════════ -->
+  <section class="marketplace-section" id="marketplace">
+    <div class="wrap">
+      <div class="marketplace-header reveal">
+        <div class="section-label">Social Impact Marketplace</div>
+        <h2 class="section-title">Ideas Worth Testing</h2>
+        <p class="section-sub">Real social impact ideas evaluated by SEE. Filter by region, readiness, or SDG. Every idea here has been scored against 136 countries and 165 case studies.</p>
+      </div>
+      <div class="marketplace-filters reveal" id="marketplaceFilters">
+        <button class="marketplace-filter active" data-filter="all">All Ideas</button>
+        <button class="marketplace-filter" data-filter="gold">Ready to Test</button>
+        <button class="marketplace-filter" data-filter="silver">Promising</button>
+        <button class="marketplace-filter" data-filter="bronze">Needs Work</button>
+        <button class="marketplace-filter" data-filter="developing">Developing</button>
+      </div>
+      <div class="marketplace-grid reveal" id="marketplaceGrid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </section>
 
-// Counter animation
-const counterObs = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const el = e.target;
-    const target = parseFloat(el.dataset.count);
-    if (!target) return;
-    const duration = 1200;
-    const start = performance.now();
-    function tick(now) {
-      const p = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 4);
-      el.textContent = Math.round(target * ease);
-      if (p < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-    counterObs.unobserve(el);
-  });
-}, { threshold: 0.5 });
-document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-logo">&#x1F33F; SEE</div>
+          <p class="footer-desc">Socio-Economic Evaluator. Honest feedback for social impact ideas. Free, forever.</p>
+        </div>
+        <div class="footer-links">
+          <a href="#how">How It Works</a>
+          <a href="#sdg">SDGs</a>
+          <a href="#try">Try It</a>
+          <a href="#marketplace">Marketplace</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Built with the Shizuoka Method &mdash; "Order and Creation"</p>
+      </div>
+    </div>
+  </footer>
 
-// Evaluate
-const evalBtn = document.getElementById('evalBtn');
-const tryResults = document.getElementById('tryResults');
-const tryError = document.getElementById('tryError');
+  <!-- Toast (created dynamically by JS) -->
 
-// Intent filtering — stop non-serious inputs before API call
-const BLOCKED_PATTERNS = [
-  /disneyland|disney\s*land/i,
-  /go\s*to\s*(the\s*)?moon/i,
-  /buy\s*(a\s*)?lamborghini|buy\s*(a\s*)?ferrari/i,
-  /make\s*me\s*rich|get\s*rich\s*quick/i,
-  /dating\s*app|tinder|hookup/i,
-  /nft|crypto\s*pump|memecoin/i,
-  /kill|harm|hurt|attack|bomb|weapon/i,
-  /drug\s*deal|sell\s*drug/i,
-  /onlyfans|porn|adult\s*content/i,
-  /prank|joke|meme\s*project/i,
-];
+  <!-- App JavaScript -->
+  <script src="app.js" defer></script>
 
-function validateIntent(problem, goal) {
-  const combined = (problem + ' ' + goal).toLowerCase();
-
-  // Check for blocked patterns
-  for (const pattern of BLOCKED_PATTERNS) {
-    if (pattern.test(combined)) {
-      return { valid: false, message: "This tool evaluates social impact ideas — ideas that help communities. Your input doesn't seem like a serious social impact idea. If it is, please describe the problem you're solving and who it helps." };
-    }
-  }
-
-  // Check for too short
-  if (problem.length + goal.length < 50) {
-    return { valid: false, message: "We need more detail. Tell us: What is the problem? Who is affected? What do you want to achieve? At least 2-3 sentences each." };
-  }
-
-  // Check for gibberish (too many consonants, no spaces)
-  const words = combined.split(/\s+/).filter(w => w.length > 2);
-  if (words.length < 5) {
-    return { valid: false, message: "We need more detail. Describe the problem and your goal in at least 2-3 sentences each." };
-  }
-
-  // Check for question-only input (not an idea)
-  if (combined.endsWith('?') && !combined.includes('want') && !combined.includes('create') && !combined.includes('build') && !combined.includes('help')) {
-    return { valid: false, message: "This looks like a question, not an idea. Tell us what you want to DO, not just what you're wondering about." };
-  }
-
-  return { valid: true };
-}
-
-// Static results for sample cases — no API call needed
-const STATIC_RESULTS = {
-  "Indian street food in London": null, // Will be populated if needed
-  "Elder care WhatsApp in Japan": null,
-  "Sanitary pads in Bangladesh": null,
-  "Coding classes in Nairobi": null,
-};
-
-evalBtn.addEventListener('click', async () => {
-  const problem = document.getElementById('fieldProblem').value.trim();
-  const goal = document.getElementById('fieldGoal').value.trim();
-  const country = document.getElementById('fieldCountry').value.trim();
-  const budget = document.getElementById('fieldBudget').value.trim();
-  const constraints = document.getElementById('fieldConstraints').value.trim();
-
-  // Validate intent before API call
-  const validation = validateIntent(problem, goal);
-  if (!validation.valid) {
-    tryError.textContent = validation.message;
-    tryError.classList.add('visible');
-    return;
-  }
-
-  let ideaText = problem + '. ' + goal;
-  if (country) ideaText += '. Location: ' + country;
-  if (budget) ideaText += '. Budget: ' + budget;
-  if (constraints) ideaText += '. Constraints: ' + constraints;
-
-  tryError.classList.remove('visible');
-  evalBtn.disabled = true;
-  evalBtn.innerHTML = '<svg style="display:inline;width:18px;height:18px;margin-right:8px;animation:spin 1s linear infinite" viewBox="0 0 24 24" fill="none"><circle style="opacity:0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity:0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Evaluating...';
-
-  try {
-    const resp = await fetch('/api/eval?idea=' + encodeURIComponent(ideaText));
-    const data = await resp.json();
-    if (data.error) {
-      // Better error messages based on error type
-      let msg = data.error;
-      if (msg.includes('timed out')) msg = 'The evaluation took too long. Try a shorter, more specific description.';
-      else if (msg.includes('invalid JSON')) msg = 'We had trouble processing this. Try rephrasing your idea with more detail.';
-      else if (msg.includes('API key')) msg = 'Service temporarily unavailable. Please try again in a moment.';
-      tryError.textContent = msg;
-      tryError.classList.add('visible');
-      return;
-    }
-    data._input = { problem, goal, country, budget, constraints };
-    renderResult(data);
-    tryResults.classList.add('visible');
-    tryResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } catch(e) {
-    tryError.textContent = 'Connection issue. Check your internet and try again.';
-    tryError.classList.add('visible');
-  } finally {
-    evalBtn.disabled = false;
-    evalBtn.textContent = 'Can This Work?';
-  }
-});
-
-// Report
-function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
-
-function renderResult(d) {
-  const c = document.getElementById('resultContent');
-  c.innerHTML = '';
-  const score = d.verdict.total_score;
-  const v = d.verdict.verdict;
-
-  // Verdict labels (plain language)
-  const verdictLabels = { 'GO': 'READY TO TEST', 'GO WITH EDUCATION': 'GOOD, BUT FIX ONE THING FIRST', 'PIVOT': 'CHANGE YOUR APPROACH', 'SHELVE': 'HIGH BARRIERS RIGHT NOW' };
-  const plainVerdict = verdictLabels[v] || v;
-
-  let vc;
-  if (score >= 8) vc = { cls: 'go', emoji: '&#x2705;', headline: "This is worth testing.", tone: `This idea scored ${score} out of 10. The community is ready, the culture fits, and you can start with what you have. Here is your Day 1.` };
-  else if (score >= 6) vc = { cls: 'edu', emoji: '&#x1F4A1;', headline: "Good, but fix one thing first.", tone: `This idea scored ${score} out of 10. It has real potential, but one specific barrier is holding it back. Fix that first, then test it.` };
-  else if (score >= 4) vc = { cls: 'pivot', emoji: '&#x1F504;', headline: "The problem is real. The approach needs to change.", tone: `This idea scored ${score} out of 10. The problem you are solving is real, but the way you are thinking about it needs to change. Here is what to try instead.` };
-  else vc = { cls: 'shelve', emoji: '&#x1F91D;', headline: "The barriers are high right now.", tone: `This idea scored ${score} out of 10. The barriers are real. But here is someone who started with harder conditions, and what you can learn from them.` };
-
-  c.innerHTML += `<div class="verdict ${vc.cls}"><div class="verdict-emoji">${vc.emoji}</div><h2 class="verdict-headline ${vc.cls}">${vc.headline}</h2><div class="verdict-score">${score}<span>/10</span></div><div class="verdict-badge ${vc.cls}">${plainVerdict}</div><p class="verdict-tone">${vc.tone}</p>${d.verdict.elevator_pitch ? `<div style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(0,0,0,0.03);border-radius:12px;border-left:3px solid ${vc.cls==='go'?'var(--forest)':vc.cls==='edu'?'var(--amber)':vc.cls==='pivot'?'var(--sky)':'var(--terracotta)'}"><div style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-muted);margin-bottom:0.5rem">Your Idea</div><div style="font-size:0.9375rem;line-height:1.7;color:var(--ink);font-style:italic">${esc(d.verdict.elevator_pitch)}</div></div>` : ''}</div>`;
-
-  // Your Pitch
-  if (d._input) {
-    const inp = d._input;
-    let h = `<div class="r-section"><div class="r-title"><span class="r-icon amber">&#x1F4DD;</span>Your Idea</div><div style="display:flex;flex-direction:column;gap:0.75rem">`;
-    if (inp.problem) h += `<div class="r-card"><div class="r-label">The Problem</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${esc(inp.problem)}</div></div>`;
-    if (inp.goal) h += `<div class="r-card"><div class="r-label">Your Goal</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${esc(inp.goal)}</div></div>`;
-    const details = [];
-    if (inp.country) details.push(['Where', inp.country]);
-    if (inp.budget) details.push(['Budget', inp.budget]);
-    if (inp.constraints) details.push(['Constraints', inp.constraints]);
-    if (details.length) {
-      h += `<div class="r-card-grid">`;
-      details.forEach(([l,v]) => { h += `<div class="r-card"><div class="r-label">${l}</div><div style="font-size:0.875rem;color:var(--ink-muted)">${esc(v)}</div></div>`; });
-      h += `</div>`;
-    }
-    h += `</div></div>`;
-    c.innerHTML += h;
-  }
-
-  // SDG Impact
-  if (d.sdgs) {
-    let h = `<div class="r-section"><div class="r-title"><span class="r-icon sky">&#x1F30D;</span>Who You Help</div>`;
-    // SDG explanation header
-    h += `<div style="font-size:0.8125rem;color:var(--ink-muted);line-height:1.6;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(37,99,168,0.04);border-radius:8px">The <strong style="color:var(--ink)">United Nations</strong> has <strong style="color:var(--ink)">17 Global Goals</strong> to make the world better by 2030. They are called the <strong style="color:var(--ink)">Sustainable Development Goals (SDGs)</strong>. Your idea connects to these goals.</div>`;
-    // Primary SDG
-    const plainExp = esc(d.sdgs.primary.plain_explanation || d.sdgs.alignment_text || '');
-    h += `<div class="r-card" style="margin-bottom:0.75rem"><div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem"><div class="sdg-number">${d.sdgs.primary.number}</div><div><div class="r-value">Goal ${d.sdgs.primary.number}: ${esc(d.sdgs.primary.name)}</div><div class="r-detail">${esc(d.sdgs.primary.target_text)}</div></div></div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${plainExp}</div></div>`;
-    // What this means
-    const whatMeans = esc(d.sdgs.what_this_means || '');
-    if (whatMeans) {
-      h += `<div class="r-card" style="margin-bottom:0.75rem"><div class="r-label">What This Means For You</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${whatMeans}</div></div>`;
-    }
-    if (d.impact) {
-      const ic = d.impact.interpretation === 'HIGH' ? 'forest' : d.impact.interpretation === 'MEDIUM' ? 'amber' : 'ink-muted';
-      const icVar = d.impact.interpretation === 'HIGH' ? 'var(--forest)' : d.impact.interpretation === 'MEDIUM' ? 'var(--amber)' : 'var(--ink-muted)';
-      h += `<div class="r-card"><div style="display:flex;justify-content:space-between;margin-bottom:0.5rem"><span class="r-label" style="color:${icVar}">Potential Impact</span><span style="font-family:var(--font-display);font-weight:400;font-size:1.75rem;color:${icVar}">${d.impact.score}/100</span></div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,d.impact.score)}%;background:${icVar}"></div></div><div class="r-detail" style="margin-top:0.5rem">Reach: ${d.impact.estimated_reach} people. Cultural fit: ${Math.round(d.impact.cultural_fit*100)}%. SDG weight: ${d.impact.sdg_weight}/10.</div></div>`;
-    }
-    h += `</div>`;
-    c.innerHTML += h;
-  }
-
-  // Is This a Real Problem?
-  if (d.fad_risk) {
-    const f = d.fad_risk;
-    const fc = f.level === 'LOW' ? 'forest' : f.level === 'MEDIUM' ? 'amber' : 'terracotta';
-    const fcVar = f.level === 'LOW' ? 'var(--forest)' : f.level === 'MEDIUM' ? 'var(--amber)' : 'var(--terracotta)';
-    const fadLabel = f.level === 'LOW' ? 'REAL PROBLEM' : f.level === 'MEDIUM' ? 'REAL, BUT WATCH THE TREND' : 'COULD BE A TREND';
-    c.innerHTML += `<div class="r-section"><div class="r-title"><span class="r-icon amber">&#x1F50D;</span>Is This a Real Problem?</div><div class="r-card" style="margin-bottom:0.75rem"><div style="margin-bottom:0.5rem"><span style="font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.25rem 0.75rem;border-radius:100px;background:var(--${fc}-dim);color:${fcVar};border:1px solid rgba(0,0,0,0.04)">${fadLabel}</span></div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6;margin-bottom:0.25rem">${esc(f.text)}</div><div class="r-detail">${esc(f.signal)}</div></div><div class="r-card"><div class="r-label">What This Means For You</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">If this problem will still exist in 5 years, your work will still matter. You are not building something that will disappear when the news stops covering it.</div></div></div>`;
-  }
-
-  // What's Working
-  const positives = [];
-  if (d.three_tests.facebook_group_test) positives.push('Existing communities already solve similar problems — you\'re not starting from zero');
-  if (d.three_tests.ten_for_ten_test) positives.push('There are enough people to help deliver this — the supply side works');
-  if (d.three_tests.whatsapp_only_test) positives.push('This works with minimal tech — no app, no website, just a phone');
-  if (d.cultural.score >= 8) positives.push('The culture in your market is a strong fit');
-  else if (d.cultural.score >= 6) positives.push('Cultural fit is decent — some adaptation needed but nothing blocking');
-  if (d.bootstrapper.easy >= 7) positives.push('Simple enough to start alone with what you have');
-  if (d.bootstrapper.feasible >= 7) positives.push('Practical — no permits, no org, no big budget needed');
-
-  if (positives.length) {
-    c.innerHTML += `<div class="r-section"><div class="r-title"><span class="r-icon forest">&#x2705;</span>Your Strengths</div>${positives.map(p => `<div class="r-item positive"><span class="r-item-icon">&#x2713;</span><span class="r-item-text">${p}</span></div>`).join('')}</div>`;
-  }
-
-  // What Is In Your Way
-  if (score < 8) {
-    const explanations = {
-      power_distance: { issue: 'People don\'t challenge authority here', fix: 'Work WITH existing power structures. Partner with local leaders, schools, or religious institutions.' },
-      individualism: { issue: 'Community bonds are weak', fix: 'Frame it as individual benefit, not community duty. Show people what THEY get.' },
-      masculinity: { issue: 'Asking for help is seen as weakness', fix: 'Use anonymous channels. Or frame help as empowerment, not charity.' },
-      uncertainty_avoidance: { issue: 'People need institutional trust', fix: 'Partner with a trusted institution — a school, church, government office.' },
-      long_term_orientation: { issue: 'People want quick wins', fix: 'Show results in weeks, not months. Start with one small, visible success.' },
-      indulgence: { issue: 'There\'s shame in expressing needs', fix: 'Use indirect approaches. Let people help each other, not ask for themselves.' },
-    };
-    const holdbacks = [];
-    d.cultural.dimensions && Object.entries(d.cultural.dimensions).forEach(([k, v]) => {
-      if (v.barrier === 'HIGH') { holdbacks.push(explanations[k] || { issue: k, fix: 'Adapt your approach.' }); }
-    });
-
-    if (holdbacks.length) {
-      let h = `<div class="r-section"><div class="r-title"><span class="r-icon amber">&#x26A0;</span>What Is In Your Way</div><p style="font-size:0.875rem;color:var(--ink-muted);margin-bottom:1rem">These are the specific barriers. Each one has a practical workaround.</p>`;
-      holdbacks.forEach(b => { h += `<div class="r-item warning"><div><div class="r-item-issue">${b.issue}</div><div class="r-item-fix">${b.fix}</div></div></div>`; });
-      const gap = (8 - score).toFixed(1);
-      h += `<div class="r-card" style="text-align:center;margin-top:1rem"><div style="font-size:0.875rem;color:var(--ink-muted)">You're <strong style="color:var(--ink)">${gap} points</strong> from "ready to launch." Address the barriers above and re-evaluate.</div></div></div>`;
-      c.innerHTML += h;
-    }
-  }
-
-  // Bootstrapper
-  const bs = d.bootstrapper;
-  c.innerHTML += `<div class="r-section"><div class="r-title"><span class="r-icon sky">&#x1F9EA;</span>Can You Start With Nothing?</div><div class="score-row"><div class="score-card"><div class="score-num">${bs.easy}</div><div class="score-label">Easy</div><div class="score-desc">How simple to start</div></div><div class="score-card"><div class="score-num">${bs.feasible}</div><div class="score-label">Feasible</div><div class="score-desc">How practical</div></div><div class="score-card"><div class="score-num">${bs.efforts}</div><div class="score-label">Effort</div><div class="score-desc">Ongoing work</div></div></div><div class="r-card"><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${esc(bs.take)}</div></div></div>`;
-
-  // Case Study
-  if (d.case_study && d.case_study.title !== 'N/A') {
-    let h = `<div class="r-section"><div class="r-title"><span class="r-icon amber">&#x1F4DA;</span>Someone Who Did Something Similar</div><div class="case-card"><span class="case-badge ${d.case_study.source_type === 'real' ? 'real' : 'hyp'}">${d.case_study.source_type === 'real' ? 'Real Example' : 'Based on Real Evidence'}</span><div class="case-title">${esc(d.case_study.title)}</div>`;
-    if (d.case_study.narrative) {
-      d.case_study.narrative.split('\n').filter(l => l.trim()).forEach(line => { h += `<p class="case-text">${esc(line.replace(/\*\*/g,''))}</p>`; });
-    }
-    if (d.case_study.expert) {
-      h += `<p class="case-quote">"${esc(d.case_study.expert)}"</p>`;
-      if (d.case_study.expert_name) h += `<p class="case-author">— ${esc(d.case_study.expert_name)}</p>`;
-    }
-    h += `</div></div>`;
-    c.innerHTML += h;
-  }
-
-  // 2-Week Plan
-  if (d.verdict.proof_of_work) {
-    const p = d.verdict.proof_of_work;
-    let h = `<div class="r-section"><div class="r-title"><span class="r-icon forest">&#x1F4C5;</span>Your First 14 Days</div><p style="font-size:0.875rem;color:var(--ink-muted);margin-bottom:1rem">Start with $0. No permission needed. Just do this.</p>`;
-    [{l:'This week, Day 1-2',t:p.week_1.day_1_2},{l:'This week, Day 3-4',t:p.week_1.day_3_4},{l:'This week, Day 5-7',t:p.week_1.day_5_7},{l:'Next week, Day 8-10',t:p.week_2.day_8_10},{l:'Next week, Day 11-12',t:p.week_2.day_11_12},{l:'Next week, Day 13-14',t:p.week_2.day_13_14}].forEach(s => { h += `<div class="step"><div class="step-label">${s.l}</div><div class="step-text">${esc(s.t)}</div></div>`; });
-    h += `<div class="r-card" style="margin-top:1rem"><div class="r-label" style="color:var(--forest)">How Do You Know If It Is Working?</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${esc(p.success_criteria)}</div></div></div>`;
-    c.innerHTML += h;
-  }
-
-  // Funding
-  if (d.verdict.funding && d.verdict.funding.length) {
-    let h = `<div class="r-section"><div class="r-title"><span class="r-icon amber">&#x1F4B0;</span>Where to Find Money</div>`;
-    d.verdict.funding.forEach(f => { const lk = f.likelihood === "HIGH" ? "likely" : f.likelihood === "MEDIUM" ? "possible" : "hard to get"; h += `<div class="fund-row"><div><div class="fund-source">${esc(f.source)}</div><div class="fund-amount">${esc(f.amount)}</div></div><span class="fund-like ${lk}">${lk}</span></div>`; });
-    h += `</div>`;
-    c.innerHTML += h;
-  }
-
-  // First Step
-  c.innerHTML += `<div class="first-step"><div class="first-step-label">Your First Step Today</div><div class="first-step-text">${esc(d.verdict.first_step)}</div></div>`;
-}
-</script>
 </body>
 </html>

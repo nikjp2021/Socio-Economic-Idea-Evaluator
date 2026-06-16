@@ -16,8 +16,10 @@ When entering this project, read these files in this order before doing anything
 
 **Priority 3 — Understand the code (read when making changes):**
 7. `evaluator.py` — the 7-layer evaluation engine. Start with `format_report()` (the output formatter).
-8. `index.html` — the landing page. Start with the hero section and `renderResult()` function.
-9. `server.py` / `api/index.py` / `app.py` — the API layer. All three serve the same pipeline.
+8. `index.html` — the landing page. Semantic HTML only; CSS in `styles.css`, JS in `app.js`.
+9. `app.js` — application JavaScript. Contains `renderResult()`, form handling, gate screen, scroll reveals.
+10. `styles.css` — full design system with CSS variables, responsive breakpoints, animations.
+11. `api/eval.mjs` — the API layer (Node.js dual-handler for Vercel + Netlify).
 
 **Why this order:** MEMORY.md and EVENT-LOG.md contain the context that prevents you from repeating mistakes or re-litigating decisions. Read them before touching any code.
 
@@ -35,12 +37,14 @@ The Socio-Economic Evaluator is a "Virtual Evaluator for Social Impact Ideas" �
 
 ```
 socio-economic-evaluator/
-├── evaluator.py              # 7-layer evaluation engine (1433 lines)
+├── evaluator.py              # 7-layer evaluation engine (~2400 lines)
 ├── server.py                 # Local dev server (stdlib HTTP)
 ├── app.py                    # Flask wrapper for Render deployment
-├── index.html                # Landing page + client-side evaluator
+├── index.html                # Landing page (semantic HTML, references styles.css + app.js)
+├── styles.css                # Design system + all styles (~1990 lines)
+├── app.js                    # Application JavaScript (~1270 lines)
 ├── api/
-│   └── index.py              # Vercel serverless handler
+│   └── eval.mjs              # Vercel/Netlify dual-handler (Gemini Flash-Lite)
 ├── netlify/
 │   └── functions/
 │       └── gemini-eval.mjs   # Netlify function (Gemini Flash alternative)
@@ -67,6 +71,7 @@ socio-economic-evaluator/
 ├── PRD-MVP.md                   # Product requirements document
 ├── EXPERIENCE-DESIGN.md         # Product vision & design system
 ├── INNOVATION-PLAN.md           # Strategic roadmap
+├── INNOVATION-FEATURES.md       # Innovation toolkit specs (canvas, positioning, heatmap, marketplace)
 ├── README.md                    # Public-facing documentation
 ├── CLAUDE.md                    # This file — project instructions
 ├── EVENT-LOG.md                 # Decision & change log (tech + business)
@@ -134,8 +139,12 @@ User Input (5 fields)
 | `generate_verdict()` | 898 | Score, verdict, pitch, proof-of-work |
 | `map_to_sdgs()` | 779 | UN SDG mapping |
 | `calculate_impact_score()` | 852 | Impact scoring formula |
+| `generate_lean_canvas()` | ~1342 | 9-block social impact canvas from evaluation data |
+| `find_competitive_positioning()` | ~1400 | Fuzzy-match against 165 case studies, radar chart data |
+| `score_idea_globally()` | ~1450 | Evaluate against all 136 countries, top/bottom 5 + regions |
+| `generate_marketplace_listing()` | ~1520 | Badge (gold/silver/bronze), SDG tags, hook |
 | `format_report()` | 1129 | Text report assembly |
-| `evaluate()` | 1342 | Main pipeline orchestrator |
+| `evaluate()` | 1550+ | Main pipeline orchestrator (includes innovation features)
 
 ## Key Patterns
 
@@ -150,6 +159,27 @@ User Input (5 fields)
 - **Output section names (plain language):** YOUR IDEA / YOUR SCORE / WHO YOU HELP / IS THIS A REAL PROBLEM? / YOUR STRENGTHS / WHAT IS IN YOUR WAY / CAN YOU START WITH NOTHING? / YOUR FIRST 14 DAYS
 - **No jargon in output** — no "Hofstede", "FAD", "SDG numbers", "proof-of-work", "bootstrapper", "pitch"
 - **No hollow encouragement** — no "you're closer than you think", no "Ship it", no "upside waiting"
+
+## Innovation Toolkit (Session 7)
+
+Four features that leverage SEE's unique data assets. These appear as a tabbed panel after evaluation and as a standalone gallery section.
+
+| Feature | Data Source | What It Does |
+|---|---|---|
+| **Social Impact Lean Canvas** | Evaluation data | 9-block canvas (problem, solution, UVP, metrics, channels, costs, revenue) |
+| **Competitive Positioning** | 165 case studies (library.json + zones-library.json) | Radar chart + top 3 comparable organizations + success/failure patterns |
+| **Global Cultural Heatmap** | 136 countries (hofstede-database.json) | Top/bottom 5 countries + regional averages (11 zones) |
+| **Social Impact Marketplace** | Evaluation results + localStorage | Curated gallery with badge system (gold/silver/bronze/developing) |
+
+**Frontend rendering:**
+- `app.js`: `renderInnovationPanel()`, `renderLeanCanvas()`, `renderCompetitivePositioning()`, `buildRadarSVG()`, `renderGlobalHeatmap()`, `renderMarketplaceGallery()`
+- `styles.css`: `.innovation-panel`, `.canvas-grid`, `.positioning-layout`, `.heatmap-layout`, `.marketplace-section`
+- Innovation panel is hidden until evaluation completes; marketplace gallery is always visible
+- Marketplace uses localStorage to persist user evaluations across sessions (max 20 entries)
+
+**Backend:**
+- `evaluator.py`: `generate_lean_canvas()`, `find_competitive_positioning()`, `score_idea_globally()`, `generate_marketplace_listing()`
+- `api/eval.mjs`: System prompt requests `lean_canvas`, `competitive_positioning`, `marketplace_listing` fields from Gemini
 
 ## Canonical References
 

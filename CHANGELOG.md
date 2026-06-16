@@ -4,6 +4,53 @@ All notable changes to this project are documented here.
 
 ---
 
+## 2026-06-17 — Session 6: Full Frontend Rebuild & Design System Extraction
+
+### What Changed
+
+Major frontend rebuild: extracted monolithic `index.html` (1599 lines of inline CSS+JS) into three clean, maintainable files. Implemented a complete design system with premium animations, collapsible results, sticky tab navigation, share/download functionality, and comprehensive mobile responsiveness.
+
+### Architecture — File Extraction
+
+- **`styles.css`** (1500 lines): Full design system with CSS custom properties (tokens), scroll reveal system, nav with blur/shadow transitions, hero with animated glow gradients, trust bar, section headers, how-it-works cards with top-border hover effect, proof section, SDG grid, input form with focus ring states, loading overlay with step-by-step progress indicators, results with sticky tab bar and collapsible sections, verdict animations, report cards/items/scores/bars, case study, 14-day plan, funding, first-step CTA, footer, gate screen, toast notifications, responsive breakpoints (900px, 600px, 380px), and `prefers-reduced-motion` support.
+- **`app.js`** (580 lines): Extracted and enhanced JavaScript with IIFE pattern. Gate screen auth, nav scroll effect, IntersectionObserver-based scroll reveal, counter animations, example chip auto-fill, character counter, intent filtering (BLOCKED_PATTERNS), toast notifications, loading overlay with step animation, full `renderResult()` function with collapsible sections, score count-up animation, sticky tab navigation, share (Web Share API / clipboard fallback), download (text file export), print (auto-expand before print), section toggle, and verdict score animations.
+- **`index.html`** (344 lines): Clean semantic HTML — no inline `<style>` or `<script>`. References `styles.css` and `app.js` via external links. Preserves gate screen (9999 passcode, investor-only access), nav, hero with animated preview card, trust bar (scrolling marquee), how-it-works (3 steps), proof section (dark, 6 stats), SDG section (11 goals), evaluator form (5 fields + 4 example chips), results container, and footer.
+
+### Design System — Premium Visual Enhancements
+
+- **CSS Custom Properties**: Full token system — colors (cream, forest, amber, terracotta, sky), shadows (4 levels), radii (5 levels), fonts, easing curves.
+- **Hero Section**: Animated golden-hour radial gradient glow, perspective-tilted preview card with hover-to-level animation, gradient underline on italic text, dot pulse badge.
+- **Scroll Reveals**: IntersectionObserver-driven fade-up animations with staggered delays.
+- **How-It-Works Cards**: Top-border gradient hover effect, number opacity, lift-on-hover.
+- **Proof Section (dark)**: Top rainbow gradient bar, radial gradient ambient glow, card lift hover.
+- **SDG Cards**: Border color transition, shadow elevation on hover.
+- **Input Form**: Focus ring with 3px green shadow, character counter that turns green at minimum, shake animation on error, chip hover glow.
+- **Loading Overlay**: Spinner + step-by-step progress dots with glow animation.
+- **Results**: Verdict card entrance animation, collapsible sections with chevron rotation, sticky tab bar with backdrop-blur, score count-up animation (eased), share/download/print action bar.
+- **Footer**: Dark section with brand, links, and attribution.
+- **Typography**: Instrument Serif (display), DM Sans (body), JetBrains Mono (numbers), 1.25 ratio scale.
+- **Texture**: SVG noise overlay at 2% opacity for paper feel.
+- **Responsive**: 3 breakpoints (900px, 600px, 380px) + reduced-motion media query.
+
+### Gate Screen — Intentionally Preserved
+
+The 9999 passcode gate screen is **intentional** and was NOT removed. It serves as investor-preview access control. `localStorage` persistence keeps it dismissed for returning visitors.
+
+### Documentation — Updated
+
+- **CLAUDE.md**: Updated directory structure to reflect `styles.css`, `app.js`, `api/eval.mjs`. Updated file priority reading order for new architecture.
+
+### Files Modified
+
+| File | Action |
+|---|---|
+| `index.html` | **Rebuilt** — from 1599-line monolith to 344-line semantic HTML |
+| `styles.css` | **Created** — 1500 lines, full design system extracted from index.html |
+| `app.js` | **Created** — 580 lines, enhanced JS extracted from index.html |
+| `CLAUDE.md` | **Updated** — directory structure and file reading order |
+
+---
+
 ## 2026-05-29 — Session 5: Vercel & Netlify Deployment Overrides and API Key Fixes
 
 ### What Changed
@@ -306,3 +353,58 @@ Self-contained landing page with:
 ---
 
 *CHANGELOG maintained by Nikhil Tiwari & Claude*
+
+---
+
+## 2026-06-17 — Session 7: Innovation Toolkit — 4 New Features
+
+### What Added
+
+Implemented 4 genuinely innovative features that leverage SEE's unique data assets (136 countries, 165 case studies, Hofstede dimensions, SDG mapping). These are NOT generic SaaS features — they are purpose-built tools that only SEE can provide because of its proprietary evaluation data.
+
+### The 4 Features
+
+1. **Social Impact Lean Canvas** — A one-page business model canvas adapted for social impact. Extracts problem, solution, UVP, unfair advantage, customer segments, key metrics, channels, cost/revenue from the evaluation data into a 9-block grid. Only possible because SEE already analyzes all these dimensions.
+
+2. **Competitive Positioning Engine** — Fuzzy-matches the user's idea against 165 case studies to find the 5 best comparable organizations. Generates a radar chart (cultural fit, community, bootstrapper, impact, education) comparing the user's idea vs. successful case studies. Extracts success/failure patterns with sources.
+
+3. **Global Cultural Heatmap** — Evaluates the user's idea against all 136 countries in the Hofstede database. Shows top 5 best-fit and bottom 5 highest-barrier countries with scores. Includes regional averages across 11 global zones. Takes ~5-8 seconds per country (runs full cultural analysis + bootstrapper scoring for each).
+
+4. **Social Impact Marketplace** — A curated gallery of evaluated ideas. Each evaluation generates a marketplace listing with a badge (gold/silver/bronze/developing based on score), SDG tags, and a hook. The standalone gallery section shows 9 seed ideas + any user-evaluated ideas stored in localStorage. Filterable by badge type.
+
+### Architecture
+
+- **Backend (evaluator.py):** Added 4 new functions (~450 lines) before `format_report()`:
+  - `generate_lean_canvas()` — extracts canvas blocks from evaluation data
+  - `find_competitive_positioning()` — loads library.json + zones-library.json, fuzzy-matches case studies
+  - `score_idea_globally()` — iterates all 136 countries, runs cultural analysis + bootstrapper scoring for each
+  - `generate_marketplace_listing()` — creates listing card with badge, SDG tags, hook
+  - All 4 integrated into `evaluate()` pipeline after SDG mapping
+
+- **API (api/eval.mjs):** Updated system prompt JSON schema to request `lean_canvas`, `competitive_positioning`, and `marketplace_listing` from Gemini. Updated STATIC_RESULTS demo with new fields.
+
+- **Frontend (styles.css):** Added ~490 lines of new CSS for innovation panel, lean canvas grid, radar chart, heatmap visualization, marketplace cards, responsive breakpoints.
+
+- **Frontend (app.js):** Added ~420 lines of new JS:
+  - `renderInnovationPanel()` — tabbed panel shown after evaluation
+  - `renderLeanCanvas()` — 3-column grid with 10 blocks
+  - `renderCompetitivePositioning()` — SVG radar chart + competitor cards
+  - `buildRadarSVG()` — generates pentagonal radar chart with user vs. competitor data
+  - `renderGlobalHeatmap()` — summary cards + top/bottom 5 + regional bars
+  - `renderMarketplaceCard()` — single listing card
+  - `renderMarketplaceGallery()` — standalone gallery with filtering
+  - `saveToMarketplace()` — persists evaluations to localStorage
+
+- **Frontend (index.html):** Added marketplace section (always visible), innovation panel container (post-evaluation), nav/footer marketplace links.
+
+### Files Modified
+
+| File | Action | Lines |
+|---|---|---|
+| `evaluator.py` | MODIFIED | +450 lines (4 new functions + evaluate() integration) |
+| `api/eval.mjs` | MODIFIED | +40 lines (system prompt schema + static result) |
+| `styles.css` | MODIFIED | +490 lines (innovation panel, canvas, radar, heatmap, marketplace) |
+| `app.js` | MODIFIED | +420 lines (rendering functions, gallery, filters) |
+| `index.html` | MODIFIED | +25 lines (marketplace section, innovation panel, nav links) |
+| `CHANGELOG.md` | MODIFIED | this entry |
+| `INNOVATION-FEATURES.md` | CREATED | ~1300 lines (research + specs) |

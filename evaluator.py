@@ -1502,6 +1502,455 @@ def get_funding_by_score(country_code: str, country_name: str, total_score: floa
 
 
 # ─────────────────────────────────────────────────────────
+# FEATURE: SOCIAL IMPACT LEAN CANVAS
+# ─────────────────────────────────────────────────────────
+
+def generate_lean_canvas(parsed: dict, all_analysis: dict) -> dict:
+    """Auto-generate a 9-block Lean Canvas from evaluation data."""
+    country_name = all_analysis["country_data"].get("name", parsed["country"])
+    idea_type = parsed["idea_type"]
+    tier = parsed["community"]["economic_tier"]
+    three_tests = all_analysis["three_tests"]
+    cultural = all_analysis["cultural_analysis"]
+    bootstrapper = all_analysis["bootstrapper_score"]
+    case_study = all_analysis["case_study"]
+    sdgs = all_analysis.get("sdgs", {})
+    verdict = all_analysis.get("verdict", {})
+
+    # Extract user's words for problem/solution
+    raw = parsed.get("raw_input", "")
+    problem = parsed.get("problem", "")
+    goal = parsed.get("goal", "")
+    if not problem or problem == "Inferred from context":
+        problem = raw[:150] if raw else f"{idea_type.replace('_', ' ')} gap in {country_name}"
+    if not goal or goal == "Inferred from context":
+        goal = f"Provide {idea_type.replace('_', ' ')} support to affected communities"
+
+    # Trust layer from cultural profile
+    trust_layer = all_analysis["country_data"].get("cultural_profile", {}).get("trust_layer", "Community networks")
+
+    # Unfair advantage from cultural analysis
+    dominant_barrier = cultural.get("dominant_barrier", "None")
+    strengths = []
+    for dim_name, dim_data in cultural.get("hofstede_analysis", {}).items():
+        if dim_data.get("barrier") in ("LOW", "NO BARRIER"):
+            strengths.append(dim_name.replace("_", " "))
+    unfair_advantage = f"Deep understanding of {country_name} cultural context"
+    if strengths:
+        unfair_advantage += f". Strong fit: {', '.join(strengths[:2])}"
+
+    # Channels from case study patterns
+    channels = ["WhatsApp groups", "Community leaders"]
+    if tier in ("T1", "T2"):
+        channels.append("Social media")
+    if tier in ("T3", "T4"):
+        channels.extend(["Word of mouth", "Community gatherings"])
+
+    # Key metrics from SDG targets
+    primary_sdg = sdgs.get("primary", {}) if sdgs else {}
+    key_metrics = [
+        "People served per week",
+        "Return rate (do they come back?)",
+        "Recommendation rate (would they tell a friend?)",
+    ]
+    if primary_sdg:
+        key_metrics.append(f"SDG {primary_sdg.get('number', '?')}: {primary_sdg.get('target_text', 'Impact metric')}")
+
+    # Cost structure from bootstrapper + tier
+    bootstrapper_score = bootstrapper.get("bootstrapper_score", 5)
+    if tier in ("T3", "T4"):
+        cost_structure = "$0 budget. One phone. One person. Word of mouth."
+        revenue_streams = "Grant funding, community contributions, micro-payments"
+    elif tier == "T2":
+        cost_structure = "Minimal: phone, transport, basic supplies ($50-200)"
+        revenue_streams = "Micro-payments, grant funding, social enterprise revenue"
+    else:
+        cost_structure = "Moderate: technology, marketing, operations ($200-2000)"
+        revenue_streams = "Service fees, subscriptions, grants, corporate partnerships"
+
+    # Customer segments from idea type + country
+    customer_segments = {
+        "health": f"Patients and families in {country_name} lacking healthcare access",
+        "education": f"Students and parents in {country_name} seeking quality education",
+        "food": f"Food-insecure families in {country_name}",
+        "water": f"Communities in {country_name} without clean water access",
+        "elderly": f"Isolated seniors in {country_name}",
+        "mental_health": f"People struggling with mental health in {country_name}",
+        "women": f"Women and girls facing barriers in {country_name}",
+        "work": f"Job seekers and underemployed workers in {country_name}",
+        "financial": f"Unbanked and underbanked people in {country_name}",
+        "disaster": f"Disaster-affected communities in {country_name}",
+        "community": f"Neighborhoods and communities in {country_name}",
+        "safety": f"People facing safety threats in {country_name}",
+    }
+    segments = customer_segments.get(idea_type, f"People affected by {idea_type.replace('_', ' ')} in {country_name}")
+
+    # Existing alternatives from case study
+    cs = case_study.get("case_study", {})
+    existing = cs.get("title", f"Traditional {idea_type.replace('_', ' ')} services")
+    if cs.get("organization"):
+        existing = cs["organization"]
+
+    return {
+        "problem": [problem[:120]],
+        "solution": goal[:120],
+        "unique_value_proposition": f"Honest {idea_type.replace('_', ' ')} evaluation grounded in {country_name}'s cultural reality",
+        "unfair_advantage": unfair_advantage,
+        "customer_segments": segments,
+        "key_metrics": key_metrics,
+        "channels": channels,
+        "cost_structure": cost_structure,
+        "revenue_streams": revenue_streams,
+        "existing_alternatives": existing,
+        "bootstrapper_score": bootstrapper_score,
+    }
+
+
+# ─────────────────────────────────────────────────────────
+# FEATURE: COMPETITIVE POSITIONING ENGINE
+# ─────────────────────────────────────────────────────────
+
+def find_competitive_positioning(parsed: dict, all_analysis: dict) -> dict:
+    """Find 3-5 similar case studies and analyze competitive positioning."""
+    idea_type = parsed["idea_type"]
+    country = parsed["country"]
+    zone = get_zone_for_country(country)
+    tier = parsed["community"]["economic_tier"]
+
+    # Collect all case studies
+    all_case_studies = []
+    try:
+        with open(CASE_STUDIES_DIR / "zones-library.json") as f:
+            zones_lib = json.load(f)
+        for zone_key, zone_data in zones_lib.items():
+            for cs in zone_data.get("case_studies", []):
+                cs["_source_zone"] = zone_key
+                all_case_studies.append(cs)
+    except FileNotFoundError:
+        pass
+
+    try:
+        with open(CASE_STUDIES_DIR / "library.json") as f:
+            main_lib = json.load(f)
+        for cs in main_lib.get("case_studies", []):
+            cs["_source_zone"] = get_zone_for_country(cs.get("country", ""))
+            all_case_studies.append(cs)
+    except FileNotFoundError:
+        pass
+
+    # Category relationships for fuzzy matching
+    category_relations = {
+        "mental_health": ["health", "elderly", "community", "women", "disaster"],
+        "women": ["health", "community", "education", "work"],
+        "elderly": ["health", "community", "mental_health"],
+        "food": ["health", "community", "work", "financial"],
+        "water": ["health", "sanitation", "community"],
+        "work": ["financial", "education", "community"],
+        "financial": ["work", "community", "food"],
+        "disaster": ["community", "health", "safety"],
+        "safety": ["community", "women", "disaster"],
+        "education": ["children", "work", "community"],
+        "community": ["education", "health", "work", "women", "elderly"],
+        "energy": ["health", "community", "financial"],
+    }
+
+    scored = []
+    for cs in all_case_studies:
+        score = 0
+        cs_category = cs.get("category", "")
+        cs_country = cs.get("country", "")
+
+        if idea_type == cs_category:
+            score += 5
+        elif cs_category in category_relations.get(idea_type, []):
+            score += 3
+
+        cs_zone = get_zone_for_country(cs_country) if cs_country else ""
+        if zone == cs_zone:
+            score += 2
+        if country == cs_country:
+            score += 3
+
+        if score > 0:
+            scored.append((score, cs))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    top_matches = scored[:5] if scored else []
+
+    # Analyze patterns
+    success_patterns = []
+    failure_patterns = []
+    for _, cs in top_matches:
+        what_worked = cs.get("what_worked", [])
+        what_didnt = cs.get("what_didnt_work", cs.get("what_didnt", []))
+        if isinstance(what_worked, str):
+            what_worked = [what_worked]
+        if isinstance(what_didnt, str):
+            what_didnt = [what_didnt]
+        if what_worked:
+            success_patterns.append({"pattern": what_worked[0], "source": cs.get("organization", cs.get("title", "Unknown"))})
+        if what_didnt:
+            failure_patterns.append({"pattern": what_didnt[0], "source": cs.get("organization", cs.get("title", "Unknown"))})
+
+    # Build radar chart data (5 dimensions)
+    cultural = all_analysis.get("cultural_analysis", {})
+    bootstrapper = all_analysis.get("bootstrapper_score", {})
+    three_tests = all_analysis.get("three_tests", {})
+    education = all_analysis.get("education_analysis", {})
+    impact = all_analysis.get("impact_score", {})
+
+    user_radar = {
+        "cultural_fit": cultural.get("cultural_compatibility_score", 5),
+        "community": three_tests.get("community_viability_score", 5),
+        "bootstrapper": bootstrapper.get("bootstrapper_score", 5),
+        "impact": (impact.get("score", 50) / 10) if impact else 5,
+        "education": 10 - len(education.get("barriers", [])),
+    }
+
+    # Competitor radar (average of top matches)
+    competitor_radar = {"cultural_fit": 7, "community": 7, "bootstrapper": 6, "impact": 6, "education": 6}
+
+    # Positioning map data (ease vs impact)
+    verdict = all_analysis.get("verdict", {})
+    user_position = {
+        "x": bootstrapper.get("bootstrapper_score", 5),
+        "y": verdict.get("total_score", 5),
+    }
+
+    competitors = []
+    for score_val, cs in top_matches:
+        cs_title = cs.get("title", "Unknown")
+        cs_org = cs.get("organization", "")
+        cs_country_code = cs.get("country", "")
+        cs_category = cs.get("category", "")
+        cs_impact = cs.get("impact_numbers", {})
+        cs_impact_str = cs.get("impact", "")
+        cs_lesson = cs.get("key_lesson", "")
+
+        # Estimate ease and impact for positioning
+        ease = 6
+        impact_est = 7
+        cs_tier = get_zone_for_country(cs_country_code)
+        if cs_tier in ("east_asia", "europe"):
+            ease = 7
+        elif cs_tier in ("central_south_africa", "central_asia"):
+            ease = 4
+
+        competitors.append({
+            "title": cs_title,
+            "organization": cs_org,
+            "country": cs_country_code,
+            "category": cs_category,
+            "match_score": score_val,
+            "impact_display": cs_impact_str if cs_impact_str else (", ".join([f"{k}: {v}" for k, v in list(cs_impact.items())[:2]]) if cs_impact else ""),
+            "key_lesson": cs_lesson,
+            "what_worked": cs.get("what_worked", [cs.get("what_worked", "")])[0] if cs.get("what_worked") else "",
+            "what_didnt": (cs.get("what_didnt_work", cs.get("what_didnt", [""]))[0] if isinstance(cs.get("what_didnt_work", cs.get("what_didnt", [])), list) else cs.get("what_didnt_work", cs.get("what_didnt", ""))),
+            "position": {"x": ease, "y": impact_est},
+        })
+
+    # Generate insight summary
+    insight = f"Your {idea_type.replace('_', ' ')} idea in {all_analysis['country_data'].get('name', country)} has {len(top_matches)} comparable organizations in our database."
+    if success_patterns:
+        insight += f" Common success pattern: {success_patterns[0]['pattern']}"
+
+    return {
+        "matches": competitors,
+        "total_found": len(top_matches),
+        "user_radar": user_radar,
+        "competitor_radar": competitor_radar,
+        "user_position": user_position,
+        "success_patterns": success_patterns[:3],
+        "failure_patterns": failure_patterns[:3],
+        "insight": insight,
+    }
+
+
+# ─────────────────────────────────────────────────────────
+# FEATURE: GLOBAL CULTURAL HEATMAP
+# ─────────────────────────────────────────────────────────
+
+def score_idea_globally(parsed: dict, all_analysis: dict) -> dict:
+    """Score the idea against all 136 countries and return heatmap data."""
+    try:
+        with open(DATA_DIR / "hofstede-database.json") as f:
+            hofstede_db = json.load(f)
+    except FileNotFoundError:
+        return {"countries": [], "top_5": [], "bottom_5": [], "insight": "Hofstede database not found."}
+
+    idea_type = parsed["idea_type"]
+
+    # Calculate score for each country
+    country_scores = []
+    for code, entry in hofstede_db.get("countries", {}).items():
+        # Build mock country data for this country
+        mock_country_data = {
+            "name": entry.get("name", code),
+            "hofstede": {
+                "power_distance": entry.get("pdi", 50),
+                "individualism": entry.get("idv", 50),
+                "masculinity": entry.get("mas", 50),
+                "uncertainty_avoidance": entry.get("uai", 50),
+                "long_term_orientation": entry.get("lto", 50),
+                "indulgence": entry.get("ivr", 50),
+            },
+            "cultural_profile": {"trust_layer": "Community networks", "key_community_types": ["Community groups"]},
+        }
+
+        # Determine economic tier from income level
+        income = entry.get("income_level", "").lower()
+        if "high" in income:
+            tier = "T1"
+        elif "upper-middle" in income:
+            tier = "T2"
+        elif "lower-middle" in income:
+            tier = "T2-T3"
+        elif "low" in income:
+            tier = "T3-T4"
+        else:
+            tier = "T2-T3"
+
+        mock_parsed = dict(parsed)
+        mock_parsed["community"] = {"economic_tier": tier}
+
+        # Run cultural analysis for this country
+        cultural = run_cultural_analysis(mock_parsed, mock_country_data)
+
+        # Run bootstrapper score
+        mock_all = {"three_tests": all_analysis["three_tests"], "cultural_analysis": cultural, "education_analysis": all_analysis["education_analysis"]}
+        bootstrapper = run_bootstrapper_score(mock_parsed, mock_all)
+
+        # Calculate total score (same formula as generate_verdict)
+        community_score = all_analysis["three_tests"]["community_viability_score"]
+        cultural_score = cultural["cultural_compatibility_score"]
+        education_score = all_analysis["education_analysis"]["score_after_education"] / 5
+        bootstrapper_score_val = bootstrapper["bootstrapper_score"]
+        impact_scores = {"health": 9, "safety": 9, "food": 8, "water": 8, "disaster": 9, "mental_health": 7, "elderly": 7, "women": 8, "education": 7, "work": 6, "financial": 6, "community": 5}
+        impact_score = impact_scores.get(idea_type, 6)
+
+        total = round(
+            (community_score * 0.30) + (cultural_score * 0.15) + (education_score * 0.15) +
+            (bootstrapper_score_val * 0.20) + (impact_score * 0.20), 1
+        )
+
+        country_scores.append({
+            "code": code,
+            "name": entry.get("name", code),
+            "score": total,
+            "cultural_score": cultural_score,
+            "barrier": cultural.get("dominant_barrier", "None"),
+            "tier": tier,
+        })
+
+    # Sort by score
+    country_scores.sort(key=lambda x: x["score"], reverse=True)
+
+    # Get region data
+    region_map = {}
+    for cs in country_scores:
+        region = get_zone_for_country(cs["code"])
+        if region not in region_map:
+            region_map[region] = []
+        region_map[region].append(cs)
+
+    region_averages = {}
+    for region, countries in region_map.items():
+        avg = round(sum(c["score"] for c in countries) / len(countries), 1) if countries else 0
+        region_averages[region] = {"average": avg, "count": len(countries)}
+
+    top_5 = country_scores[:5]
+    bottom_5 = country_scores[-5:]
+
+    # Insight
+    home_score = next((c["score"] for c in country_scores if c["code"] == parsed["country"]), 0)
+    best = top_5[0] if top_5 else {}
+    insight = f"Your {idea_type.replace('_', ' ')} idea scores {home_score}/10 at home ({all_analysis['country_data'].get('name', parsed['country'])})."
+    if best and best["code"] != parsed["country"]:
+        insight += f" It would score highest in {best['name']} ({best['score']}/10)."
+    if len(top_5) >= 2:
+        insight += f" Top regions: {', '.join([c['name'] for c in top_5[:3]])}."
+
+    return {
+        "countries": country_scores,
+        "top_5": top_5,
+        "bottom_5": bottom_5,
+        "region_averages": region_averages,
+        "home_country": parsed["country"],
+        "home_score": home_score,
+        "total_countries": len(country_scores),
+        "insight": insight,
+    }
+
+
+# ─────────────────────────────────────────────────────────
+# FEATURE: SOCIAL IMPACT MARKETPLACE
+# ─────────────────────────────────────────────────────────
+
+def generate_marketplace_listing(parsed: dict, all_analysis: dict) -> dict:
+    """Generate a marketplace listing card from evaluation data."""
+    verdict = all_analysis.get("verdict", {})
+    sdgs = all_analysis.get("sdgs", {})
+    cultural = all_analysis.get("cultural_analysis", {})
+    bootstrapper = all_analysis.get("bootstrapper_score", {})
+    impact = all_analysis.get("impact_score", {})
+    case_study = all_analysis.get("case_study", {})
+    country_name = all_analysis["country_data"].get("name", parsed["country"])
+
+    total_score = verdict.get("total_score", 0)
+    verdict_type = verdict.get("verdict", "SHELVE")
+
+    # Badge based on score
+    if total_score >= 8:
+        badge = "gold"
+        badge_label = "Ready to Test"
+    elif total_score >= 6:
+        badge = "silver"
+        badge_label = "Promising"
+    elif total_score >= 4:
+        badge = "bronze"
+        badge_label = "Needs Pivot"
+    else:
+        badge = "developing"
+        badge_label = "Early Stage"
+
+    # SDG tags
+    sdg_tags = []
+    primary = sdgs.get("primary", {})
+    secondary = sdgs.get("secondary", {})
+    if primary:
+        sdg_tags.append({"number": primary.get("number", 0), "name": primary.get("name", ""), "target": primary.get("target", "")})
+    if secondary:
+        sdg_tags.append({"number": secondary.get("number", 0), "name": secondary.get("name", ""), "target": secondary.get("target", "")})
+
+    # Extract hook from elevator pitch
+    elevator = verdict.get("elevator_pitch", "")
+    hook = elevator.split("—")[0].strip().strip('"') if elevator else parsed.get("raw_input", "")[:100]
+
+    # Idea type display
+    idea_type_display = parsed["idea_type"].replace("_", " ").title()
+
+    return {
+        "id": f"idea_{hash(parsed.get('raw_input', '')) % 100000:05d}",
+        "hook": hook[:120],
+        "idea_type": idea_type_display,
+        "idea_type_raw": parsed["idea_type"],
+        "country": parsed["country"],
+        "country_name": country_name,
+        "score": total_score,
+        "verdict": verdict_type,
+        "badge": badge,
+        "badge_label": badge_label,
+        "sdg_tags": sdg_tags,
+        "cultural_fit": cultural.get("cultural_compatibility_score", 5),
+        "bootstrapper_score": bootstrapper.get("bootstrapper_score", 5),
+        "impact_score": impact.get("score", 0) if impact else 0,
+        "tier": parsed["community"]["economic_tier"],
+        "case_study_org": case_study.get("case_study", {}).get("organization", ""),
+        "created_at": datetime.now().isoformat(),
+    }
+
+
+# ─────────────────────────────────────────────────────────
 # REPORT FORMATTER
 # ─────────────────────────────────────────────────────────
 
@@ -1883,6 +2332,16 @@ def evaluate(idea_text: str) -> str:
     all_analysis["sdgs"] = sdgs
     all_analysis["fad_risk"] = fad_risk
     all_analysis["impact_score"] = impact
+
+    # Innovation Features
+    lean_canvas = generate_lean_canvas(parsed, all_analysis)
+    competitive = find_competitive_positioning(parsed, all_analysis)
+    heatmap = score_idea_globally(parsed, all_analysis)
+    marketplace = generate_marketplace_listing(parsed, all_analysis)
+    all_analysis["lean_canvas"] = lean_canvas
+    all_analysis["competitive_positioning"] = competitive
+    all_analysis["global_heatmap"] = heatmap
+    all_analysis["marketplace_listing"] = marketplace
 
     # Format report
     report = format_report(parsed, all_analysis)

@@ -308,37 +308,34 @@ to vouch for you, the network effect kicks in.
 | Personalized verdicts | DONE | evaluator.py |
 | Landing page | DONE | index.html |
 | API server | DONE | server.py |
-| SDG mapping | NOT BUILT | — |
-| Impact scoring | NOT BUILT | — |
-| Reality Check | NOT BUILT | — |
+| SDG mapping | DONE | evaluator.py → map_to_sdgs() |
+| Impact scoring | DONE | evaluator.py → calculate_impact_score() |
+| Reality Check | DONE | evaluator.py → assess_fad_risk() |
 | Mentor matching | NOT BUILT | — |
-| Funding matching | NOT BUILT | — |
+| Funding matching | PARTIAL | evaluator.py (5 countries: JP, IN, BD, KE, US) |
+| Premium design system | DONE | styles.css, app.js |
+| Collapsible results + tabs | DONE | app.js → renderResult() |
+| Share/download/print | DONE | app.js |
 
 ---
 
 ## WHAT TO BUILD NEXT
 
-### Priority 1: SDG Integration (1 day)
-- Add SDG mapping to evaluator.py
-- Add SDG section to report
-- Add impact scoring formula
+### Priority 1: Expand Funding Matching (1 day)
+- Extend funding pathways from 5 to all 136 countries
+- Add more funding sources (crowdfunding, microfinance, government grants)
 
-### Priority 2: Reality Check (1 day)
-- Add FAD risk assessment to evaluator.py
-- Add Reality Check section to report
-- Add problem persistence analysis
+### Priority 2: Mentor Matching (1 day)
+- Match idea type + country → mentor figures from 57 influential figures database
+- Add "People Who Did This Before You" section to results
 
-### Priority 3: Report Rewrite (2 days)
-- Rewrite report to read like a letter, not a scorecard
-- Add "Your Pitch" section (echo back user's words)
-- Add "Your SDG Impact" section
-- Improve tone — mentor, not calculator
+### Priority 3: Test Suite (1 day)
+- Add basic tests for evaluator.py pipeline
+- Add tests for API handler (api/eval.mjs)
 
-### Priority 4: Pathway (1 day)
-- Add "What happens next" section
-- Match score → funding sources
-- Match idea type → mentor figures
-- Add "Apply for funding" links
+### Priority 4: Multi-Language Support (2 days)
+- Translate UI to top 10 languages based on target demographics
+- Ensure evaluator handles non-English input gracefully
 
 ---
 

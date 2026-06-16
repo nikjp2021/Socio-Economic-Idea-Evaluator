@@ -28,7 +28,10 @@ const STATIC_RESULTS = {
     funding: [{ source: "Local council street trading license", amount: "£100-300", likelihood: "HIGH" }, { source: "Street food market pitch competitions", amount: "£500-2000", likelihood: "MEDIUM" }],
     sdgs: { primary: { number: 8, name: "Decent Work and Economic Growth", target: "8.3", target_text: "Promote development-oriented policies supporting productive activities", plain_explanation: "The United Nations has 17 Global Goals. Your food stall helps with Goal 8: creating jobs and economic growth. Every small business contributes to the local economy." }, secondary: { number: 2, name: "Zero Hunger", target: "2.1", target_text: "End hunger", plain_explanation: "Providing affordable, nutritious food to commuters who might otherwise skip dinner." }, impact_weight: 6, what_this_means: "Your food stall creates income for you and affordable meals for commuters. Small businesses like yours are the backbone of local economies." },
     fad_risk: { level: "LOW", text: "People need to eat. Street food has existed for thousands of years.", signal: "London's street food market has been growing steadily for 20 years." },
-    impact: { score: 45, sdg_weight: 6, estimated_reach: 200, cultural_fit: 0.8, interpretation: "MEDIUM" }
+    impact: { score: 45, sdg_weight: 6, estimated_reach: 200, cultural_fit: 0.8, interpretation: "MEDIUM" },
+    lean_canvas: { problem: ["Local coffee shops losing foot traffic to chains near London Bridge"], solution: ["Authentic Indian street food stall serving evening commuters"], unique_value_proposition: "Authentic Bombay street food with a story, served fast to commuters", unfair_advantage: "Cultural authenticity and personal connection to the food", customer_segments: "Evening commuters near London Bridge seeking affordable, authentic food", key_metrics: ["Customers per evening", "Repeat customer rate", "Average order value"], channels: ["Street presence at London Bridge", "Instagram food photography", "Word of mouth among commuters"], cost_structure: "£500 initial: cart (£200), ingredients (£150), permits (£150)", revenue_streams: "Direct sales, catering for local offices, weekend market appearances", existing_alternatives: "Pret, McDonald's, local coffee shops" },
+    competitive_positioning: { matches: [{ title: "Dishoom: From Street Food to Restaurant Empire", organization: "Dishoom", country: "GB", category: "food", impact_display: "8 locations across the UK", key_lesson: "The best street food tells a story. People don't just buy food — they buy the experience.", what_worked: "Authentic food with cultural story", what_didnt: "High overhead when scaling to restaurants" }], success_patterns: [{ pattern: "Authentic food with cultural story wins loyal customers", source: "Dishoom" }], failure_patterns: [{ pattern: "Scaling beyond street food requires significant capital", source: "Dishoom" }], insight: "Your Indian street food idea has 1 comparable organization in our database. Common success pattern: authenticity and storytelling drive customer loyalty." },
+    marketplace_listing: { badge: "gold", badge_label: "Ready to Test", hook: "Open a small Indian street food stall that serves evening commuters", idea_type_display: "Food", sdg_tags: [{ number: 8, name: "Decent Work and Economic Growth" }, { number: 2, name: "Zero Hunger" }] }
   },
 };
 
@@ -61,7 +64,35 @@ Required JSON structure:
   "verdict": {"total_score": 1-10, "verdict": "GO|GO WITH EDUCATION|PIVOT|SHELVE", "detail": "1-2 sentences", "elevator_pitch": "3-4 sentences, start with user's words", "first_step": "one specific action this week", "proof_of_work": {"week_1": {"day_1_2": "", "day_3_4": "", "day_5_7": ""}, "week_2": {"day_8_10": "", "day_11_12": "", "day_13_14": ""}, "success_criteria": ""}, "funding": [{"source": "", "amount": "", "likelihood": "HIGH|MEDIUM|LOW"}]},
   "sdgs": {"primary": {"number": 0, "name": "", "target": "", "target_text": "", "plain_explanation": "Explain this SDG in one sentence for someone who has never heard of SDGs. Example: 'The United Nations has 17 goals to make the world better by 2030. Your idea helps with Goal 5: making sure women and girls have equal opportunities.'"}, "secondary": {"number": 0, "name": "", "target": "", "target_text": "", "plain_explanation": ""}, "impact_weight": 0-10, "what_this_means": "Explain in 2-3 sentences what this SDG connection means for the user's idea. Be specific. Example: 'Your idea to distribute pads directly addresses SDG 3 (Good Health) because menstruation is a health issue, not just a hygiene issue. The UN specifically targets universal access to reproductive health services — and your idea is one way to reach that goal in rural India.'"},
   "fad_risk": {"level": "LOW|MEDIUM|HIGH", "text": "", "signal": ""},
-  "impact": {"score": 0-100, "sdg_weight": 0-10, "estimated_reach": 0, "cultural_fit": 0-1, "interpretation": "HIGH|MEDIUM|LOW"}
+  "impact": {"score": 0-100, "sdg_weight": 0-10, "estimated_reach": 0, "cultural_fit": 0-1, "interpretation": "HIGH|MEDIUM|LOW"},
+
+  "lean_canvas": {
+    "problem": ["one-line problem statement"],
+    "solution": ["one-line solution statement"],
+    "unique_value_proposition": "what makes this different",
+    "unfair_advantage": "what competitors can't easily copy",
+    "customer_segments": "who exactly are the users",
+    "key_metrics": ["metric 1", "metric 2", "metric 3"],
+    "channels": ["channel 1", "channel 2"],
+    "cost_structure": "estimated costs",
+    "revenue_streams": "how this sustains itself",
+    "existing_alternatives": "what exists today"
+  },
+
+  "competitive_positioning": {
+    "matches": [{"title": "", "organization": "", "country": "", "category": "", "impact_display": "", "key_lesson": "", "what_worked": "", "what_didnt": ""}],
+    "success_patterns": [{"pattern": "", "source": ""}],
+    "failure_patterns": [{"pattern": "", "source": ""}],
+    "insight": "2-sentence competitive summary"
+  },
+
+  "marketplace_listing": {
+    "badge": "gold|silver|bronze|developing",
+    "badge_label": "Ready to Test|Promising|Needs Pivot|Early Stage",
+    "hook": "one-line hook from elevator pitch",
+    "idea_type_display": "Education|Health|Food|etc",
+    "sdg_tags": [{"number": 0, "name": ""}]
+  }
 }
 
 SCORING RULES (CRITICAL):
