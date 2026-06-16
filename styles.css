@@ -1056,6 +1056,22 @@ button { font-family: var(--font-body); }
   object-fit: cover;
   aspect-ratio: 4 / 3;
 }
+.evidence-card-img {
+  margin-bottom: 1rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.evidence-card-img img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-md);
+  transition: transform 0.4s var(--ease-out);
+}
+.evidence-card:hover .evidence-card-img img {
+  transform: scale(1.05);
+}
 .evidence-dimensions {
   list-style: none;
   margin-top: 1rem;
@@ -1158,17 +1174,30 @@ button { font-family: var(--font-body); }
 .sdg-section { padding: 6rem 0; }
 .sdg-layout {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: 1fr 1fr;
   gap: 3rem;
   align-items: start;
 }
-.sdg-text { padding-top: 1rem; }
+.sdg-text { padding-top: 1rem; grid-column: 1 / -1; }
 .sdg-text .section-title { margin-bottom: 1rem; }
 .sdg-text p { color: var(--ink-muted); margin-bottom: 2rem; font-size: 0.9375rem; line-height: 1.75; }
+.sdg-hero-image {
+  grid-column: 1 / -1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  max-height: 320px;
+}
+.sdg-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .sdg-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
+  grid-column: 1 / -1;
 }
 .sdg-card {
   background: var(--white);
@@ -1203,6 +1232,27 @@ button { font-family: var(--font-body); }
   top: 0; left: 0; right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(26,22,18,0.08), transparent);
+}
+.input-section-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+.input-section-hero-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.input-section-hero-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  object-fit: cover;
+  display: block;
+}
+.input-section-hero-content {
+  padding: 1rem 0;
 }
 .input-wrap {
   max-width: 44rem;
@@ -2400,6 +2450,18 @@ body.gate-active {
   text-align: center;
   margin-bottom: 2.5rem;
 }
+.marketplace-header-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  max-height: 300px;
+  margin-bottom: 2rem;
+}
+.marketplace-header-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .marketplace-filters {
   display: flex;
   justify-content: center;
@@ -2531,6 +2593,18 @@ body.gate-active {
 .mentors-header {
   text-align: center;
   margin-bottom: 2.5rem;
+}
+.mentors-header-image {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  max-height: 300px;
+  margin-bottom: 2rem;
+}
+.mentors-header-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .mentors-header .section-label {
   font-size: 0.75rem;
@@ -2746,6 +2820,10 @@ body.gate-active {
   .heatmap-layout { grid-template-columns: 1fr; }
   .marketplace-grid { grid-template-columns: 1fr; }
   .mentors-grid { grid-template-columns: 1fr; }
+  .input-section-hero { grid-template-columns: 1fr; gap: 1.5rem; }
+  .input-section-hero-image img { min-height: 180px; }
+  .quick-eval-hero-image, .lookup-hero-image { max-height: 220px; }
+  .marketplace-header-image, .mentors-header-image { max-height: 220px; }
 }
 @media (max-width: 600px) {
   .wrap { padding: 0 1.25rem; }
@@ -2767,6 +2845,10 @@ body.gate-active {
   .verdict-score { font-size: 3.5rem; }
   .section-title { font-size: 1.75rem; }
   .how, .sdg-section, .evidence-section, .story-section, .input-section, .cta-section { padding: 4rem 0; }
+  .quick-eval-hero-image, .lookup-hero-image { max-height: 180px; margin: 1.5rem auto 0; }
+  .marketplace-header-image, .mentors-header-image { max-height: 180px; }
+  .input-section-hero-image img { min-height: 150px; }
+  .evidence-card-img img { height: 110px; }
   .results-actions { flex-wrap: wrap; }
   .footer-inner { flex-direction: column; }
   .footer-links { flex-wrap: wrap; gap: 1rem; }
@@ -3165,6 +3247,19 @@ body.gate-active {
   line-height: 1.6;
   margin: 0;
 }
+.quick-eval-hero-image {
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 2rem auto 0;
+  max-width: 800px;
+  max-height: 280px;
+}
+.quick-eval-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .quick-eval-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -3309,6 +3404,19 @@ body.gate-active {
 .cultural-lookup-section {
   padding: 5rem 0 4rem;
   background: #fff;
+}
+.lookup-hero-image {
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 2rem auto 0;
+  max-width: 800px;
+  max-height: 280px;
+}
+.lookup-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .lookup-controls {
   max-width: 400px;
