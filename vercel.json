@@ -3,15 +3,10 @@
     {
       "src": "api/eval.mjs",
       "use": "@vercel/node"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
     }
   ],
   "rewrites": [
-    { "source": "/api/eval", "destination": "/api/eval.mjs" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/api/eval", "destination": "/api/eval.mjs" }
   ],
   "headers": [
     {
