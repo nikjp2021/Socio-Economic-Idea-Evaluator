@@ -16,6 +16,12 @@ function loadJSON(relPath) {
   return JSON.parse(readFileSync(join(ROOT, relPath), 'utf-8'));
 }
 
+function parseIntSafe(v) {
+  if (!v) return null;
+  const n = parseInt(String(v), 10);
+  return isNaN(n) ? null : n;
+}
+
 // ─── Mentor Personas ───
 async function seedPersonas() {
   const { personas } = loadJSON('case-studies/mentor-personas.json');
@@ -50,7 +56,7 @@ async function seedCaseStudies() {
       `INSERT INTO case_studies (id, title, organization, founders, founded, country, zone, category, problem_statement, the_model, impact, what_worked, what_didnt, key_lesson, status, applicable_to, economic_tier)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
        ON CONFLICT (id) DO NOTHING`,
-      [cs.id, cs.title, cs.organization, JSON.stringify(cs.founders || []), cs.founded || null,
+      [cs.id, cs.title, cs.organization, JSON.stringify(cs.founders || []), parseIntSafe(cs.founded),
        cs.country, '', cs.category, cs.problem_statement, cs.the_model,
        JSON.stringify(cs.impact_numbers || {}), JSON.stringify(cs.what_worked || []),
        JSON.stringify(cs.what_didnt_work || []), cs.key_lesson, cs.status,
@@ -73,7 +79,7 @@ async function seedCaseStudies() {
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
          ON CONFLICT (id) DO NOTHING`,
         [cs.id, cs.title, cs.organization, JSON.stringify(cs.founder ? [cs.founder] : []),
-         cs.founded || null, cs.country, zoneKey, cs.category,
+         parseIntSafe(cs.founded), cs.country, zoneKey, cs.category,
          cs.problem || cs.problem_statement, cs.model || cs.the_model,
          typeof cs.impact === 'string' ? JSON.stringify({ summary: cs.impact }) : JSON.stringify(cs.impact || {}),
          typeof cs.what_worked === 'string' ? JSON.stringify([cs.what_worked]) : JSON.stringify(cs.what_worked || []),
