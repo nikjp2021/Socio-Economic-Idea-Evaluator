@@ -830,6 +830,7 @@ button { font-family: var(--font-body); }
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  scroll-behavior: smooth;
 }
 .results-tabs::-webkit-scrollbar { display: none; }
 .results-tabs-inner {
@@ -838,6 +839,31 @@ button { font-family: var(--font-body); }
   min-width: max-content;
   padding: 0 1rem;
 }
+/* Scroll shadow indicators */
+.results-tabs::before,
+.results-tabs::after {
+  content: '';
+  position: sticky;
+  display: block;
+  min-width: 2rem;
+  min-height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.results-tabs::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(250,247,242,0.95), transparent);
+  order: -1;
+}
+.results-tabs::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(250,247,242,0.95), transparent);
+  order: 1;
+}
+.results-tabs.scroll-start::before { opacity: 1; }
+.results-tabs.scroll-end::after { opacity: 1; }
 .results-tab {
   font-size: 0.6875rem;
   font-weight: 600;

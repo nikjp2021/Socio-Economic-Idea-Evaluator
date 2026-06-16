@@ -737,6 +737,7 @@
 
     // Tab click handlers
     initResultsTabs();
+    initResultsScrollSpy();
     initRevealElements();
   }
 
@@ -757,10 +758,13 @@
 
   // ─── RESULTS TAB NAVIGATION ───
   function initResultsTabs() {
+    const tabsContainer = document.querySelector('.results-tabs');
     $$('.results-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
         $$('.results-tab').forEach((t) => t.classList.remove('active'));
         tab.classList.add('active');
+        // Scroll the tab into view horizontally
+        tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         const target = document.getElementById(tab.dataset.target);
         if (target) {
           // Expand section if collapsed
@@ -773,6 +777,38 @@
         }
       });
     });
+    // Scroll shadow indicators
+    if (tabsContainer) {
+      function updateScrollShadows() {
+        const { scrollLeft, scrollWidth, clientWidth } = tabsContainer;
+        tabsContainer.classList.toggle('scroll-start', scrollLeft > 4);
+        tabsContainer.classList.toggle('scroll-end', scrollLeft < scrollWidth - clientWidth - 4);
+      }
+      tabsContainer.addEventListener('scroll', updateScrollShadows, { passive: true });
+      updateScrollShadows();
+    }
+  }
+
+  // ─── RESULTS SCROLL SPY ───
+  function initResultsScrollSpy() {
+    const sections = $$('.r-section');
+    const tabs = $$('.results-tab');
+    if (!sections.length || !tabs.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            tabs.forEach((t) => t.classList.toggle('active', t.dataset.target === id));
+            // Scroll the active tab into view
+            const activeTab = document.querySelector('.results-tab.active');
+            if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          }
+        });
+      },
+      { rootMargin: '-120px 0px -60% 0px', threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
   }
 
   // ─── SECTION TOGGLE ───
