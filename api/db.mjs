@@ -17,7 +17,7 @@ function getSQL() {
  */
 export async function query(text, params = []) {
   const sql = getSQL();
-  return sql(text, params);
+  return sql.query(text, params);
 }
 
 /**
