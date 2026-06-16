@@ -136,4 +136,120 @@ export async function initDB() {
   await sql`CREATE INDEX IF NOT EXISTS idx_marketplace_status ON marketplace_listings(status, created_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_analytics_user ON evaluation_analytics(user_id, created_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_analytics_event ON evaluation_analytics(event_type, created_at DESC)`;
+
+  // ─── Reference data tables ───
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS mentor_personas (
+      id VARCHAR(100) PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      title VARCHAR(500),
+      country VARCHAR(10),
+      zone VARCHAR(100),
+      country_tier VARCHAR(10),
+      bio TEXT,
+      philosophy TEXT,
+      quote TEXT,
+      categories JSONB DEFAULT '[]',
+      specialties JSONB DEFAULT '[]',
+      barrier_strengths JSONB DEFAULT '[]',
+      model_stages JSONB DEFAULT '{}',
+      playbook JSONB DEFAULT '{}',
+      warning TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS case_studies (
+      id VARCHAR(200) PRIMARY KEY,
+      title VARCHAR(500) NOT NULL,
+      organization VARCHAR(500),
+      founders JSONB DEFAULT '[]',
+      founded INTEGER,
+      country VARCHAR(10),
+      zone VARCHAR(100),
+      category VARCHAR(100),
+      problem_statement TEXT,
+      the_model TEXT,
+      impact JSONB DEFAULT '{}',
+      what_worked JSONB DEFAULT '[]',
+      what_didnt JSONB DEFAULT '[]',
+      key_lesson TEXT,
+      status VARCHAR(100),
+      applicable_to JSONB DEFAULT '[]',
+      economic_tier JSONB DEFAULT '[]',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS countries (
+      code VARCHAR(10) PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      region VARCHAR(100),
+      zone VARCHAR(100),
+      income_level VARCHAR(100),
+      economic_tier VARCHAR(20),
+      pdi INTEGER,
+      idv INTEGER,
+      mas INTEGER,
+      uai INTEGER,
+      lto INTEGER,
+      ivr INTEGER,
+      cultural_profile JSONB DEFAULT '{}',
+      funding_sources JSONB DEFAULT '[]',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS sdg_data (
+      number INTEGER PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      color VARCHAR(20),
+      targets JSONB DEFAULT '[]',
+      idea_types JSONB DEFAULT '{}',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS idea_templates (
+      id VARCHAR(200) PRIMARY KEY,
+      label VARCHAR(500) NOT NULL,
+      category VARCHAR(100),
+      country VARCHAR(10),
+      zone VARCHAR(100),
+      economic_tier VARCHAR(10),
+      problem TEXT,
+      goal TEXT,
+      sample_result JSONB NOT NULL,
+      score NUMERIC(4,1),
+      verdict VARCHAR(50),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS figures (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      country VARCHAR(10),
+      role VARCHAR(500),
+      organization VARCHAR(500),
+      impact TEXT,
+      quote TEXT,
+      source VARCHAR(500),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // Reference data indexes
+  await sql`CREATE INDEX IF NOT EXISTS idx_case_studies_category ON case_studies(category)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_case_studies_country ON case_studies(country)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_case_studies_zone ON case_studies(zone)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_countries_zone ON countries(zone)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_mentor_personas_zone ON mentor_personas(zone)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_idea_templates_category ON idea_templates(category)`;
 }

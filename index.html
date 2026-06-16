@@ -72,6 +72,8 @@
     <ul class="nav-links">
       <li><a href="#how">How It Works</a></li>
       <li><a href="#sdg">SDGs</a></li>
+      <li><a href="#quick-eval">Quick Eval</a></li>
+      <li><a href="#cultural-lookup">Lookup</a></li>
       <li><a href="#try">Try It</a></li>
       <li><a href="#mentors">Mentors</a></li>
       <li><a href="#marketplace">Marketplace</a></li>
@@ -337,6 +339,42 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
+       QUICK EVALUATE — Instant results, zero AI calls
+       ═══════════════════════════════════════════ -->
+  <section class="quick-eval-section" id="quick-eval">
+    <div class="wrap">
+      <div class="section-header-center">
+        <p class="how-header"><span class="how-header-line"></span>Try Instantly</p>
+        <h2 class="section-title-mixed">Ready <span class="title-serif">Questions</span></h2>
+        <p class="section-subtitle">Pre-evaluated ideas — real scores, real verdicts, zero wait time. Tap one to see a full evaluation result instantly.</p>
+      </div>
+      <div class="quick-eval-grid" id="quick-eval-grid">
+        <div class="quick-eval-loading">Loading ready questions…</div>
+      </div>
+      <div class="quick-eval-result hidden" id="quick-eval-result"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       INSTANT CULTURAL LOOKUP — Zero AI calls
+       ═══════════════════════════════════════════ -->
+  <section class="cultural-lookup-section" id="cultural-lookup">
+    <div class="wrap">
+      <div class="section-header-center">
+        <p class="how-header"><span class="how-header-line"></span>Cultural Intelligence</p>
+        <h2 class="section-title-mixed">Instant <span class="title-serif">Lookup</span></h2>
+        <p class="section-subtitle">Pick a country. See its Hofstede 6 dimensions, cultural profile, and matching case studies — all served from our database.</p>
+      </div>
+      <div class="lookup-controls">
+        <select id="lookup-country" class="lookup-select">
+          <option value="">Choose a country…</option>
+        </select>
+      </div>
+      <div class="lookup-result hidden" id="lookup-result"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
        EVALUATOR INPUT
        ═══════════════════════════════════════════ -->
   <section class="input-section" id="try">
@@ -469,6 +507,8 @@
         <div class="footer-links">
           <a href="#how">How It Works</a>
           <a href="#sdg">SDGs</a>
+          <a href="#quick-eval">Quick Eval</a>
+          <a href="#cultural-lookup">Lookup</a>
           <a href="#try">Try It</a>
           <a href="#mentors">Mentors</a>
           <a href="#marketplace">Marketplace</a>

@@ -9,6 +9,7 @@
   // ─── DOM CACHE ───
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
+  const escHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
   // ─── GATE SCREEN ───
   const gateOverlay = $('#gateOverlay');
@@ -1646,6 +1647,178 @@
     }
   }
 
+  // ─── QUICK EVALUATE ───
+  async function initQuickEval() {
+    const grid = $('#quick-eval-grid');
+    const resultEl = $('#quick-eval-result');
+    if (!grid) return;
+
+    try {
+      const resp = await fetch('/api/reference?data=templates');
+      const json = await resp.json();
+      const templates = json.data || [];
+
+      if (!templates.length) {
+        grid.innerHTML = '<div class="quick-eval-loading">No ready questions available yet.</div>';
+        return;
+      }
+
+      grid.innerHTML = templates.map(t => {
+        const verdictClass = t.verdict?.includes('PIVOT') ? 'pivot' : t.verdict?.includes('EDUCATION') ? 'go-edu' : 'go';
+        return `
+          <div class="quick-eval-card" data-template-id="${t.id}">
+            <div class="quick-eval-card-label">${escHtml(t.label)}</div>
+            <div class="quick-eval-card-meta">
+              <span class="quick-eval-tag category">${escHtml(t.category)}</span>
+              <span class="quick-eval-tag zone">${escHtml((t.zone || '').replace(/_/g, ' '))}</span>
+              <span class="quick-eval-tag score">${t.score}/10</span>
+            </div>
+            <div class="quick-eval-card-verdict ${verdictClass}">${escHtml(t.verdict)}</div>
+          </div>
+        `;
+      }).join('');
+
+      grid.addEventListener('click', async (e) => {
+        const card = e.target.closest('.quick-eval-card');
+        if (!card) return;
+        const id = card.dataset.templateId;
+
+        grid.querySelectorAll('.quick-eval-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+
+        try {
+          const r2 = await fetch(`/api/reference?data=template&id=${encodeURIComponent(id)}`);
+          const j2 = await r2.json();
+          const tpl = j2.data;
+          if (!tpl?.sample_result) {
+            resultEl.innerHTML = '<div class="quick-eval-result-detail">No result data available.</div>';
+            resultEl.classList.remove('hidden');
+            return;
+          }
+          const res = tpl.sample_result;
+          const v = res.verdict || {};
+          resultEl.innerHTML = `
+            <div class="quick-eval-result-header">
+              <div class="quick-eval-result-score">${v.total_score || tpl.score}/10</div>
+              <div>
+                <div class="quick-eval-result-verdict">${escHtml(v.verdict || tpl.verdict)}</div>
+                <div style="font-size:0.8rem;color:#888">${escHtml(tpl.label)} · ${escHtml(tpl.country)}</div>
+              </div>
+            </div>
+            ${v.detail ? `<div class="quick-eval-result-detail">${escHtml(v.detail)}</div>` : ''}
+            ${v.elevator_pitch ? `<div class="quick-eval-result-pitch">${escHtml(v.elevator_pitch)}</div>` : ''}
+            ${v.first_step ? `<div class="quick-eval-result-step"><strong>Your first step:</strong> ${escHtml(v.first_step)}</div>` : ''}
+            <button class="quick-eval-result-close" onclick="this.parentElement.classList.add('hidden')">Close</button>
+          `;
+          resultEl.classList.remove('hidden');
+          resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch (err) {
+          resultEl.innerHTML = '<div class="quick-eval-result-detail">Failed to load result. Please try again.</div>';
+          resultEl.classList.remove('hidden');
+        }
+      });
+    } catch (err) {
+      grid.innerHTML = '<div class="quick-eval-loading">Could not load ready questions.</div>';
+    }
+  }
+
+  // ─── CULTURAL LOOKUP ───
+  async function initCulturalLookup() {
+    const select = $('#lookup-country');
+    const resultEl = $('#lookup-result');
+    if (!select || !resultEl) return;
+
+    const DIM_NAMES = {
+      pdi: { name: 'Power Distance', color: '#E5243B', desc: 'How much inequality is accepted between powerful and powerless people' },
+      idv: { name: 'Individualism', color: '#4C9F38', desc: 'Whether people define themselves as "I" or "we"' },
+      mas: { name: 'Masculinity', color: '#FCC30B', desc: 'Competition and achievement vs. cooperation and caring' },
+      uai: { name: 'Uncertainty Avoidance', color: '#26BDE2', desc: 'How much a culture needs rules and structure to feel safe' },
+      lto: { name: 'Long-Term Orientation', color: '#FD6925', desc: 'Whether culture values persistence and future rewards' },
+      ivr: { name: 'Indulgence', color: '#DD1367', desc: 'How much a culture allows free gratification of desires' },
+    };
+
+    // Load country list
+    try {
+      const resp = await fetch('/api/reference?data=countries');
+      const json = await resp.json();
+      const countries = json.data || [];
+      countries.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      for (const c of countries) {
+        const opt = document.createElement('option');
+        opt.value = c.code;
+        opt.textContent = c.name;
+        select.appendChild(opt);
+      }
+    } catch (err) {
+      // Countries list failed to load; select will remain empty
+    }
+
+    select.addEventListener('change', async () => {
+      const code = select.value;
+      if (!code) {
+        resultEl.classList.add('hidden');
+        return;
+      }
+
+      try {
+        const resp = await fetch(`/api/reference?data=country&code=${encodeURIComponent(code)}`);
+        const json = await resp.json();
+        const data = json.data;
+        if (!data?.country) {
+          resultEl.innerHTML = '<div class="lookup-no-data">No data available for this country.</div>';
+          resultEl.classList.remove('hidden');
+          return;
+        }
+
+        const c = data.country;
+        const dimensions = ['pdi', 'idv', 'mas', 'uai', 'lto', 'ivr'];
+
+        const dimsHtml = dimensions.map(d => {
+          const val = c[d];
+          const info = DIM_NAMES[d];
+          if (val == null) return '';
+          return `
+            <div class="lookup-dim-card">
+              <div class="lookup-dim-name">${info.name}</div>
+              <div class="lookup-dim-bar-track">
+                <div class="lookup-dim-bar-fill" style="width:${val}%;background:${info.color}"></div>
+              </div>
+              <div class="lookup-dim-value">${val}/100</div>
+              <div class="lookup-dim-desc">${info.desc}</div>
+            </div>
+          `;
+        }).join('');
+
+        let casesHtml = '';
+        if (data.case_studies?.length) {
+          casesHtml = `
+            <div class="lookup-cases-header">Case Studies from ${escHtml(c.name)}</div>
+            ${data.case_studies.map(cs => `
+              <div class="lookup-case-card">
+                <div class="lookup-case-title">${escHtml(cs.title || cs.organization)}</div>
+                ${cs.organization ? `<div class="lookup-case-org">${escHtml(cs.organization)}</div>` : ''}
+                ${cs.key_lesson ? `<div class="lookup-case-lesson">${escHtml(cs.key_lesson)}</div>` : ''}
+              </div>
+            `).join('')}
+          `;
+        }
+
+        resultEl.innerHTML = `
+          <div class="lookup-country-header">
+            <div class="lookup-country-name">${escHtml(c.name)}</div>
+            <div class="lookup-country-meta">${escHtml(c.region || '')} · ${escHtml(c.zone || '').replace(/_/g, ' ')} · ${escHtml(c.economic_tier || c.income_level || '')}</div>
+          </div>
+          <div class="lookup-dimensions">${dimsHtml}</div>
+          ${casesHtml}
+        `;
+        resultEl.classList.remove('hidden');
+      } catch (err) {
+        resultEl.innerHTML = '<div class="lookup-no-data">Failed to load country data. Please try again.</div>';
+        resultEl.classList.remove('hidden');
+      }
+    });
+  }
+
   // Init auth UI on DOMContentLoaded
   function initAuth() {
     updateAuthUI();
@@ -1708,6 +1881,10 @@
   document.addEventListener('DOMContentLoaded', () => {
     initRevealElements();
     initAuth();
+
+    // Database-powered features (zero AI calls)
+    initQuickEval();
+    initCulturalLookup();
 
     // Mentors gallery
     renderMentorsGallery('all');
