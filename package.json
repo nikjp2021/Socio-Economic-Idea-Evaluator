@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "echo 'No build step required'",
+    "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +21,9 @@
   },
   "homepage": "https://github.com/nikjp2021/Socio-Economic-Idea-Evaluator#readme",
   "dependencies": {
-    "@google/genai": "^2.7.0"
+    "@google/genai": "^2.7.0",
+    "@neondatabase/serverless": "^1.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0"
   }
 }

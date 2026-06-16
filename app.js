@@ -258,7 +258,9 @@
     showLoading();
 
     try {
-      const resp = await fetch('/api/eval?idea=' + encodeURIComponent(ideaText));
+      const headers = {};
+      if (getAuthToken()) headers['Authorization'] = 'Bearer ' + getAuthToken();
+      const resp = await fetch('/api/eval?idea=' + encodeURIComponent(ideaText), { headers });
       const data = await resp.json();
 
       if (data.error) {
@@ -1420,9 +1422,284 @@
     } catch (_) { /* ignore */ }
   }
 
+  // ─── AUTH MODULE ───
+  const AUTH_TOKEN_KEY = 'see_token';
+  const AUTH_USER_KEY = 'see_user';
+
+  function getAuthToken() { return localStorage.getItem(AUTH_TOKEN_KEY); }
+  function getAuthUser() {
+    try { return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || 'null'); } catch (_) { return null; }
+  }
+  function isLoggedIn() { return !!getAuthToken(); }
+
+  function setAuth(token, user) {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+    updateAuthUI();
+  }
+
+  function clearAuth() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
+    updateAuthUI();
+  }
+
+  async function apiAuth(action, body) {
+    const res = await fetch('/api/auth?action=' + action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  }
+
+  async function apiAuthGet(action) {
+    const res = await fetch('/api/auth?action=' + action, {
+      headers: { 'Authorization': 'Bearer ' + getAuthToken() },
+    });
+    return res.json();
+  }
+
+  async function apiEvaluationsGet(action) {
+    const res = await fetch('/api/evaluations?action=' + action, {
+      headers: { 'Authorization': 'Bearer ' + getAuthToken() },
+    });
+    return res.json();
+  }
+
+  function updateAuthUI() {
+    const loggedOut = $('#navAuthLoggedOut');
+    const loggedIn = $('#navAuthLoggedIn');
+    const userName = $('#navUserName');
+    const userAvatar = $('#navUserAvatar');
+
+    if (!loggedOut || !loggedIn) return;
+
+    if (isLoggedIn()) {
+      loggedOut.style.display = 'none';
+      loggedIn.style.display = 'flex';
+      const user = getAuthUser();
+      if (userName) userName.textContent = user?.name || 'User';
+      if (userAvatar) userAvatar.textContent = (user?.name || 'U').charAt(0).toUpperCase();
+    } else {
+      loggedOut.style.display = 'flex';
+      loggedIn.style.display = 'none';
+    }
+  }
+
+  // Auth modal
+  let authMode = 'login';
+
+  function showAuthModal(mode) {
+    authMode = mode || 'login';
+    const overlay = $('#authOverlay');
+    const title = $('#authTitle');
+    const sub = $('#authSub');
+    const nameField = $('#authNameField');
+    const submit = $('#authSubmit');
+    const toggle = $('#authToggle');
+    const error = $('#authError');
+
+    if (overlay) overlay.style.display = 'flex';
+    if (error) error.textContent = '';
+
+    if (authMode === 'register') {
+      if (title) title.textContent = 'Create Account';
+      if (sub) sub.textContent = 'Save evaluations, track progress, and get personalized mentor matches.';
+      if (nameField) nameField.style.display = 'block';
+      if (submit) submit.textContent = 'Create Account';
+      if (toggle) toggle.innerHTML = 'Already have an account? <a href="#" id="authToggleLink">Sign in</a>';
+    } else {
+      if (title) title.textContent = 'Sign In';
+      if (sub) sub.textContent = 'Save your evaluations and track your progress.';
+      if (nameField) nameField.style.display = 'none';
+      if (submit) submit.textContent = 'Sign In';
+      if (toggle) toggle.innerHTML = 'Don\'t have an account? <a href="#" id="authToggleLink">Create one</a>';
+    }
+  }
+
+  function hideAuthModal() {
+    const overlay = $('#authOverlay');
+    if (overlay) overlay.style.display = 'none';
+    const form = $('#authForm');
+    if (form) form.reset();
+    const error = $('#authError');
+    if (error) error.textContent = '';
+  }
+
+  async function handleAuthSubmit() {
+    const email = $('#authEmail')?.value?.trim();
+    const password = $('#authPassword')?.value;
+    const name = $('#authName')?.value?.trim();
+    const error = $('#authError');
+    const submit = $('#authSubmit');
+
+    if (error) error.textContent = '';
+
+    if (!email || !password) {
+      if (error) error.textContent = 'Email and password are required.';
+      return;
+    }
+    if (authMode === 'register' && (!name || name.length < 2)) {
+      if (error) error.textContent = 'Name is required (min 2 characters).';
+      return;
+    }
+    if (password.length < 8) {
+      if (error) error.textContent = 'Password must be at least 8 characters.';
+      return;
+    }
+
+    if (submit) { submit.disabled = true; submit.textContent = 'Please wait...'; }
+
+    try {
+      const action = authMode === 'register' ? 'register' : 'login';
+      const body = authMode === 'register' ? { email, password, name } : { email, password };
+      const data = await apiAuth(action, body);
+
+      if (data.error) {
+        if (error) error.textContent = data.error;
+        return;
+      }
+
+      setAuth(data.token, data.user);
+      hideAuthModal();
+      showToast('Welcome, ' + (data.user.name || 'there') + '!', 'success');
+    } catch (err) {
+      if (error) error.textContent = 'Network error. Please try again.';
+    } finally {
+      if (submit) { submit.disabled = false; submit.textContent = authMode === 'register' ? 'Create Account' : 'Sign In'; }
+    }
+  }
+
+  function showToast(msg, type) {
+    let toast = document.querySelector('.toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.className = 'toast' + (type === 'success' ? ' toast-success' : type === 'error' ? ' toast-error' : '');
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 3000);
+  }
+
+  // My Evaluations panel
+  async function showMyEvaluations() {
+    const dropdown = $('#navDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    try {
+      const data = await apiEvaluationsGet('list');
+      if (data.error) { showToast('Please sign in to view evaluations.', 'error'); return; }
+
+      const evals = data.evaluations || [];
+      let html = '<div class="my-evals-panel">';
+      html += '<div class="my-evals-header"><h3>My Evaluations</h3><button class="my-evals-close" id="myEvalsClose">&times;</button></div>';
+
+      if (evals.length === 0) {
+        html += '<div class="my-evals-empty">No evaluations yet. <a href="#try">Evaluate your first idea</a></div>';
+      } else {
+        html += '<div class="my-evals-list">';
+        evals.forEach((ev) => {
+          const date = new Date(ev.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const score = ev.score ? Number(ev.score).toFixed(1) : '?';
+          const verdict = ev.verdict_label || ev.verdict || '';
+          const idea = ev.idea_text ? ev.idea_text.slice(0, 80) + (ev.idea_text.length > 80 ? '...' : '') : '';
+          html += `<div class="my-eval-card" data-id="${ev.id}">
+            <div class="my-eval-top">
+              <span class="my-eval-score">${esc(score)}</span>
+              <span class="my-eval-verdict">${esc(verdict)}</span>
+              <span class="my-eval-date">${esc(date)}</span>
+            </div>
+            <div class="my-eval-idea">${esc(idea)}</div>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      html += '</div>';
+
+      // Show as a modal/panel
+      let overlay = document.querySelector('.my-evals-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'my-evals-overlay';
+        document.body.appendChild(overlay);
+      }
+      overlay.innerHTML = html;
+      overlay.style.display = 'flex';
+
+      const closeBtn = document.getElementById('myEvalsClose');
+      if (closeBtn) closeBtn.onclick = () => { overlay.style.display = 'none'; };
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+    } catch (err) {
+      showToast('Failed to load evaluations.', 'error');
+    }
+  }
+
+  // Init auth UI on DOMContentLoaded
+  function initAuth() {
+    updateAuthUI();
+
+    // Nav login button
+    const loginBtn = $('#navLoginBtn');
+    if (loginBtn) loginBtn.addEventListener('click', () => showAuthModal('login'));
+
+    // Auth modal close
+    const authClose = $('#authClose');
+    if (authClose) authClose.addEventListener('click', hideAuthModal);
+    const authOverlay = $('#authOverlay');
+    if (authOverlay) authOverlay.addEventListener('click', (e) => { if (e.target === authOverlay) hideAuthModal(); });
+
+    // Auth form submit
+    const authForm = $('#authForm');
+    if (authForm) authForm.addEventListener('submit', handleAuthSubmit);
+
+    // Toggle login/register
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'authToggleLink') {
+        e.preventDefault();
+        showAuthModal(authMode === 'login' ? 'register' : 'login');
+      }
+    });
+
+    // User menu toggle
+    const userBtn = $('#navUserBtn');
+    const dropdown = $('#navDropdown');
+    if (userBtn && dropdown) {
+      userBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      });
+      document.addEventListener('click', () => { dropdown.style.display = 'none'; });
+    }
+
+    // Dropdown items
+    const myEvals = $('#navMyEvals');
+    if (myEvals) myEvals.addEventListener('click', (e) => { e.preventDefault(); showMyEvaluations(); });
+
+    const logout = $('#navLogout');
+    if (logout) logout.addEventListener('click', (e) => {
+      e.preventDefault();
+      clearAuth();
+      const dd = $('#navDropdown');
+      if (dd) dd.style.display = 'none';
+      showToast('Signed out.', 'success');
+    });
+
+    // Verify token on load
+    if (isLoggedIn()) {
+      apiAuthGet('me').then((data) => {
+        if (data.error) clearAuth();
+      }).catch(() => {});
+    }
+  }
+
   // ─── INIT ───
   document.addEventListener('DOMContentLoaded', () => {
     initRevealElements();
+    initAuth();
 
     // Mentors gallery
     renderMentorsGallery('all');

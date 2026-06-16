@@ -34,6 +34,37 @@
   </div>
 
   <!-- ═══════════════════════════════════════════
+       AUTH MODAL — Login / Register
+       ═══════════════════════════════════════════ -->
+  <div class="auth-overlay" id="authOverlay" style="display:none">
+    <div class="auth-modal">
+      <button class="auth-close" id="authClose">&times;</button>
+      <div class="auth-header">
+        <div class="auth-logo">&#x1F33F;</div>
+        <h2 class="auth-title" id="authTitle">Sign In</h2>
+        <p class="auth-sub" id="authSub">Save your evaluations and track your progress.</p>
+      </div>
+      <form class="auth-form" id="authForm" onsubmit="return false;">
+        <div class="auth-field" id="authNameField" style="display:none">
+          <label for="authName">Name</label>
+          <input type="text" id="authName" placeholder="Your name" autocomplete="name">
+        </div>
+        <div class="auth-field">
+          <label for="authEmail">Email</label>
+          <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label for="authPassword">Password</label>
+          <input type="password" id="authPassword" placeholder="Min 8 characters" autocomplete="current-password" required>
+        </div>
+        <p class="auth-error" id="authError"></p>
+        <button type="submit" class="auth-submit" id="authSubmit">Sign In</button>
+      </form>
+      <p class="auth-toggle" id="authToggle">Don't have an account? <a href="#" id="authToggleLink">Create one</a></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
        NAVIGATION
        ═══════════════════════════════════════════ -->
   <nav class="nav" id="nav">
@@ -45,7 +76,28 @@
       <li><a href="#mentors">Mentors</a></li>
       <li><a href="#marketplace">Marketplace</a></li>
     </ul>
-    <a href="#try" class="nav-cta">Evaluate Your Idea</a>
+    <div class="nav-right">
+      <!-- Logged out state -->
+      <div class="nav-auth" id="navAuthLoggedOut">
+        <button class="nav-login-btn" id="navLoginBtn">Sign In</button>
+      </div>
+      <!-- Logged in state -->
+      <div class="nav-auth nav-user-menu-wrap" id="navAuthLoggedIn" style="display:none">
+        <button class="nav-user-btn" id="navUserBtn">
+          <span class="nav-user-avatar" id="navUserAvatar">&#x1F464;</span>
+          <span class="nav-user-name" id="navUserName">User</span>
+          <span class="nav-user-chevron">&#x25BE;</span>
+        </button>
+        <div class="nav-dropdown" id="navDropdown" style="display:none">
+          <a href="#" class="nav-dropdown-item" id="navMyEvals">&#x1F4CB; My Evaluations</a>
+          <a href="#" class="nav-dropdown-item" id="navMyFavorites">&#x2B50; Favorites</a>
+          <a href="#" class="nav-dropdown-item" id="navMyProfile">&#x1F464; Profile</a>
+          <div class="nav-dropdown-divider"></div>
+          <a href="#" class="nav-dropdown-item nav-dropdown-logout" id="navLogout">&#x1F6AA; Sign Out</a>
+        </div>
+      </div>
+      <a href="#try" class="nav-cta">Evaluate Your Idea</a>
+    </div>
   </nav>
 
   <!-- ═══════════════════════════════════════════

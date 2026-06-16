@@ -6,6 +6,75 @@
 
 import { GoogleGenAI } from "@google/genai";
 
+// Optional DB save — only loads if DATABASE_URL is set
+let _dbInited = false;
+async function maybeSaveToDB(idea, result, token) {
+  if (!process.env.DATABASE_URL) return;
+  try {
+    const { query, initDB } = await import('./db.mjs');
+    const { verifyToken } = await import('./auth.mjs');
+
+    if (!_dbInited) {
+      await initDB();
+      _dbInited = true;
+    }
+
+    // Resolve user from token
+    let userId = null;
+    if (token) {
+      const payload = verifyToken(token);
+      if (payload?.sub) userId = payload.sub;
+    }
+
+    const parsed = result.parsed || {};
+    const verdict = result.verdict || {};
+    const sdgTags = result.sdg_tags || [];
+
+    const rows = await query(
+      `INSERT INTO evaluations
+         (user_id, idea_text, country, idea_type, economic_tier, score, verdict, verdict_label, sdg_tags, result_json)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING id`,
+      [
+        userId,
+        idea,
+        parsed.country || result.country || null,
+        parsed.idea_type || result.idea_type || null,
+        parsed.economic_tier || verdict.economic_tier || null,
+        verdict.score || result.score || null,
+        verdict.category || result.verdict || null,
+        verdict.label || result.verdict_label || null,
+        JSON.stringify(sdgTags),
+        JSON.stringify(result),
+      ]
+    );
+
+    const evalId = rows[0]?.id;
+
+    // Save mentor matches
+    if (evalId && Array.isArray(result.mentor_council)) {
+      for (const m of result.mentor_council) {
+        await query(
+          `INSERT INTO mentor_matches
+             (evaluation_id, persona_id, persona_name, match_score, playbook_tier, playbook_json)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [evalId, m.id || '', m.name || '', m.match_score || 0, m.score_tier || 'mid_score', JSON.stringify(m)]
+        ).catch(() => {});
+      }
+    }
+
+    // Track analytics
+    await query(
+      `INSERT INTO evaluation_analytics (user_id, event_type, metadata)
+       VALUES ($1, 'evaluation_submit', $2)`,
+      [userId, JSON.stringify({ country: parsed.country, type: parsed.idea_type, authenticated: !!userId })]
+    ).catch(() => {});
+
+  } catch (err) {
+    console.error('DB save failed (non-fatal):', err.message);
+  }
+}
+
 function getCorsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
@@ -367,6 +436,12 @@ export default async function vercelHandler(req, res) {
   try {
     const idea = req.query.idea || "";
     const result = await evaluateIdea(idea);
+
+    // Extract auth token and save to DB asynchronously
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    maybeSaveToDB(idea, result, token);
+
     res.writeHead(200, {
       "Content-Type": "application/json",
       ...corsHeaders
@@ -400,6 +475,12 @@ export const handler = async (event, context) => {
   try {
     const idea = event.queryStringParameters ? (event.queryStringParameters.idea || "") : "";
     const result = await evaluateIdea(idea);
+
+    // Extract auth token and save to DB asynchronously
+    const authHeader = event.headers.authorization || event.headers.Authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    maybeSaveToDB(idea, result, token);
+
     return {
       statusCode: 200,
       headers: {

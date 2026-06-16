@@ -5,6 +5,14 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/auth.mjs",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/evaluations.mjs",
+      "use": "@vercel/node"
+    },
+    {
       "src": "index.html",
       "use": "@vercel/static"
     },
@@ -18,7 +26,9 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/eval", "destination": "/api/eval.mjs" }
+    { "source": "/api/eval", "destination": "/api/eval.mjs" },
+    { "source": "/api/auth", "destination": "/api/auth.mjs" },
+    { "source": "/api/evaluations", "destination": "/api/evaluations.mjs" }
   ],
   "headers": [
     {
