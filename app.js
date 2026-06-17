@@ -465,21 +465,35 @@
     }
 
     // SDG / Who You Help
-    if (d.sdgs) {
+    {
+      const sdgs = d.sdgs || {};
+      const ideaType = d.idea_type || '';
+      const fb = IDEA_SDG_MAP[ideaType] || IDEA_SDG_MAP.community;
+      const sdgPrimary = (sdgs.primary && sdgs.primary.number) ? sdgs.primary : fb.primary;
+      const sdgSecondary = (sdgs.secondary && sdgs.secondary.number) ? sdgs.secondary : fb.secondary;
+
       let h = `<div style="font-size:0.8125rem;color:var(--ink-muted);line-height:1.65;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(37,99,168,0.03);border-radius:var(--radius-sm)">The <strong style="color:var(--ink)">United Nations</strong> has <strong style="color:var(--ink)">17 Global Goals</strong> to make the world better by 2030. Your idea connects to these goals.</div>`;
       const plainExp = esc(
-        d.sdgs.primary.plain_explanation || d.sdgs.alignment_text || ''
+        sdgPrimary.plain_explanation || sdgs.alignment_text || ''
       );
       h += `<div class="r-card" style="margin-bottom:0.75rem">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
-          <div class="sdg-number">${d.sdgs.primary.number}</div>
-          <div><div class="r-value">Goal ${d.sdgs.primary.number}: ${esc(
-        d.sdgs.primary.name
-      )}</div><div class="r-detail">${esc(d.sdgs.primary.target_text)}</div></div>
+          <div class="sdg-number">${sdgPrimary.number || '?'}</div>
+          <div><div class="r-value">Goal ${sdgPrimary.number || '?'}: ${esc(
+        sdgPrimary.name || 'Social Impact'
+      )}</div><div class="r-detail">${esc(sdgPrimary.target_text || '')}</div></div>
         </div>
-        <div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${plainExp}</div>
+        <div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${plainExp || 'Your idea contributes to this UN Sustainable Development Goal.'}</div>
       </div>`;
-      const whatMeans = esc(d.sdgs.what_this_means || '');
+      if (sdgSecondary && sdgSecondary.number) {
+        h += `<div class="r-card" style="margin-bottom:0.75rem">
+          <div style="display:flex;align-items:center;gap:0.75rem">
+            <div class="sdg-number" style="font-size:0.875rem">${sdgSecondary.number}</div>
+            <div><div class="r-value">Also impacts: Goal ${sdgSecondary.number}: ${esc(sdgSecondary.name || '')}</div></div>
+          </div>
+        </div>`;
+      }
+      const whatMeans = esc(sdgs.what_this_means || '');
       if (whatMeans) {
         h += `<div class="r-card" style="margin-bottom:0.75rem"><div class="r-label">What This Means For You</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${whatMeans}</div></div>`;
       }
@@ -1429,13 +1443,40 @@
   }
 
   // ─── SDG ALIGNMENT CERTIFICATE ───
+  // Fallback SDG mapping by idea type
+  const IDEA_SDG_MAP = {
+    women: { primary: { number: 5, name: 'Gender Equality' }, secondary: { number: 10, name: 'Reduced Inequalities' } },
+    safety: { primary: { number: 16, name: 'Peace, Justice and Strong Institutions' }, secondary: { number: 11, name: 'Sustainable Cities' } },
+    elderly: { primary: { number: 3, name: 'Good Health and Well-Being' }, secondary: { number: 10, name: 'Reduced Inequalities' } },
+    mental_health: { primary: { number: 3, name: 'Good Health and Well-Being' }, secondary: { number: 4, name: 'Quality Education' } },
+    disaster: { primary: { number: 13, name: 'Climate Action' }, secondary: { number: 11, name: 'Sustainable Cities' } },
+    health: { primary: { number: 3, name: 'Good Health and Well-Being' }, secondary: { number: 1, name: 'No Poverty' } },
+    food: { primary: { number: 2, name: 'Zero Hunger' }, secondary: { number: 3, name: 'Good Health and Well-Being' } },
+    water: { primary: { number: 6, name: 'Clean Water and Sanitation' }, secondary: { number: 3, name: 'Good Health and Well-Being' } },
+    financial: { primary: { number: 8, name: 'Decent Work and Economic Growth' }, secondary: { number: 1, name: 'No Poverty' } },
+    work: { primary: { number: 8, name: 'Decent Work and Economic Growth' }, secondary: { number: 4, name: 'Quality Education' } },
+    education: { primary: { number: 4, name: 'Quality Education' }, secondary: { number: 5, name: 'Gender Equality' } },
+    community: { primary: { number: 11, name: 'Sustainable Cities and Communities' }, secondary: { number: 16, name: 'Peace, Justice' } },
+    environment: { primary: { number: 13, name: 'Climate Action' }, secondary: { number: 15, name: 'Life on Land' } },
+    sustainability: { primary: { number: 12, name: 'Responsible Consumption' }, secondary: { number: 13, name: 'Climate Action' } },
+    agriculture: { primary: { number: 2, name: 'Zero Hunger' }, secondary: { number: 15, name: 'Life on Land' } },
+    energy: { primary: { number: 7, name: 'Affordable and Clean Energy' }, secondary: { number: 13, name: 'Climate Action' } },
+    technology: { primary: { number: 9, name: 'Industry, Innovation and Infrastructure' }, secondary: { number: 4, name: 'Quality Education' } },
+    housing: { primary: { number: 11, name: 'Sustainable Cities and Communities' }, secondary: { number: 1, name: 'No Poverty' } },
+    rights: { primary: { number: 16, name: 'Peace, Justice and Strong Institutions' }, secondary: { number: 5, name: 'Gender Equality' } },
+    inclusion: { primary: { number: 10, name: 'Reduced Inequalities' }, secondary: { number: 16, name: 'Peace, Justice' } },
+  };
+
   function renderSDGCertificate(d) {
     const score = d.verdict?.total_score || 0;
     const sdgs = d.sdgs || {};
-    const primary = sdgs.primary || {};
-    const secondary = sdgs.secondary || {};
-    const country = d.country_name || d.country || '';
     const ideaType = d.idea_type || 'social impact';
+    const fallback = IDEA_SDG_MAP[ideaType] || IDEA_SDG_MAP.community;
+
+    // Merge: prefer API data, fallback to idea-type mapping
+    const primary = (sdgs.primary && sdgs.primary.number) ? sdgs.primary : fallback.primary;
+    const secondary = (sdgs.secondary && sdgs.secondary.number) ? sdgs.secondary : fallback.secondary;
+    const country = d.country_name || d.country || '';
     const hook = d.marketplace_listing?.hook || d.idea || '';
     const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
