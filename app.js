@@ -3996,7 +3996,7 @@
             country: cs.country || '',
             category: cs.category || '',
             sdg_number: sdgNum,
-            sdg_name: SDG_FALLBACK.find(s => s.number === sdgNum)?.name || 'Decent Work',
+            sdg_name: ({1:'No Poverty',2:'Zero Hunger',3:'Good Health',4:'Quality Education',5:'Gender Equality',6:'Clean Water',7:'Clean Energy',8:'Decent Work',9:'Industry & Innovation',10:'Reduced Inequalities',11:'Sustainable Cities',12:'Responsible Consumption',13:'Climate Action',14:'Life Below Water',15:'Life on Land',16:'Peace & Justice',17:'Partnerships'})[sdgNum] || 'Decent Work',
             excerpt: cs.key_lesson || cs.problem_statement || cs.the_model || '',
             impact: cs.impact_numbers || cs.impact || '',
             what_worked: Array.isArray(cs.what_worked) ? cs.what_worked[0] : (cs.what_worked || ''),
