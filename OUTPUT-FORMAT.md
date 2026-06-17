@@ -142,7 +142,7 @@ YOUR SCORE
 
 **Format (CLI):**
 ```
-YOUR SDG IMPACT
+WHO YOU HELP
   Primary: SDG [N] — [Name] | Target [N.N]: [Description]
   Secondary: SDG [N] — [Name] | Target [N.N]: [Description]
   Impact Score: [X]/100
@@ -224,7 +224,7 @@ REALITY CHECK
 
 **Format (CLI):**
 ```
-WHAT'S WORKING FOR YOU
+YOUR STRENGTHS
   Community:
     - [Strength 1 — specific, with data]
     - [Strength 2]
@@ -274,7 +274,7 @@ WHAT'S WORKING FOR YOU
 
 **Format (CLI):**
 ```
-WHAT'S HOLDING YOU BACK
+WHAT IS IN YOUR WAY
   Barriers:
     1. [Name]
        Practical meaning: [what this means for the user]
@@ -407,7 +407,7 @@ CAN YOU START WITH NOTHING?
 
 **Format (CLI):**
 ```
-YOUR 2-WEEK PLAN
+YOUR FIRST 14 DAYS
   Week 1:
     Day 1-2: [specific action]
     Day 3-4: [specific action]

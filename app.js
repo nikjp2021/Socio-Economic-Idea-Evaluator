@@ -698,26 +698,76 @@
       );
     }
 
-    // 14-Day Plan
+    // 14-Day Plan (Interactive)
     if (d.verdict.proof_of_work) {
       const p = d.verdict.proof_of_work;
-      let h = '<p style="font-size:0.875rem;color:var(--ink-muted);margin-bottom:1rem;line-height:1.65">Start with $0. No permission needed. Just do this.</p>';
-      [
-        { l: 'Day 1\u20132', t: p.week_1.day_1_2 },
-        { l: 'Day 3\u20134', t: p.week_1.day_3_4 },
-        { l: 'Day 5\u20137', t: p.week_1.day_5_7 },
-        { l: 'Day 8\u201310', t: p.week_2.day_8_10 },
-        { l: 'Day 11\u201312', t: p.week_2.day_11_12 },
-        { l: 'Day 13\u201314', t: p.week_2.day_13_14 },
-      ].forEach((s) => {
-        h += `<div class="step"><div class="step-label">${s.l}</div><div class="step-text">${esc(
-          s.t
-        )}</div></div>`;
+      const planSteps = [
+        { id: 'd12', l: 'Day 1\u20132', t: p.week_1.day_1_2 },
+        { id: 'd34', l: 'Day 3\u20134', t: p.week_1.day_3_4 },
+        { id: 'd57', l: 'Day 5\u20137', t: p.week_1.day_5_7 },
+        { id: 'd810', l: 'Day 8\u201310', t: p.week_2.day_8_10 },
+        { id: 'd1112', l: 'Day 11\u201312', t: p.week_2.day_11_12 },
+        { id: 'd1314', l: 'Day 13\u201314', t: p.week_2.day_13_14 },
+      ];
+
+      // Load saved progress
+      const planKey = 'see_plan_' + (d.country || 'x') + '_' + (d.idea_type || 'x');
+      let savedProgress = {};
+      try { savedProgress = JSON.parse(localStorage.getItem(planKey) || '{}'); } catch(e) {}
+
+      const completedCount = planSteps.filter(s => savedProgress[s.id]).length;
+      const progressPct = Math.round((completedCount / planSteps.length) * 100);
+
+      let h = `<div class="progress-tracker">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:${progressPct}%"></div>
+        </div>
+        <div class="progress-label">${completedCount}/${planSteps.length} phases complete &mdash; ${progressPct}%</div>
+      </div>`;
+      h += '<p style="font-size:0.875rem;color:var(--ink-muted);margin-bottom:1rem;line-height:1.65">Start with $0. No permission needed. Check off each phase as you complete it.</p>';
+
+      planSteps.forEach((s) => {
+        const checked = savedProgress[s.id] ? 'checked' : '';
+        h += `<div class="step task-step ${checked ? 'task-done' : ''}">
+          <label class="task-checkbox-wrap">
+            <input type="checkbox" class="task-checkbox" data-plan-key="${planKey}" data-task-id="${s.id}" ${checked}>
+            <span class="task-checkmark"></span>
+          </label>
+          <div class="step-content">
+            <div class="step-label">${s.l}</div>
+            <div class="step-text">${esc(s.t)}</div>
+          </div>
+        </div>`;
       });
       h += `<div class="r-card" style="margin-top:1rem"><div class="r-label" style="color:var(--forest)">How Do You Know If It Is Working?</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${esc(
         p.success_criteria
       )}</div></div>`;
       addSection('sec-plan', '&#x1F4C5;', 'forest', 'Your First 14 Days', h);
+
+      // Wire up checkboxes after render
+      setTimeout(() => {
+        $$('.task-checkbox').forEach(cb => {
+          cb.addEventListener('change', () => {
+            const key = cb.dataset.planKey;
+            const taskId = cb.dataset.taskId;
+            let progress = {};
+            try { progress = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+            if (cb.checked) { progress[taskId] = true; } else { delete progress[taskId]; }
+            localStorage.setItem(key, JSON.stringify(progress));
+            // Update step styling
+            const step = cb.closest('.task-step');
+            if (step) step.classList.toggle('task-done', cb.checked);
+            // Update progress bar
+            const total = $$('.task-checkbox').length;
+            const done = $$('.task-checkbox:checked').length;
+            const pct = Math.round((done / total) * 100);
+            const bar = document.querySelector('.progress-bar-fill');
+            const label = document.querySelector('.progress-label');
+            if (bar) bar.style.width = pct + '%';
+            if (label) label.textContent = `${done}/${total} phases complete \u2014 ${pct}%`;
+          });
+        });
+      }, 100);
     }
 
     // Funding
@@ -749,6 +799,113 @@
         <button class="first-step-btn whatsapp-step" onclick="window.open('https://wa.me/?text='+encodeURIComponent('My first step from SEE: '+document.querySelector('.first-step-text').textContent),'_blank')">&#x1F4AC; Share on WhatsApp</button>
       </div>
     </div>`;
+
+    // What-If Mode
+    c.innerHTML += `<div class="what-if-panel">
+      <div class="what-if-header">
+        <div class="what-if-icon">&#x1F504;</div>
+        <div>
+          <div class="what-if-title">What If You Changed the Country?</div>
+          <div class="what-if-sub">See how cultural context affects your score</div>
+        </div>
+      </div>
+      <div class="what-if-controls">
+        <select id="whatIfCountry" class="what-if-select">
+          <option value="">Select a country...</option>
+        </select>
+      </div>
+      <div id="whatIfResult" class="what-if-result"></div>
+    </div>`;
+
+    // Wire up What-If after render
+    setTimeout(() => {
+      const sel = document.getElementById('whatIfCountry');
+      const resultEl = document.getElementById('whatIfResult');
+      if (!sel || !resultEl) return;
+      const hofData = window.__hofstedeData || [];
+      // Populate country dropdown
+      hofData.sort((a, b) => (a.name || '').localeCompare(b.name || '')).forEach(c => {
+        if (c.code === d.country) return;
+        const opt = document.createElement('option');
+        opt.value = c.code;
+        opt.textContent = c.name || c.code;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', () => {
+        const code = sel.value;
+        if (!code) { resultEl.innerHTML = ''; return; }
+        const target = hofData.find(c => c.code === code);
+        if (!target) return;
+        const home = hofData.find(c => c.code === d.country) || {};
+        const dimKeys = ['power_distance', 'individualism', 'masculinity', 'uncertainty_avoidance', 'long_term_orientation', 'indulgence'];
+        const dimLabels = ['Power Distance', 'Individualism', 'Masculinity', 'Uncertainty Avoidance', 'Long-Term Orientation', 'Indulgence'];
+        // Compute cultural score delta
+        const homeBarriers = dimKeys.filter(k => (home[k] || 50) > 75).length;
+        const targetBarriers = dimKeys.filter(k => (target[k] || 50) > 75).length;
+        const culturalDelta = (homeBarriers - targetBarriers) * 1.5;
+        // Compute education delta (restrained countries = harder)
+        const homeIVR = home.indulgence || 50;
+        const targetIVR = target.indulgence || 50;
+        const eduDelta = ((targetIVR - homeIVR) / 100) * 2;
+        // Overall score delta
+        const totalDelta = culturalDelta * 0.15 + eduDelta * 0.15;
+        const newScore = Math.max(1, Math.min(10, d.verdict.total_score + totalDelta));
+        const delta = newScore - d.verdict.total_score;
+        const deltaStr = delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
+        const deltaColor = delta > 0 ? 'var(--forest)' : delta < 0 ? 'var(--terracotta)' : 'var(--ink-muted)';
+        // Dimension comparison
+        let dimHTML = '<div class="what-if-dims">';
+        dimKeys.forEach((k, i) => {
+          const homeVal = home[k] || 50;
+          const targetVal = target[k] || 50;
+          const diff = targetVal - homeVal;
+          const diffStr = diff > 0 ? `+${diff}` : `${diff}`;
+          const diffColor = diff > 10 ? 'var(--terracotta)' : diff < -10 ? 'var(--forest)' : 'var(--ink-muted)';
+          dimHTML += `<div class="what-if-dim">
+            <span class="what-if-dim-label">${dimLabels[i]}</span>
+            <span class="what-if-dim-home">${homeVal}</span>
+            <span class="what-if-dim-arrow">&#x2192;</span>
+            <span class="what-if-dim-target">${targetVal}</span>
+            <span class="what-if-dim-diff" style="color:${diffColor}">${diffStr}</span>
+          </div>`;
+        });
+        dimHTML += '</div>';
+        resultEl.innerHTML = `<div class="what-if-score">
+          <div class="what-if-score-label">Estimated Score in ${esc(target.name || code)}</div>
+          <div class="what-if-score-value">
+            <span style="color:${deltaColor}">${newScore.toFixed(1)}</span>
+            <span class="what-if-score-delta" style="color:${deltaColor}">${deltaStr}</span>
+          </div>
+        </div>
+        ${dimHTML}
+        <div class="what-if-note">This is an estimate based on cultural dimensions. A full evaluation would include community viability, case study matching, and bootstrapper scoring.</div>`;
+      });
+    }, 200);
+
+    // Save evaluation banner (if not logged in)
+    if (!localStorage.getItem('see_token')) {
+      c.innerHTML += `<div class="save-banner">
+        <div class="save-banner-icon">&#x1F512;</div>
+        <div class="save-banner-text">
+          <strong>Save your evaluation permanently.</strong>
+          <span>Create a free account to track progress, compare ideas, and get matched with collaborators.</span>
+        </div>
+        <button class="save-banner-btn" id="saveBannerBtn">Create Free Account</button>
+        <button class="save-banner-dismiss" id="saveBannerDismiss">&times;</button>
+      </div>`;
+      setTimeout(() => {
+        const btn = document.getElementById('saveBannerBtn');
+        const dismiss = document.getElementById('saveBannerDismiss');
+        if (btn) btn.addEventListener('click', () => {
+          const authOverlay = document.getElementById('authOverlay');
+          if (authOverlay) { authOverlay.style.display = 'flex'; }
+        });
+        if (dismiss) dismiss.addEventListener('click', () => {
+          const banner = dismiss.closest('.save-banner');
+          if (banner) banner.style.display = 'none';
+        });
+      }, 100);
+    }
 
     // Tab click handlers
     initResultsTabs();
@@ -949,6 +1106,80 @@
     });
   };
 
+  // ─── PASSPORT EXPORT ───
+  window.__exportPassportPNG = function () {
+    const el = document.querySelector('.cultural-passport');
+    if (!el || typeof html2canvas === 'undefined') {
+      showToast('Export unavailable. Try the Print option.', 'error');
+      return;
+    }
+    html2canvas(el, { backgroundColor: '#faf7f2', scale: 2 }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'cultural-fit-passport.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('Passport saved!', 'success');
+    });
+  };
+
+  // ─── CERTIFICATE EXPORT ───
+  window.__exportCertificatePNG = function () {
+    const el = document.getElementById('sdg-certificate');
+    if (!el || typeof html2canvas === 'undefined') {
+      showToast('Export unavailable. Try the Print option.', 'error');
+      return;
+    }
+    html2canvas(el, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'sdg-certificate.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('Certificate saved!', 'success');
+    });
+  };
+
+  window.__exportCertificateText = function () {
+    const el = document.getElementById('sdg-certificate');
+    if (!el) return;
+    const text = el.textContent.replace(/\s+/g, ' ').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Certificate text copied!', 'success');
+    });
+  };
+
+  // ─── LOAD HOFSTEDE DATA FOR PASSPORT ───
+  (function loadHofstedeData() {
+    fetch('data/hofstede-database.json')
+      .then(r => r.json())
+      .then(data => {
+        const countries = data.countries || data;
+        if (Array.isArray(countries)) {
+          window.__hofstedeData = countries.map(c => ({
+            code: c.code || '',
+            name: c.name || c.code || '',
+            power_distance: c.pdi || c.hofstede?.power_distance || 50,
+            individualism: c.idv || c.hofstede?.individualism || 50,
+            masculinity: c.mas || c.hofstede?.masculinity || 50,
+            uncertainty_avoidance: c.uai || c.hofstede?.uncertainty_avoidance || 50,
+            long_term_orientation: c.lto || c.hofstede?.long_term_orientation || 50,
+            indulgence: c.ivr || c.hofstede?.indulgence || 50,
+          }));
+        } else if (typeof countries === 'object') {
+          window.__hofstedeData = Object.entries(countries).map(([code, c]) => ({
+            code: c.code || code,
+            name: c.name || code,
+            power_distance: c.pdi || c.hofstede?.power_distance || 50,
+            individualism: c.idv || c.hofstede?.individualism || 50,
+            masculinity: c.mas || c.hofstede?.masculinity || 50,
+            uncertainty_avoidance: c.uai || c.hofstede?.uncertainty_avoidance || 50,
+            long_term_orientation: c.lto || c.hofstede?.long_term_orientation || 50,
+            indulgence: c.ivr || c.hofstede?.indulgence || 50,
+          }));
+        }
+      })
+      .catch(() => {});
+  })();
+
   // ─── INNOVATION PANEL ───
   function renderInnovationPanel(d) {
     const panel = $('#innovationPanel');
@@ -960,13 +1191,18 @@
     const hasMarketplace = d.marketplace_listing;
     const hasMentors = Array.isArray(d.mentor_council) && d.mentor_council.length > 0;
 
-    if (!hasCanvas && !hasPositioning && !hasHeatmap && !hasMarketplace && !hasMentors) {
+    // Always show panel — passport, stories, and certificate are always available
+    const hasAnyFeature = hasCanvas || hasPositioning || hasHeatmap || hasMarketplace || hasMentors || d.verdict;
+    if (!hasAnyFeature) {
       panel.style.display = 'none';
       return;
     }
 
     const innovTabs = [];
     if (hasMentors) innovTabs.push({ id: 'inn-mentors', label: 'Mentor Council', icon: '&#x1F9D1;&#x200D;&#x1F4BC;' });
+    innovTabs.push({ id: 'inn-passport', label: 'Cultural Passport', icon: '&#x1F4C4;' });
+    innovTabs.push({ id: 'inn-stories', label: 'Impact Stories', icon: '&#x1F4DD;' });
+    innovTabs.push({ id: 'inn-certificate', label: 'SDG Certificate', icon: '&#x1F3C6;' });
     if (hasCanvas) innovTabs.push({ id: 'inn-canvas', label: 'Lean Canvas', icon: '&#x1F4CB;' });
     if (hasPositioning) innovTabs.push({ id: 'inn-positioning', label: 'Positioning', icon: '&#x1F4CA;' });
     if (hasHeatmap) innovTabs.push({ id: 'inn-heatmap', label: 'Global Heatmap', icon: '&#x1F30D;' });
@@ -975,7 +1211,7 @@
     let html = `<div class="innovation-header">
       <div class="section-label">Innovation Toolkit</div>
       <h2 class="section-title">Go Deeper With Your Idea</h2>
-      <p class="section-sub">Advanced analysis powered by 136 countries, 165 case studies, and the Shizuoka Method.</p>
+      <p class="section-sub">Advanced analysis powered by 136 countries, 182+ case studies, and the Shizuoka Method.</p>
     </div>`;
 
     html += `<div class="innovation-tabs">${innovTabs.map((t, i) =>
@@ -984,7 +1220,10 @@
 
     html += '<div class="innovation-content">';
     if (hasMentors) html += `<div id="inn-mentors" class="active">${renderMentorCouncil(d.mentor_council, d.verdict)}</div>`;
-    if (hasCanvas) html += `<div id="inn-canvas"${hasMentors ? '' : ' class="active"'}>${renderLeanCanvas(d.lean_canvas)}</div>`;
+    html += `<div id="inn-passport"${hasMentors ? '' : ' class="active"'}>${renderCulturalPassport(d)}</div>`;
+    html += `<div id="inn-stories">${renderStoryEngine(d)}</div>`;
+    html += `<div id="inn-certificate">${renderSDGCertificate(d)}</div>`;
+    if (hasCanvas) html += `<div id="inn-canvas">${renderLeanCanvas(d.lean_canvas)}</div>`;
     if (hasPositioning) html += `<div id="inn-positioning">${renderCompetitivePositioning(d.competitive_positioning)}</div>`;
     if (hasHeatmap) html += `<div id="inn-heatmap">${renderGlobalHeatmap(d)}</div>`;
     if (hasMarketplace) html += `<div id="inn-marketplace">${renderMarketplaceCard(d.marketplace_listing)}</div>`;
@@ -1011,6 +1250,247 @@
         if (w) bar.style.width = w + '%';
       });
     }, 200);
+  }
+
+  // ─── CULTURAL FIT PASSPORT ───
+  function renderCulturalPassport(d) {
+    const cultural = d.cultural || {};
+    const dims = cultural.dimensions || {};
+    const score = d.verdict?.total_score || 0;
+    const country = d.country_name || d.country || 'Unknown';
+    const ideaType = d.idea_type || 'social impact';
+
+    // Build radar SVG for cultural dimensions
+    const dimKeys = ['power_distance', 'individualism', 'masculinity', 'uncertainty_avoidance', 'long_term_orientation', 'indulgence'];
+    const dimLabels = ['Power\nDistance', 'Individualism', 'Masculinity', 'Uncertainty\nAvoidance', 'Long-Term\nOrientation', 'Indulgence'];
+    const dimValues = dimKeys.map(k => {
+      const dim = dims[k];
+      return dim ? (typeof dim === 'object' ? dim.score || 50 : dim) : 50;
+    });
+
+    // Cultural fit percentage (inverse of barrier count)
+    const highBarriers = dimValues.filter(v => v > 75).length;
+    const lowBarriers = dimValues.filter(v => v < 25).length;
+    const fitPct = Math.max(20, Math.min(95, 100 - (highBarriers * 12) - (lowBarriers * 6)));
+
+    // Find cultural twin (country with similar Hofstede profile)
+    const hofData = window.__hofstedeData || [];
+    let twin = null;
+    let minDist = Infinity;
+    const homeHof = dimValues;
+    hofData.forEach(c => {
+      if (c.code === d.country) return;
+      const dist = Math.sqrt(
+        dimKeys.reduce((sum, k, i) => sum + Math.pow((c[k] || 50) - homeHof[i], 2), 0)
+      );
+      if (dist < minDist) { minDist = dist; twin = c; }
+    });
+
+    // Radar SVG
+    const cx = 120, cy = 120, r = 90;
+    const angleStep = (Math.PI * 2) / 6;
+    const points = dimValues.map((v, i) => {
+      const angle = -Math.PI / 2 + i * angleStep;
+      const pct = v / 100;
+      return `${cx + r * pct * Math.cos(angle)},${cy + r * pct * Math.sin(angle)}`;
+    });
+    const gridLevels = [0.33, 0.66, 1];
+    const gridPaths = gridLevels.map(lvl => {
+      return dimKeys.map((_, i) => {
+        const angle = -Math.PI / 2 + i * angleStep;
+        return `${cx + r * lvl * Math.cos(angle)},${cy + r * lvl * Math.sin(angle)}`;
+      }).join(' ');
+    });
+    const labelPos = dimLabels.map((label, i) => {
+      const angle = -Math.PI / 2 + i * angleStep;
+      const lx = cx + (r + 28) * Math.cos(angle);
+      const ly = cy + (r + 28) * Math.sin(angle);
+      return { x: lx, y: ly, label };
+    });
+
+    let svg = `<svg viewBox="0 0 240 240" style="width:220px;height:220px;margin:0 auto;display:block">
+      ${gridPaths.map(p => `<polygon points="${p}" fill="none" stroke="var(--cream-deeper)" stroke-width="1"/>`).join('')}
+      <polygon points="${points.join(' ')}" fill="rgba(45,90,39,0.15)" stroke="var(--forest)" stroke-width="2"/>
+      ${labelPos.map(l => `<text x="${l.x}" y="${l.y}" text-anchor="middle" dominant-baseline="middle" style="font-size:8px;fill:var(--ink-muted);font-family:var(--font-body)">${l.label.split('\n').map((t,j) => `<tspan x="${l.x}" dy="${j?'10':'0'}">${t}</tspan>`).join('')}</text>`).join('')}
+    </svg>`;
+
+    const adaptationTips = [];
+    dimValues.forEach((v, i) => {
+      const label = dimLabels[i].replace('\n', ' ');
+      if (v > 75) adaptationTips.push(`<strong>${label} (${v})</strong> — Work with authority figures, not against them.`);
+      else if (v < 25) adaptationTips.push(`<strong>${label} (${v})</strong> — Build personal connections; community matters here.`);
+    });
+
+    return `<div class="cultural-passport">
+      <div class="passport-header">
+        <div class="passport-stamp">&#x1F4C4;</div>
+        <h3 class="passport-title">Cultural Fit Passport</h3>
+        <p class="passport-sub">How your idea fits the cultural landscape of ${esc(country)}</p>
+      </div>
+      <div class="passport-body">
+        <div class="passport-radar">
+          ${svg}
+          <div class="passport-fit-score">
+            <span class="fit-number">${fitPct}%</span>
+            <span class="fit-label">Cultural Fit</span>
+          </div>
+        </div>
+        <div class="passport-details">
+          <div class="passport-card">
+            <div class="passport-card-label">Your Idea</div>
+            <div class="passport-card-value">${esc(ideaType)} in ${esc(country)}</div>
+          </div>
+          ${twin ? `<div class="passport-card passport-twin">
+            <div class="passport-card-label">&#x1F30D; Cultural Twin</div>
+            <div class="passport-card-value">${esc(twin.name || twin.code)}</div>
+            <div class="passport-card-note">Most similar cultural profile where social enterprises have succeeded</div>
+          </div>` : ''}
+          ${cultural.context_summary ? `<div class="passport-card">
+            <div class="passport-card-label">Cultural Context</div>
+            <div class="passport-card-value">${esc(cultural.context_summary)}</div>
+          </div>` : ''}
+          ${adaptationTips.length ? `<div class="passport-card">
+            <div class="passport-card-label">Key Adaptations</div>
+            <ul class="passport-tips">${adaptationTips.map(t => `<li>${t}</li>`).join('')}</ul>
+          </div>` : ''}
+        </div>
+      </div>
+      <div class="passport-footer">
+        <button class="passport-export-btn" onclick="window.__exportPassportPNG()">&#x1F4F8; Save as Image</button>
+        <span class="passport-brand">Socio-Economic Evaluator &mdash; ${window.location.origin}</span>
+      </div>
+    </div>`;
+  }
+
+  // ─── IMPACT STORY ENGINE ───
+  function renderStoryEngine(d) {
+    const score = d.verdict?.total_score || 0;
+    const pitch = d.verdict?.elevator_pitch || '';
+    const ideaType = d.idea_type || 'social impact';
+    const country = d.country_name || d.country || '';
+    const sdgs = d.sdgs || {};
+    const primarySDG = sdgs.primary?.name || '';
+    const secondarySDG = sdgs.secondary?.name || '';
+    const hook = d.marketplace_listing?.hook || d.idea || '';
+    const firstStep = d.verdict?.first_step || '';
+    const verdict = d.verdict?.verdict || '';
+
+    const verdictEmoji = { GO: '&#x2705;', 'GO WITH EDUCATION': '&#x1F4A1;', PIVOT: '&#x1F504;', SHELVE: '&#x1F91D;' };
+
+    // LinkedIn post
+    const linkedinPost = `I just evaluated my social impact idea and scored ${score}/10.\n\n${verdictEmoji[verdict] || ''} ${hook}\n\nWhat I learned:\n${primarySDG ? `• Addresses ${primarySDG}` : ''}${secondarySDG ? `\n• Also impacts ${secondarySDG}` : ''}\n• Cultural fit analysis across 136 countries\n• Matched with real-world case studies\n\nMy first step: ${firstStep}\n\nWant to test your idea? Try the Socio-Economic Evaluator — free, no sign-up, results in 60 seconds.\n\n#SocialImpact #SocialEnterprise #${ideaType.replace(/_/g, '')} #SDGs`;
+
+    // Elevator pitch (60 seconds)
+    const elevatorPitch = pitch || `"${hook}" scored ${score}/10. ${verdict === 'GO' ? 'This is ready to test.' : verdict === 'PIVOT' ? 'The problem is real but the approach needs to change.' : 'There are specific barriers to address first.'} ${firstStep}`;
+
+    // WhatsApp status
+    const whatsappStatus = `${verdictEmoji[verdict] || ''} My ${ideaType} idea scored ${score}/10. ${hook ? `"${hook}"` : ''} First step: ${firstStep}`;
+
+    function copyBtn(text, id) {
+      return `<button class="story-copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${id}').textContent).then(()=>{this.textContent='Copied!';setTimeout(()=>{this.innerHTML='&#x1F4CB; Copy'},1500)})">&#x1F4CB; Copy</button>`;
+    }
+
+    return `<div class="story-engine">
+      <div class="story-header">
+        <div class="story-icon">&#x1F4DD;</div>
+        <h3 class="story-title">Impact Story Engine</h3>
+        <p class="story-sub">Ready-to-use narratives from your evaluation. Share your journey.</p>
+      </div>
+      <div class="story-cards">
+        <div class="story-card">
+          <div class="story-card-header">
+            <span class="story-card-icon">&#x1F4AC;</span>
+            <span class="story-card-label">LinkedIn Post</span>
+          </div>
+          <div class="story-card-body" id="story-linkedin">${esc(linkedinPost)}</div>
+          <div class="story-card-footer">${copyBtn(linkedinPost, 'story-linkedin')}</div>
+        </div>
+        <div class="story-card">
+          <div class="story-card-header">
+            <span class="story-card-icon">&#x1F3A4;</span>
+            <span class="story-card-label">60-Second Pitch</span>
+          </div>
+          <div class="story-card-body" id="story-elevator">${esc(elevatorPitch)}</div>
+          <div class="story-card-footer">${copyBtn(elevatorPitch, 'story-elevator')}</div>
+        </div>
+        <div class="story-card">
+          <div class="story-card-header">
+            <span class="story-card-icon">&#x1F4F1;</span>
+            <span class="story-card-label">WhatsApp Status</span>
+          </div>
+          <div class="story-card-body" id="story-whatsapp">${esc(whatsappStatus)}</div>
+          <div class="story-card-footer">
+            ${copyBtn(whatsappStatus, 'story-whatsapp')}
+            <button class="story-share-btn" onclick="window.open('https://wa.me/?text='+encodeURIComponent(document.getElementById('story-whatsapp').textContent),'_blank')">&#x1F4AC; Share</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ─── SDG ALIGNMENT CERTIFICATE ───
+  function renderSDGCertificate(d) {
+    const score = d.verdict?.total_score || 0;
+    const sdgs = d.sdgs || {};
+    const primary = sdgs.primary || {};
+    const secondary = sdgs.secondary || {};
+    const country = d.country_name || d.country || '';
+    const ideaType = d.idea_type || 'social impact';
+    const hook = d.marketplace_listing?.hook || d.idea || '';
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const sdgColors = {
+      1: '#E5243B', 2: '#DDA63A', 3: '#4C9F38', 4: '#C5192D', 5: '#FF3A21',
+      6: '#26BDE2', 7: '#FCC30B', 8: '#A21942', 9: '#FD6925', 10: '#DD1367',
+      11: '#FD9D24', 12: '#BF8B2E', 13: '#3F7E44', 14: '#0A97D9', 15: '#56C02B',
+      16: '#00689D', 17: '#19486A'
+    };
+
+    const primaryColor = sdgColors[primary.number] || '#2d5a27';
+    const secondaryColor = sdgColors[secondary.number] || '#4a8c3f';
+
+    const cultural = d.cultural || {};
+    const fitScore = cultural.cultural_compatibility_score || cultural.score || Math.round(score * 0.8);
+
+    return `<div class="certificate-wrap">
+      <div class="certificate" id="sdg-certificate">
+        <div class="cert-border">
+          <div class="cert-header">
+            <div class="cert-logo">&#x1F33F;</div>
+            <div class="cert-org">Socio-Economic Evaluator</div>
+          </div>
+          <div class="cert-title">Social Impact Idea Certificate</div>
+          <div class="cert-hook">"${esc(hook)}"</div>
+          <div class="cert-scores">
+            <div class="cert-score-item">
+              <div class="cert-score-num" style="color:${primaryColor}">${score}</div>
+              <div class="cert-score-label">/10 Score</div>
+            </div>
+            <div class="cert-score-divider"></div>
+            <div class="cert-score-item">
+              <div class="cert-score-num" style="color:var(--forest)">${fitScore}</div>
+              <div class="cert-score-label">Cultural Fit</div>
+            </div>
+          </div>
+          <div class="cert-sdg-row">
+            ${primary.number ? `<div class="cert-sdg-badge" style="background:${primaryColor}"><span>SDG ${primary.number}</span><span>${esc(primary.name || '')}</span></div>` : ''}
+            ${secondary.number ? `<div class="cert-sdg-badge" style="background:${secondaryColor}"><span>SDG ${secondary.number}</span><span>${esc(secondary.name || '')}</span></div>` : ''}
+          </div>
+          ${primary.plain_explanation ? `<div class="cert-explanation">${esc(primary.plain_explanation)}</div>` : ''}
+          <div class="cert-meta">
+            <span>${esc(country)} &middot; ${esc(ideaType)}</span>
+            <span>${date}</span>
+          </div>
+          <div class="cert-footer">
+            <span>Evaluated through 7 layers of analysis &middot; 136 countries &middot; 182+ case studies</span>
+          </div>
+        </div>
+      </div>
+      <div class="cert-actions">
+        <button class="cert-export-btn" onclick="window.__exportCertificatePNG()">&#x1F4F8; Save as PNG</button>
+        <button class="cert-export-btn secondary" onclick="window.__exportCertificateText()">&#x1F4CB; Copy Text</button>
+      </div>
+    </div>`;
   }
 
   // ─── LEAN CANVAS RENDERER ───

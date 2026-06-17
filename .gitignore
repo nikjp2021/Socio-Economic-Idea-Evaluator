@@ -5,3 +5,5 @@ output/
 .vercel/
 .netlify/
 node_modules/
+.vercel
+.env*

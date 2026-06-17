@@ -253,4 +253,80 @@ Decision & change log. Every significant decision is recorded here with both tec
 
 ---
 
+### 2026-06-17 — Documentation Audit & Sync
+
+**Tech:**
+- Updated MEMORY.md — full rewrite to reflect current state (was stuck at Session 4)
+- Updated CLAUDE.md — corrected directory structure, function line numbers, data asset counts, added undocumented API files
+- Updated OUTPUT-FORMAT.md — fixed 4 stale section names in CLI format blocks (YOUR SDG IMPACT→WHO YOU HELP, WHAT'S WORKING FOR YOU→YOUR STRENGTHS, WHAT'S HOLDING YOU BACK→WHAT IS IN YOUR WAY, YOUR 2-WEEK PLAN→YOUR FIRST 14 DAYS)
+- Updated EVENT-LOG.md — added missing entries for 28 commits since 2026-05-29
+
+**Business:**
+- Documentation was 30 commits behind the code. Any new Claude session reading the old docs would get the wrong project path, wrong line counts, miss the entire database layer, and not know about 15+ features.
+- Marked EXPERIENCE-DESIGN.md, INNOVATION-PLAN.md, and INNOVATION-FEATURES.md as "historical" — they describe planned features, not current state.
+
+**Why:** The code evolved from a Python CLI tool to a full-stack web app with database, auth, and 15+ new features. The docs still described the Session 4 state.
+
+**Files:** `MEMORY.md` (REWRITTEN), `CLAUDE.md` (MODIFIED), `OUTPUT-FORMAT.md` (MODIFIED), `EVENT-LOG.md` (this entry)
+
+---
+
+### 2026-06 (Sessions 5-10+) — Full-Stack Transformation
+
+**What happened:** 28 commits transformed the project from a Python CLI tool into a full-stack web application. This entry consolidates the undocumented work.
+
+**Tech — Database & Auth:**
+- Added Neon PostgreSQL backend (`api/db.mjs`) with 11 tables: users, user_profiles, evaluations, mentor_matches, favorites, marketplace_listings, evaluation_analytics, mentor_personas, case_studies, countries, sdg_data, idea_templates, figures
+- Added JWT authentication (`api/auth.mjs`) with bcryptjs password hashing
+- Added evaluations CRUD (`api/evaluations.mjs`) — save, list, upvote
+- Added reference data API (`api/reference.mjs`) — leaderboard, similar ideas, country data, personas
+- Added database seeding (`api/seed.mjs`) — seeds all reference data from JSON files
+- Added `package.json` with 4 dependencies: @google/genai, @neondatabase/serverless, bcryptjs, jsonwebtoken
+
+**Tech — Innovation Toolkit:**
+- Added `generate_lean_canvas()` — 10-block social impact canvas
+- Added `find_competitive_positioning()` — fuzzy-match against 182+ case studies, radar chart data
+- Added `score_idea_globally()` — evaluate against all 136 countries, top/bottom 5 + regional averages
+- Added `generate_marketplace_listing()` — badge system (gold/silver/bronze/developing), SDG tags
+- Added `match_mentor_personas()` — top 3 mentor matches with score-tier playbooks
+- Frontend: `renderLeanCanvas()`, `renderCompetitivePositioning()`, `buildRadarSVG()`, `renderGlobalHeatmap()`, `renderMarketplaceGallery()`, `renderMentorCouncil()`, `renderMentorsGallery()`
+
+**Tech — Community Features:**
+- Added Community Leaderboard with stats, verdict distribution, top ideas
+- Added Figures Gallery (57+ figures, zone filtering)
+- Added SDG Explorer modal (clickable cards with targets)
+- Added Similar Ideas panel (post-evaluation recommendations)
+- Added Quick Evaluate (pre-computed results, no AI calls)
+- Added Cultural Lookup (country selector, Hofstede dimensions)
+- Added User Dashboard with evaluation stats and history
+- Added evaluation persistence (localStorage + DB)
+- Added canvas export (PNG + text) with upvote system
+
+**Tech — Landing Page:**
+- Extracted JS from index.html into separate app.js (2423 lines)
+- Expanded styles.css from ~2430 to 3831 lines
+- Reduced index.html from ~1500 to 648 lines (structure only)
+- Added real Unsplash imagery to every section
+- Added 9 new case studies enriched from Wikipedia
+- Redesigned with warm cream theme (Lora/Lexend fonts)
+
+**Tech — Deployment:**
+- Fixed Vercel static file serving (explicit builds for CSS/JS)
+- Fixed stream-based body parsing for Node.js Vercel runtime
+- Fixed sql.query() for parameterized queries (neon serverless v1)
+- Added security headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy)
+
+**Business:**
+- Product is now a full web application, not a CLI tool
+- User accounts enable evaluation history and community features
+- Marketplace and leaderboard create network effects
+- Mentor council adds credibility and personalized guidance
+- Quick Evaluate and Cultural Lookup reduce friction for new users
+
+**Why:** The MVP proved the concept. Database persistence, auth, and community features are needed for real user engagement. The Innovation Toolkit differentiates from any other evaluation tool.
+
+**Files:** `api/db.mjs` (CREATED), `api/auth.mjs` (CREATED), `api/evaluations.mjs` (CREATED), `api/reference.mjs` (CREATED), `api/seed.mjs` (CREATED), `api/schema.sql` (CREATED), `package.json` (CREATED), `evaluator.py` (MODIFIED — +1000 lines), `app.js` (CREATED — 2423 lines), `styles.css` (MODIFIED — +1400 lines), `index.html` (REWRITTEN — 648 lines), `case-studies/library.json` (MODIFIED), `case-studies/mentor-personas.json` (CREATED), `data/social-enterprises.json` (CREATED), `vercel.json` (MODIFIED)
+
+---
+
 *Event log maintained by Nikhil Tiwari & Claude*

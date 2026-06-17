@@ -16,10 +16,12 @@ When entering this project, read these files in this order before doing anything
 
 **Priority 3 — Understand the code (read when making changes):**
 7. `evaluator.py` — the 7-layer evaluation engine. Start with `format_report()` (the output formatter).
-8. `index.html` — the landing page. Semantic HTML only; CSS in `styles.css`, JS in `app.js`.
-9. `app.js` — application JavaScript. Contains `renderResult()`, form handling, gate screen, scroll reveals.
-10. `styles.css` — full design system with CSS variables, responsive breakpoints, animations.
-11. `api/eval.mjs` — the API layer (Node.js dual-handler for Vercel + Netlify).
+8. `index.html` — the landing page HTML structure.
+9. `app.js` — application JavaScript (2901 lines). Auth, results rendering, innovation panel, community features, standout features.
+10. `styles.css` — full design system (3996 lines). Warm cream theme, Lora/Lexend fonts, responsive breakpoints.
+11. `api/eval.mjs` — Gemini evaluation handler (Vercel + Netlify dual-handler).
+12. `api/db.mjs` — Neon PostgreSQL connection + schema (11 tables).
+13. `api/auth.mjs` — JWT authentication (register/login/logout).
 
 **Why this order:** MEMORY.md and EVENT-LOG.md contain the context that prevents you from repeating mistakes or re-litigating decisions. Read them before touching any code.
 
@@ -27,7 +29,7 @@ When entering this project, read these files in this order before doing anything
 
 ## Project Overview
 
-The Socio-Economic Evaluator is a "Virtual Evaluator for Social Impact Ideas" — a tool that evaluates social enterprise ideas through 7 layers of analysis, scoring them against 136 countries, 165 real-world case studies, and the UN Sustainable Development Goals.
+The Socio-Economic Evaluator is a "Virtual Evaluator for Social Impact Ideas" — a tool that evaluates social enterprise ideas through 7 layers of analysis, scoring them against 136 countries, 182+ real-world case studies, and the UN Sustainable Development Goals.
 
 **Built by:** Nikhil Tiwari (PhD researcher, Shizuoka University, Nagayoshi Lab) & Claude (Anthropic).
 
@@ -37,23 +39,28 @@ The Socio-Economic Evaluator is a "Virtual Evaluator for Social Impact Ideas" �
 
 ```
 socio-economic-evaluator/
-├── evaluator.py              # 7-layer evaluation engine (~2500 lines)
+├── evaluator.py              # 7-layer evaluation engine (2502 lines)
 ├── server.py                 # Local dev server (stdlib HTTP)
 ├── app.py                    # Flask wrapper for Render deployment
-├── index.html                # Landing page (semantic HTML, references styles.css + app.js)
-├── styles.css                # Design system + all styles (~2430 lines)
-├── app.js                    # Application JavaScript (~1458 lines)
+├── index.html                # Landing page HTML structure (648 lines)
+├── styles.css                # Design system + all styles (3996 lines)
+├── app.js                    # Application JavaScript (2901 lines)
 ├── api/
-│   └── eval.mjs              # Vercel/Netlify dual-handler (Gemini Flash-Lite)
-├── netlify/
-│   └── functions/
-│       └── gemini-eval.mjs   # Netlify function (Gemini Flash alternative)
+│   ├── eval.mjs              # Gemini evaluation handler (Vercel + Netlify dual-handler)
+│   ├── auth.mjs              # JWT authentication (register/login/logout)
+│   ├── db.mjs                # Neon PostgreSQL connection + schema init (11 tables)
+│   ├── evaluations.mjs       # Evaluations CRUD (save, list, upvote)
+│   ├── reference.mjs         # Reference data endpoints (leaderboard, similar, country, personas)
+│   ├── seed.mjs              # Database seeding (personas, case studies, figures, countries, SDGs)
+│   ├── schema.sql            # Database schema definition
+│   └── index.py              # Vercel Python serverless entry (legacy)
 ├── data/
 │   ├── hofstede-database.json   # 136 countries with Hofstede scores
 │   ├── countries.json           # 10 countries with rich cultural profiles
-│   └── zones.json               # 10 global zones
+│   ├── zones.json               # 10 global zones
+│   └── social-enterprises.json  # 10 social enterprise reference entries
 ├── case-studies/
-│   ├── library.json             # 55 case studies (flat structure)
+│   ├── library.json             # 72 case studies + 70 figures (flat structure)
 │   ├── zones-library.json       # 110 zone-based case studies + 57 figures
 │   └── mentor-personas.json     # 20 curated mentor personas with playbooks
 ├── engine/
@@ -70,18 +77,22 @@ socio-economic-evaluator/
 ├── CHANGELOG.md                 # Change history across sessions
 ├── MEMORY.md                    # Session memory for Claude
 ├── PRD-MVP.md                   # Product requirements document
-├── EXPERIENCE-DESIGN.md         # Product vision & design system
-├── INNOVATION-PLAN.md           # Strategic roadmap
-├── INNOVATION-FEATURES.md       # Innovation toolkit specs (canvas, positioning, heatmap, marketplace)
+├── EXPERIENCE-DESIGN.md         # Product vision & design system (historical — see note below)
+├── INNOVATION-PLAN.md           # Strategic roadmap (historical — status table outdated)
+├── INNOVATION-FEATURES.md       # Innovation toolkit specs (historical — ~60% implemented)
+├── IMPLEMENTATION-GAP-LOG.md    # Gap analysis between docs and code
+├── REQUIREMENTS.md              # Feature requirements
+├── SECURITY.md                  # Security documentation
 ├── README.md                    # Public-facing documentation
 ├── CLAUDE.md                    # This file — project instructions
 ├── EVENT-LOG.md                 # Decision & change log (tech + business)
-├── vercel.json                  # Vercel deployment config
+├── package.json                 # Node.js dependencies (@google/genai, @neondatabase/serverless, bcryptjs, jsonwebtoken)
+├── vercel.json                  # Vercel deployment config (5 API routes + static files)
 ├── netlify.toml                 # Netlify deployment config
 ├── render.yaml                  # Render deployment config
 ├── requirements.txt             # flask, flask-cors
-├── .env.example                 # SERPER_API_KEY, PORT
-└── .gitignore                   # .env, .vercel/, .netlify/, __pycache__
+├── .env.example                 # Environment variable template
+└── .gitignore                   # .env, .vercel/, .netlify/, __pycache__, node_modules/
 ```
 
 ## How to Run
@@ -110,7 +121,7 @@ User Input (5 fields)
     → run_cultural_analysis()   # Layer 3: 6 Hofstede dimensions
     → run_education_analysis()  # Layer 4: trainable vs structural barriers
     → run_bootstrapper_score()  # Layer 5: Easy/Feasible/Efforts + nikhils_take
-    → find_case_study()         # Layer 6: 165 case studies, 3-mode matching
+    → find_case_study()         # Layer 6: 182+ case studies, 3-mode matching
     → generate_verdict()        # Layer 7: score, verdict, pitch, proof-of-work, funding
     → map_to_sdgs() + assess_fad_risk() + calculate_impact_score()
     → format_report() / JSON response
@@ -128,25 +139,36 @@ User Input (5 fields)
 
 | Function | Line | Purpose |
 |---|---|---|
-| `parse_idea()` | 27 | Parse raw text → structured idea |
-| `detect_country()` | 50 | Keyword matching → ISO code |
-| `detect_idea_type()` | 115 | Classify into 12 categories |
-| `detect_economic_tier()` | 145 | Assign T1-T4 tier |
-| `run_three_tests()` | 187 | Community viability tests |
-| `run_cultural_analysis()` | 234 | 6 Hofstede dimensions |
-| `run_education_analysis()` | 300 | Trainable vs structural barriers |
-| `run_bootstrapper_score()` | 375 | Easy/Feasible/Efforts scoring |
-| `find_case_study()` | 426 | 3-mode case study matching |
-| `generate_verdict()` | 898 | Score, verdict, pitch, proof-of-work |
-| `map_to_sdgs()` | 779 | UN SDG mapping |
-| `calculate_impact_score()` | 852 | Impact scoring formula |
-| `generate_lean_canvas()` | ~1342 | 9-block social impact canvas from evaluation data |
-| `find_competitive_positioning()` | ~1400 | Fuzzy-match against 165 case studies, radar chart data |
-| `score_idea_globally()` | ~1450 | Evaluate against all 136 countries, top/bottom 5 + regions |
-| `generate_marketplace_listing()` | ~1520 | Badge (gold/silver/bronze), SDG tags, hook |
-| `match_mentor_personas()` | ~2293 | Top 3 mentor persona matches with score-tier playbooks |
-| `format_report()` | 1129 | Text report assembly |
-| `evaluate()` | 1550+ | Main pipeline orchestrator (includes innovation features)
+| `enrich_case_study_with_gemini()` | 42 | LLM-based case study enrichment (Gemini fallback) |
+| `parse_idea()` | 181 | Parse raw text → structured idea |
+| `detect_country()` | 204 | Keyword matching → ISO code |
+| `detect_idea_type()` | 261 | Classify into 12+ categories |
+| `detect_economic_tier()` | 297 | Assign T1-T4 tier |
+| `extract_field()` | 315 | Extract field from structured/natural language input |
+| `extract_constraints()` | 323 | Extract constraints from text |
+| `run_three_tests()` | 355 | Community viability tests |
+| `run_cultural_analysis()` | 402 | 6 Hofstede dimensions with practical advice |
+| `run_education_analysis()` | 468 | Trainable vs structural barriers |
+| `run_bootstrapper_score()` | 543 | Easy/Feasible/Efforts scoring |
+| `get_zone_for_country()` | 594 | Country → zone mapping |
+| `find_case_study()` | 624 | 3-mode case study matching (exact → hypothetical → novel) |
+| `generate_hypothetical_narrative()` | 781 | Hypothetical case study generation |
+| `generate_case_study_narrative()` | 886 | Case study narrative generation |
+| `map_to_sdgs()` | 1111 | UN SDG mapping (26 idea types) |
+| `assess_fad_risk()` | 1121 | FAD risk assessment |
+| `calculate_impact_score()` | 1125 | Impact scoring formula |
+| `generate_personalized_verdict()` | 1153 | Score-band-specific verdict text |
+| `generate_verdict()` | 1224 | Score, verdict, pitch, proof-of-work, funding |
+| `get_funding_by_score()` | 1482 | Score-aware funding pathways (~10 countries) |
+| `generate_lean_canvas()` | 1508 | 10-block social impact canvas from evaluation data |
+| `find_competitive_positioning()` | 1613 | Fuzzy-match against 182+ case studies, radar chart data |
+| `score_idea_globally()` | 1773 | Evaluate against all 136 countries, top/bottom 5 + regions |
+| `generate_marketplace_listing()` | 1889 | Badge (gold/silver/bronze/developing), SDG tags, hook |
+| `format_report()` | 1957 | 8-section text report assembly |
+| `load_country_data()` | 2230 | Load Hofstede + cultural profile data |
+| `match_mentor_personas()` | 2297 | Top 3 mentor persona matches with score-tier playbooks |
+| `evaluate()` | 2398 | Main pipeline orchestrator (7 layers + innovation features) |
+| `main()` | 2470 | CLI entry point |
 
 ## Key Patterns
 
@@ -169,7 +191,7 @@ Five features that leverage SEE's unique data assets. These appear as a tabbed p
 | Feature | Data Source | What It Does |
 |---|---|---|
 | **Social Impact Lean Canvas** | Evaluation data | 9-block canvas (problem, solution, UVP, metrics, channels, costs, revenue) |
-| **Competitive Positioning** | 165 case studies (library.json + zones-library.json) | Radar chart + top 3 comparable organizations + success/failure patterns |
+| **Competitive Positioning** | 182+ case studies (library.json + zones-library.json) | Radar chart + top 3 comparable organizations + success/failure patterns |
 | **Global Cultural Heatmap** | 136 countries (hofstede-database.json) | Top/bottom 5 countries + regional averages (11 zones) |
 | **Social Impact Marketplace** | Evaluation results + localStorage | Curated gallery with badge system (gold/silver/bronze/developing) |
 | **Mentor Council** | 20 mentor personas (case-studies/mentor-personas.json) | Top 3 matched personas with score-tier playbooks (low/mid/high), journey stages, and warnings |
@@ -186,8 +208,8 @@ Five features that leverage SEE's unique data assets. These appear as a tabbed p
 - `api/eval.mjs`: System prompt requests `lean_canvas`, `competitive_positioning`, `marketplace_listing`, `mentor_council` fields from Gemini
 
 **Mentor persona matching** (`evaluator.py` `match_mentor_personas()`):
-- Scoring: +5 category match, +3 zone match, +2 barrier overlap (high_pdi, low_idv, restrained), +2 tier match
-- Returns top 3 personas with personalized playbook based on score tier: `low_score` (<4), `mid_score` (4-6), `high_score` (8+)
+- Scoring: +5 category match, +3 zone match, +2 high_pdi barrier, +2 low_idv barrier, +1 restrained barrier, +2 tier match, +3 specialties overlap
+- Returns top 3 personas with personalized playbook based on score tier: `low_score` (<4), `mid_score` (4-8), `high_score` (8+)
 - Each persona has: `model_stages` (idea/proof/scale/system), `playbook` (low/mid/high with title/advice/actions), `warning`
 
 ## Canonical References
@@ -197,8 +219,10 @@ Five features that leverage SEE's unique data assets. These appear as a tabbed p
 | `SHIZUOKA-METHOD.md` | The Shizuoka Method — origin, principles, V3 Framework, 7-layer pipeline |
 | `OUTPUT-FORMAT.md` | Strict 8-section output format spec with quality checklist |
 | `COFOUNDER-PLAYBOOK.md` | How Claude amplifies the system as co-founder |
-| `INNOVATION-PLAN.md` | Strategic roadmap and business model |
-| `EXPERIENCE-DESIGN.md` | Product vision and design system |
+| `INNOVATION-PLAN.md` | Strategic roadmap (historical — status table outdated) |
+| `EXPERIENCE-DESIGN.md` | Product vision (historical — describes dark theme never implemented) |
+| `INNOVATION-FEATURES.md` | Innovation toolkit specs (historical — ~60% implemented) |
+| `IMPLEMENTATION-GAP-LOG.md` | Gap analysis between docs and actual code |
 | `engine/evaluate.md` | 7-layer prompt chain design |
 | `prompts/narrative-prompt.md` | 6-part narrative structure for storytelling |
 
@@ -237,17 +261,25 @@ The system must motivate without misleading.
 | Countries (Hofstede) | 136 | `data/hofstede-database.json` |
 | Countries (rich profiles) | 10 | `data/countries.json` |
 | Global zones | 10 | `data/zones.json` |
-| Case studies (flat) | 55 | `case-studies/library.json` |
+| Social enterprises | 10 | `data/social-enterprises.json` |
+| Case studies (flat) | 72 | `case-studies/library.json` |
+| Figures (flat) | 70 | `case-studies/library.json` |
 | Case studies (zone-based) | 110 | `case-studies/zones-library.json` |
-| Influential figures | 57 | `case-studies/zones-library.json` |
+| Figures (zone-based) | 57 | `case-studies/zones-library.json` |
+| Mentor personas | 20 | `case-studies/mentor-personas.json` |
 
 ## Known Issues
 
 - Cultural profiles only for 10 countries (rest have Hofstede scores only)
-- Funding pathways hardcoded for 5 countries (JP, IN, BD, KE, US)
+- Funding pathways hardcoded for ~10 countries (expanded but still limited)
 - Scoring is heuristic, not calibrated against real outcomes
 - Case study matching can match irrelevant studies
-- Reality Check has context leakage (analyzes wrong topic)
+- Single-sentence input parsing doesn't extract problem/goal
+- OUTPUT-FORMAT.md has 3 stale section names in CLI format blocks (code uses newer names)
+- EXPERIENCE-DESIGN.md describes a dark theme never implemented (actual is cream/light)
+- INNOVATION-FEATURES.md describes features at ~60% completion
+- EVENT-LOG.md has no entries after 2026-05-29
+- JWT secret defaults to dev value — needs env var in production
 
 ## Multi-Platform Serverless Deployment & API Guidelines
 
