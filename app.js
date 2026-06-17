@@ -81,6 +81,11 @@
     document.querySelectorAll('.nav-page-link').forEach(link => {
       link.classList.toggle('active', link.dataset.page === pageName);
     });
+    // Nav style: transparent on home (green hero), solid dark on other pages
+    const navEl = $('#nav');
+    if (navEl) {
+      navEl.classList.toggle('nav-interior', pageName !== 'home');
+    }
     // Always show footer
     const footer = $('footer');
     if (footer) footer.style.display = 'block';

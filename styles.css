@@ -157,6 +157,23 @@ button { font-family: var(--font-body); }
   background: transparent;
   transition: all 0.4s var(--ease-out);
 }
+/* Interior pages: solid dark nav */
+.nav.nav-interior {
+  background: rgba(26,26,23,0.95);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  box-shadow: 0 1px 12px rgba(0,0,0,0.1);
+}
+.nav.nav-interior .nav-logo { color: var(--cream); }
+.nav.nav-interior .nav-links a { color: rgba(250,247,242,0.7); }
+.nav.nav-interior .nav-links a:hover { color: var(--cream); }
+.nav.nav-interior .nav-links a.active { color: var(--amber-light); }
+.nav.nav-interior .nav-login-btn { border-color: rgba(250,247,242,0.3); color: var(--cream); }
+.nav.nav-interior .nav-login-btn:hover { border-color: var(--cream); background: rgba(255,255,255,0.08); }
+.nav.nav-interior .nav-cta { background: var(--amber-light); color: var(--ink); }
+.nav.nav-interior .nav-user-btn { border-color: rgba(250,247,242,0.3); color: var(--cream); }
+.nav.nav-interior .nav-user-avatar { background: var(--amber-light); }
+.nav.nav-interior .nav-mobile-toggle span { background: var(--cream); }
 .nav.scrolled {
   background: rgba(26,26,23,0.92);
   backdrop-filter: blur(20px) saturate(1.5);
