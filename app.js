@@ -2648,6 +2648,49 @@
   }
 
   // ─── SDG STORIES CAROUSEL ───
+  const SDG_IMAGES = {
+    1: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=600&q=80',
+    2: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80',
+    3: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=80',
+    4: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80',
+    5: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80',
+    6: 'https://images.unsplash.com/photo-1541252260730-0412e8e2108e?auto=format&fit=crop&w=600&q=80',
+    7: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80',
+    8: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=600&q=80',
+    9: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+    10: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80',
+    11: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=600&q=80',
+    12: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80',
+    13: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?auto=format&fit=crop&w=600&q=80',
+    14: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&w=600&q=80',
+    15: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80',
+    16: 'https://images.unsplash.com/photo-1589994965851-a8f479c573a9?auto=format&fit=crop&w=600&q=80',
+    17: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80',
+  };
+
+  // Category-based images for case studies without SDG mapping
+  const CATEGORY_IMAGES = {
+    education: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80',
+    health: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=80',
+    food: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80',
+    water: 'https://images.unsplash.com/photo-1541252260730-0412e8e2108e?auto=format&fit=crop&w=600&q=80',
+    energy: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80',
+    sanitation: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80',
+    finance: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=600&q=80',
+    community: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80',
+    women: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80',
+    safety: 'https://images.unsplash.com/photo-1589994965851-a8f479c573a9?auto=format&fit=crop&w=600&q=80',
+    elderly: 'https://images.unsplash.com/photo-1581579438747-104c53d7fbc4?auto=format&fit=crop&w=600&q=80',
+    mental_health: 'https://images.unsplash.com/photo-1544027993-37dbfe43562a?auto=format&fit=crop&w=600&q=80',
+    work: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=600&q=80',
+    disaster: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?auto=format&fit=crop&w=600&q=80',
+    housing: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=600&q=80',
+    rights: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80',
+    environment: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80',
+    agriculture: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80',
+    technology: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
+  };
+
   async function initSDGStoriesCarousel() {
     const track = $('#sdgCarouselTrack');
     const dotsEl = $('#sdgCarouselDots');
@@ -2718,16 +2761,20 @@
 
     function renderSlide(s) {
       const color = sdgColors[s.sdg_number] || '#888';
+      const img = s.image || SDG_IMAGES[s.sdg_number] || CATEGORY_IMAGES[(s.category || '').toLowerCase()] || SDG_IMAGES[8];
       const excerpt = s.excerpt ? (s.excerpt.length > 120 ? s.excerpt.slice(0, 117) + '...' : s.excerpt) : '';
       const impact = s.impact ? (typeof s.impact === 'string' ? s.impact : JSON.stringify(s.impact)) : '';
       const impactShort = impact.length > 80 ? impact.slice(0, 77) + '...' : impact;
       return `<div class="sdg-story-card">
-        <div class="sdg-story-badge" style="background:${color}">SDG ${s.sdg_number}</div>
-        <div class="sdg-story-title">${escHtml(s.title || s.organization || '')}</div>
-        <div class="sdg-story-meta">${escHtml(s.organization || '')}${s.country ? ' · ' + escHtml(s.country) : ''}${s.category ? ' · ' + escHtml(s.category) : ''}</div>
-        ${excerpt ? `<div class="sdg-story-excerpt">${escHtml(excerpt)}</div>` : ''}
-        ${impactShort ? `<div class="sdg-story-impact">&#x1F4CA; ${escHtml(impactShort)}</div>` : ''}
-        ${s.what_worked ? `<div class="sdg-story-worked">&#x2705; ${escHtml(typeof s.what_worked === 'string' ? s.what_worked : '')}</div>` : ''}
+        <div class="sdg-story-img"><img src="${img}" alt="${escHtml(s.title || '')}" loading="lazy"></div>
+        <div class="sdg-story-body">
+          <div class="sdg-story-badge" style="background:${color}">SDG ${s.sdg_number}</div>
+          <div class="sdg-story-title">${escHtml(s.title || s.organization || '')}</div>
+          <div class="sdg-story-meta">${escHtml(s.organization || '')}${s.country ? ' &middot; ' + escHtml(s.country) : ''}${s.category ? ' &middot; ' + escHtml(s.category) : ''}</div>
+          ${excerpt ? `<div class="sdg-story-excerpt">${escHtml(excerpt)}</div>` : ''}
+          ${impactShort ? `<div class="sdg-story-impact">&#x1F4CA; ${escHtml(impactShort)}</div>` : ''}
+          ${s.what_worked ? `<div class="sdg-story-worked">&#x2705; ${escHtml(typeof s.what_worked === 'string' ? s.what_worked : '')}</div>` : ''}
+        </div>
       </div>`;
     }
 

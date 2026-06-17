@@ -4006,10 +4006,14 @@ body.gate-active {
   background: var(--white);
   border: 1px solid rgba(26,22,18,0.06);
   border-radius: var(--radius-md);
-  padding: 1.25rem;
+  overflow: hidden;
   transition: transform 0.2s var(--ease-out), box-shadow 0.2s;
 }
 .sdg-story-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.sdg-story-img { width: 100%; height: 160px; overflow: hidden; }
+.sdg-story-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.sdg-story-card:hover .sdg-story-img img { transform: scale(1.05); }
+.sdg-story-body { padding: 1.25rem; }
 .sdg-story-badge {
   display: inline-block;
   padding: 0.2rem 0.6rem;

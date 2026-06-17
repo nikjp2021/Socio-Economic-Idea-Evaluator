@@ -75,6 +75,41 @@ async function handleSDGs() {
   return await query(`SELECT * FROM sdg_data ORDER BY number`);
 }
 
+async function handleSDGStories(params) {
+  const limit = Math.min(parseInt(params.limit) || 20, 50);
+
+  // Idea type to SDG mapping
+  const typeToSDG = { women: 5, safety: 16, elderly: 3, mental_health: 3, disaster: 13, health: 3, food: 2, water: 6, financial: 8, work: 8, education: 4, community: 11, environment: 13, sustainability: 12, agriculture: 2, housing: 11, rights: 16, inclusion: 10, energy: 7, technology: 9 };
+
+  // SDG image URLs
+  const sdgImages = { 1: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=600&q=80', 2: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80', 3: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=80', 4: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80', 5: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=600&q=80', 6: 'https://images.unsplash.com/photo-1541252260730-0412e8e2108e?auto=format&fit=crop&w=600&q=80', 7: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80', 8: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=600&q=80', 9: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80', 10: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80', 11: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=600&q=80', 12: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=600&q=80', 13: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?auto=format&fit=crop&w=600&q=80', 14: 'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?auto=format&fit=crop&w=600&q=80', 15: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80', 16: 'https://images.unsplash.com/photo-1589994965851-a8f479c573a9?auto=format&fit=crop&w=600&q=80', 17: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=600&q=80' };
+
+  const rows = await query(
+    `SELECT id, title, organization, country, zone, category,
+            problem_statement, key_lesson, impact, what_worked, what_didnt
+     FROM case_studies
+     WHERE key_lesson IS NOT NULL AND key_lesson != ''
+     ORDER BY RANDOM() LIMIT $1`, [limit]
+  );
+
+  return rows.map(cs => {
+    const cat = (cs.category || '').toLowerCase();
+    const sdgNum = typeToSDG[cat] || 8;
+    return {
+      title: cs.title || cs.organization || 'Social Enterprise',
+      organization: cs.organization || '',
+      country: cs.country || '',
+      category: cs.category || '',
+      sdg_number: sdgNum,
+      sdg_name: '',
+      excerpt: cs.key_lesson || cs.problem_statement || '',
+      impact: cs.impact || '',
+      what_worked: Array.isArray(cs.what_worked) ? cs.what_worked[0] : (cs.what_worked || ''),
+      image: sdgImages[sdgNum] || sdgImages[8],
+    };
+  });
+}
+
 async function handleTemplates(params) {
   const { category, zone } = params;
   const conditions = [];
@@ -285,6 +320,7 @@ export default async function handler(req, res) {
       case 'cases': result = await handleCases(params); break;
       case 'countries': result = await handleCountries(params); break;
       case 'sdgs': result = await handleSDGs(); break;
+      case 'sdg-stories': result = await handleSDGStories(params); break;
       case 'templates': result = await handleTemplates(params); break;
       case 'template': result = await handleTemplateResult(params); break;
       case 'figures': result = await handleFigures(params); break;
