@@ -1,0 +1,329 @@
+[
+  {
+    "title": "Barefoot College: Empowering Rural Communities Through Grassroots Technology",
+    "organization": "Barefoot College",
+    "founders": ["Sanjit \"Bunker\" Roy"],
+    "founded": 1972,
+    "country": "IN",
+    "category": "education",
+    "problem_statement": "Poverty, inequality, and lack of access to education, healthcare, clean water, and electricity in rural communities, where illiterate and semi-literate villagers are excluded from modern technological benefits.",
+    "the_model": "Gandhian philosophy of self-reliance and grassroots social entrepreneurship. De-mystifies high technology by training illiterate and semi-literate villagers, primarily women, in practical skills such as solar engineering and water pump maintenance without requiring formal education. Uses a 'training the trainers' model, night schools, puppetry for education, and community committees (Village Energy and Environment Committee) to set prices and select trainees. No degrees or certificates are awarded.",
+    "impact_numbers": {
+      "people_trained": "3 million+",
+      "night_schools": 150,
+      "children_in_night_schools": 3000,
+      "campus_acres": 8,
+      "women_solar_engineers_zanzibar": "60+"
+    },
+    "what_worked": [
+      "Empowering women as solar engineers and community leaders",
+      "Locally led initiatives where villages select trainees and set solar panel rates",
+      "Simple, accessible training methods using visual learning with no literacy requirements",
+      "Cross-cultural collaborations with UNESCO, UNDP, and Indian Ministry of External Affairs",
+      "Recognition through Ashden Award and TIME 100 influence for Bunker Roy"
+    ],
+    "what_didnt_work": [
+      "Returned the Aga Khan Award for Architecture due to controversy over crediting a professional architect alongside illiterate builders, which contradicted the 'Barefoot' ethos",
+      "Wikipedia article itself flagged for promotional content, suggesting potential bias in publicly reported impact"
+    ],
+    "key_lesson": "Rural communities can adopt and manage advanced technologies like solar power with appropriate training. Education must be practical, accessible, and aligned with local needs. Self-reliance and local ownership are critical for sustainability.",
+    "status": "active",
+    "applicable_to": ["education", "energy", "rural development", "women empowerment"],
+    "economic_tier": ["T2", "T3"]
+  },
+  {
+    "title": "Pratham: Measurable Learning Outcomes at Scale for India's Children",
+    "organization": "Pratham",
+    "founders": ["Madhav Chavan", "Farida Lambay"],
+    "founded": 1995,
+    "country": "IN",
+    "category": "education",
+    "problem_statement": "Low literacy levels and poor learning outcomes among underprivileged children in India. Despite school enrollment, 50% of children in government schools could not read, write, or do basic arithmetic after 4-5 years of schooling.",
+    "the_model": "Low-cost, sustainable, and reproducible education models. Teaching at the Right Level (TaRL) groups students by assessed learning level rather than age or grade for instruction in foundational reading and arithmetic. Grassroots approaches using community volunteers, Balwadis (pre-school classes), the Annual Status of Education Report (ASER) large-scale household survey, learning support centers, libraries, and vocational training for youth aged 18-25.",
+    "impact_numbers": {
+      "read_india_children_reached": "34 million",
+      "pratham_books_titles": "200+",
+      "pratham_books_children_reached": "14 million",
+      "aser_organizations_involved": 500,
+      "aser_volunteers": "25,000+",
+      "lakhon_mein_ek_villages": "150,000+",
+      "lakhon_mein_ek_volunteers": "300,000+",
+      "lakhon_mein_ek_children": "10 million",
+      "vocational_training_youth_2017_18": "25,000",
+      "states_covered": 23,
+      "international_chapters": 5
+    },
+    "what_worked": [
+      "Grassroots, community-based volunteer model keeping costs low",
+      "ASER model shifted Indian education policy discussions from inputs to outcomes, adapted by 14 other countries",
+      "Teaching at the Right Level (TaRL) is evidence-based and recommended as a 'Good Buy' by the Global Education Evidence Advisory Panel",
+      "Recognition as GiveWell's top charity in the developing world education category",
+      "Successful scaling of the Read India program to 34 million children"
+    ],
+    "what_didnt_work": [
+      "Persistent systemic challenge: despite interventions, half of government school children still lacked basic literacy and numeracy after years of schooling",
+      "No explicit failures documented in Wikipedia, indicating either limited transparency or genuinely strong execution"
+    ],
+    "key_lesson": "Focus on measurable learning outcomes rather than enrollment or inputs. Grouping children by current learning level is more effective than age-based instruction. Sustainable models can be low-cost and volunteer-driven with strong community engagement.",
+    "status": "active",
+    "applicable_to": ["education", "children", "literacy", "community development"],
+    "economic_tier": ["T2", "T3"]
+  },
+  {
+    "title": "Goonj: Clothing as a Development Tool for Dignity and Equity",
+    "organization": "Goonj",
+    "founders": ["Anshu Gupta"],
+    "founded": 1999,
+    "country": "IN",
+    "category": "humanitarian aid",
+    "problem_statement": "Clothing is an overlooked basic human right. There is a vast gap between urban surplus and rural need, with underutilized urban material going to waste while rural communities lack basic necessities including cloth and sanitary supplies.",
+    "the_model": "Uses cloth as a development tool bridging urban surplus and rural need. Key initiatives include Cloth for Work (villagers work on community projects in exchange for material resources), Not Just a Piece of Cloth (recycling cloth into affordable sanitary pads at 2 rupees each), School to School (exchanging school supplies between urban and rural schools), and Green By Goonj for recycling unusable cloth. Partners with corporations like Whirlpool, Pantaloons, and Raymond for material collection.",
+    "impact_numbers": {
+      "initial_clothes": 67,
+      "annual_material_tonnes": "3,500+",
+      "sanitary_pads_distributed_by_2014": "4 million",
+      "monthly_reusable_material_kg_2015": "70,000+",
+      "clothes_recycled_2015_tonnes": 1000,
+      "total_materials_transported_kg_by_2021": "6 million+",
+      "states_covered": 25
+    },
+    "what_worked": [
+      "Cloth for Work program created a parallel material-labor economy that dignifies recipients as workers not charity recipients",
+      "Corporate partnerships for large-scale material collection",
+      "Recognition through Ramon Magsaysay Award and Changemaker's Innovation Award",
+      "Addressing neglected needs like menstrual hygiene through affordable recycled sanitary pads"
+    ],
+    "what_didnt_work": [
+      "No specific failures or criticisms documented in Wikipedia source material",
+      "Model depends on continuous urban material supply and logistics infrastructure"
+    ],
+    "key_lesson": "Clothing and material goods are critical, neglected humanitarian needs. Local community involvement in identifying and solving issues is essential. Treating recipients as contributors (through Cloth for Work) preserves dignity and creates ownership.",
+    "status": "active",
+    "applicable_to": ["humanitarian aid", "community development", "environment", "women empowerment"],
+    "economic_tier": ["T2", "T3"]
+  },
+  {
+    "title": "Sulabh International: Sanitation Revolution Through Affordable Toilet Technology",
+    "organization": "Sulabh International",
+    "founders": ["Bindeshwar Pathak"],
+    "founded": 1970,
+    "country": "IN",
+    "category": "sanitation",
+    "problem_statement": "Lack of sanitation, unsafe human waste disposal, and the degrading practice of manual scavenging that perpetuates caste-based social inequalities in India.",
+    "the_model": "Development of the two-pit pour-flush toilet (Sulabh Shauchalaya) that is affordable and does not require sewerage infrastructure. Construction and maintenance of pay-and-use public toilets (Sulabh Complexes) with bath, laundry, and urinal facilities. Conversion of human waste into biogas and biofertilizer. Training and education programs for children from poor families, especially from scavenging communities.",
+    "impact_numbers": {
+      "volunteers": 50000,
+      "daily_users": "10 million",
+      "direct_jobs": 35000,
+      "man_days_created": "10 million (1 crore)",
+      "towns_made_scavenging_free": 240
+    },
+    "what_worked": [
+      "Simple, affordable two-pit toilet technology that works without sewerage infrastructure",
+      "Recognized as a 'Urban Best Practice' by the United Nations Habitat II (1996)",
+      "Special Consultative Status granted by the UN Economic and Social Council",
+      "Founder received the 2009 Stockholm Water Prize",
+      "Organization awarded the Gandhi Peace Prize for 2016"
+    ],
+    "what_didnt_work": [
+      "Criticized for employing 'patronising and glorifying methods' while dealing with caste-based occupation and sanitation work (per Mukul Sharma's book 'Caste and Nature', 2017)",
+      "Technology alone cannot solve deeply entrenched caste attitudes around sanitation labor"
+    ],
+    "key_lesson": "Affordable, appropriate technology can solve massive infrastructure gaps. Sanitation is not just a technical problem but also a social and dignity issue intertwined with caste and class. Public-private models for toilet maintenance can be self-sustaining.",
+    "status": "active",
+    "applicable_to": ["sanitation", "public health", "social equality", "infrastructure"],
+    "economic_tier": ["T2", "T3"]
+  },
+  {
+    "title": "Akshaya Patra: Scaling Child Nutrition Through Centralized Kitchens",
+    "organization": "Akshaya Patra Foundation",
+    "founders": ["Madhu Pandit Dasa"],
+    "founded": 2000,
+    "country": "IN",
+    "category": "nutrition",
+    "problem_statement": "Children in India miss out on education because of hunger. The mission is that no child in India shall be deprived of education because of hunger, addressing the link between malnutrition and school dropout rates.",
+    "the_model": "Implements the government's PM POSHAN Abhiyaan (formerly Mid-Day Meal Scheme) in government schools as the largest NGO partner of the Government of India. Operates on a public-private partnership (PPP) model with centralized, mechanized kitchens that cook and deliver meals at scale. Also runs an Anganwadi feeding programme for younger children and mothers.",
+    "impact_numbers": {
+      "cumulative_meals_served": "4 billion+",
+      "daily_children_fed": "2.25 million+",
+      "kitchen_locations": 78,
+      "states_and_territories": "16 states + 3 Union Territories",
+      "anganwadi_children_women_2014": "54,000",
+      "covid19_meals_served": "250 million"
+    },
+    "what_worked": [
+      "Effective public-private partnership (PPP) with the Indian government enabling massive scale",
+      "Scalable and efficient centralized kitchen model studied by Harvard Business School (cases in 2007 and 2017)",
+      "Operational efficiency enabling reliable daily meal delivery to millions",
+      "Received the Gandhi Peace Prize (2016) and BBC Global Food Champion Award (2019)"
+    ],
+    "what_didnt_work": [
+      "No specific failures or criticisms documented in Wikipedia source material",
+      "Dependency on government scheme continuity and funding is an inherent risk"
+    ],
+    "key_lesson": "A large-scale, technology-driven, government-partnered model can effectively address child hunger and support education. Centralized kitchens with mechanization can achieve economies of scale. The link between nutrition and educational outcomes creates a powerful dual impact.",
+    "status": "active",
+    "applicable_to": ["nutrition", "education", "children", "public health"],
+    "economic_tier": ["T2", "T3"]
+  },
+  {
+    "title": "SEWA: Organizing Informal Women Workers Through Struggle and Development",
+    "organization": "Self-Employed Women's Association (SEWA)",
+    "founders": ["Ela Bhatt"],
+    "founded": 1972,
+    "country": "IN",
+    "category": "finance",
+    "problem_statement": "Low-income self-employed women workers in the informal economy lack fixed employer-employee relationships, fixed salaries, and access to benefits like healthcare, childcare, insurance, pensions, and shelter. Their labor is invisible and undervalued.",
+    "the_model": "A trade union for informal women workers guided by Gandhian principles. Dual approach of 'Struggle' (negotiating with stakeholders, advocacy) and 'Development' (providing services). Established the SEWA Cooperative Bank for savings, microcredit, insurance, and housing. Creates and connects workers in over 50 cooperatives. Conducts action-oriented research through SEWA Academy. Co-founded WIEGO (Women in Informal Employment: Globalizing and Organizing) based at Harvard Kennedy School. Organizes women across castes through a 5-step process of recruitment, grouping, leadership fostering, training, and election to leadership councils.",
+    "impact_numbers": {
+      "members_1996": 30000,
+      "members_2000": 318527,
+      "members_2013": "1,919,676",
+      "members_2023": "~2 million",
+      "states_covered": 8,
+      "sewa_bank_initial_members": 4000,
+      "sewa_bank_members_1997": 20657,
+      "insurance_enrollment_by_2005": "130,000+",
+      "heat_insurance_women_2024": 50000,
+      "income_increase_with_childcare": "50%",
+      "cooperatives": "50+"
+    },
+    "what_worked": [
+      "Gandhian principles of truth, non-violence, integration, and self-reliance providing philosophical foundation",
+      "Combining advocacy ('struggle') with direct service provision ('development')",
+      "Member ownership model especially in SEWA Bank where members are bankers, board, rate-setters, and shareholders",
+      "Bottom-up organizing and leadership development enabling scaling",
+      "Making women's informal labor visible through action-oriented research",
+      "Childcare as a critical enabler increasing women's income by 50%",
+      "Recognition as a Central trade union in India in 2009"
+    ],
+    "what_didnt_work": [
+      "Microcredit criticized for introducing women to a violent/sexist capitalist system, stifling innovation, and potentially having a crippling effect on the poorest through increased debt",
+      "Difficulty pushing for higher wages in rural areas due to excess labor supply weakening bargaining power",
+      "Very poor used insurance access less than the slightly less poor due to distance and reimbursement model",
+      "Most low-income households did not qualify for SEWA Bank housing loans",
+      "Street vendors faced legal harassment as vending was illegal despite SEWA advocacy"
+    ],
+    "key_lesson": "Empowering women requires addressing both practical needs (income, health, childcare) and strategic needs (leadership, voice, rights). Member ownership builds sustainability. Combining advocacy with service provision creates systemic change. Providing childcare is a critical enabler for women's economic participation.",
+    "status": "active",
+    "applicable_to": ["finance", "women empowerment", "labor rights", "microfinance", "community development"],
+    "economic_tier": ["T2", "T3"]
+  },
+  {
+    "title": "SELCO India: Making Solar Energy Accessible to the Rural Poor",
+    "organization": "SELCO India",
+    "founders": ["Harish Hande", "Neville Williams"],
+    "founded": 1995,
+    "country": "IN",
+    "category": "energy",
+    "problem_statement": "Poor households in rural India lack adequate access to energy, limiting their living standards, productivity, education, and economic opportunities. Conventional energy financing excludes low-income households.",
+    "the_model": "A for-profit social enterprise in solar energy. Offers an innovative financial model requiring a 25% upfront down payment followed by affordable monthly installments within a family's average monthly budget. Provides a one-year manufacturer warranty extension, one year of free service, and a 90-day money-back guarantee. Runs projects like the solar-powered e-shala (e-school) to deliver education in areas without power supply. Received a conditional loan of $150,000 from Winrock International in December 1996 to scale operations.",
+    "impact_numbers": {
+      "solar_systems_installed": "2 million houses",
+      "employees": 534,
+      "initial_loan_usd": 150000,
+      "ashden_awards_won": 2
+    },
+    "what_worked": [
+      "Innovative, affordable financial model making solar systems accessible to low-income households",
+      "Winrock International partnership providing conditional loan for scaling",
+      "Won the Ashden Awards (Green Oscars) twice, in 2005 and 2007, validating the model",
+      "Demonstrated viability of solar energy for underserved rural markets as a for-profit enterprise"
+    ],
+    "what_didnt_work": [
+      "No specific failures or criticisms documented in Wikipedia source material",
+      "Wikipedia article itself flagged for promotional content"
+    ],
+    "key_lesson": "Creative financing and service models can bridge the energy access gap for the poor. A for-profit social enterprise model can be viable for rural energy markets. The 25% down payment plus affordable installments pattern can be adapted for other asset-light services in low-income settings.",
+    "status": "active",
+    "applicable_to": ["energy", "finance", "rural development", "education"],
+    "economic_tier": ["T2", "T3"]
+  },
+  {
+    "title": "Jaipur Foot: Culturally Adapted Low-Cost Prosthetics for the Developing World",
+    "organization": "Bhagwan Mahaveer Viklang Sahayata Samiti (BMVSS)",
+    "founders": ["Ram Chandra Sharma", "Pramod Karan Sethi"],
+    "founded": 1968,
+    "country": "IN",
+    "category": "health",
+    "problem_statement": "Existing prosthetic feet did not allow users to go barefoot, squat, sit cross-legged, or work in muddy fields, all of which are common daily activities in poorer areas of India. Conventional prosthetics were too expensive and culturally inappropriate for the target population.",
+    "the_model": "A low-cost, rubber-based prosthetic leg designed for below-knee amputations. Made of a rubber core, wooden block, and vulcanised rubber coating with an aluminum or polyethylene shank. Modification of the SACH foot using cheaper materials. Cost approximately $45 to make with a 2-5 year lifespan. Distributed free by BMVSS with government financial aid. Designed to be culturally and environmentally adapted for use in developing countries.",
+    "impact_numbers": {
+      "cost_usd": 45,
+      "lifespan_years": "2-5"
+    },
+    "what_worked": [
+      "Cost efficiency making prosthetics accessible to the poorest populations",
+      "Design adapted to cultural and economic context allowing squatting and use on uneven terrain",
+      "Free distribution model through BMVSS with government financial support",
+      "Used in low-income countries and war zones including for landmine victims in Afghanistan",
+      "P.K. Sethi received the Magsaysay Award (1981) and Padma Shri (1981)",
+      "Jaipur Knee developed with Stanford University was named one of Time's best inventions of 2009"
+    ],
+    "what_didnt_work": [
+      "Inferior in many ways to composite carbon fiber prosthetics in durability and performance",
+      "Never patented or standardized, leading to significant variation in quality and fitting",
+      "Heavier than standard prosthetics",
+      "Limited to household and limited community ambulation; unsuitable for high-level activities or sports"
+    ],
+    "key_lesson": "A prosthetic designed for the specific cultural, economic, and environmental needs of its users can be highly effective even if not the most technically advanced. The lack of patenting was both a strength (open access) and weakness (quality inconsistency). Context-appropriate design matters more than technical sophistication.",
+    "status": "active",
+    "applicable_to": ["health", "prosthetics", "disability", "humanitarian aid"],
+    "economic_tier": ["T2", "T3"]
+  },
+  {
+    "title": "Aga Khan Foundation: Long-Term Development Across Asia and Africa",
+    "organization": "Aga Khan Foundation",
+    "founders": ["Shah Karim Al Hussaini, Aga Khan IV"],
+    "founded": 1967,
+    "country": "CH",
+    "category": "community development",
+    "problem_statement": "Poverty, hunger, illiteracy, and ill health in the poorest parts of South and Central Asia, Eastern and Western Africa, and the Middle East, with particular attention to rural communities in mountainous, coastal, and resource-poor areas.",
+    "the_model": "A private, not-for-profit international development agency providing long-term solutions across seven areas: early childhood development, education, health/nutrition, agriculture/food security, civil society, work/enterprise, and climate resilience. Seeks innovative, replicable approaches. Coordinates with sister agencies in the Aga Khan Development Network (AKDN). Collaborates with local, national, and international partners including the UN, USAID, and Global Affairs Canada. The Aga Khan Rural Support Programme (AKRSP) model has been replicated through the Rural Support Programmes Network in Pakistan.",
+    "impact_numbers": {
+      "countries_of_operation": 14,
+      "countries_with_presence": 17,
+      "akrsp_model_replications": "Rural Support Programmes Network in Pakistan"
+    },
+    "what_worked": [
+      "Innovative approaches to complex, multi-dimensional development problems",
+      "Solutions designed to be adaptable and replicable across different regions",
+      "Coordination among AKDN sister agencies multiplying impact",
+      "Successful replication of the AKRSP model in Pakistan",
+      "Partnerships with major institutional funders including UN, USAID, and Global Affairs Canada",
+      "Won 2005 Award for Most Innovative Development Project from the Global Development Network"
+    ],
+    "what_didnt_work": [
+      "No specific failures or criticisms documented in Wikipedia source material",
+      "Large institutional structure may face challenges in agility and local responsiveness"
+    ],
+    "key_lesson": "Long-term, multi-sector development approaches with replicable models can achieve broad geographic reach. Coordination across a network of specialized agencies amplifies impact. Designing for replicability from the start enables scale across diverse contexts.",
+    "status": "active",
+    "applicable_to": ["community development", "education", "health", "agriculture", "civil society"],
+    "economic_tier": ["T1", "T2", "T3"]
+  },
+  {
+    "title": "SafeBoda: Digitizing Motorcycle Taxi Safety in East Africa",
+    "organization": "SafeBoda",
+    "founders": ["Maxime Dieudonne", "Rapa Thomson Ricky", "Alastair Sussock"],
+    "founded": 2014,
+    "country": "UG",
+    "category": "transportation",
+    "problem_statement": "Over 80,000 boda boda (motorcycle taxi) drivers in Kampala alone operated with no safety standards, training, or accountability, leading to frequent accidents, injuries, and lack of passenger trust in the dominant mode of urban transport in East Africa.",
+    "the_model": "A ridesharing platform for motorcycle taxis that provides safety training to drivers, helmets for drivers and passengers, and a digital booking system. Operates as a technology platform connecting trained, safety-equipped boda boda drivers with passengers via a mobile app.",
+    "impact_numbers": {
+      "note": "Wikipedia does not have a dedicated SafeBoda article. Impact numbers are not available from Wikipedia sources. Founded November 2014 in Kampala, Uganda, with over 80,000 boda boda drivers in the city at founding."
+    },
+    "what_worked": [
+      "Addressed a massive unmet safety need in East Africa's dominant urban transport mode",
+      "Technology platform model enabling scalable driver training and passenger accountability"
+    ],
+    "what_didnt_work": [
+      "Limited Wikipedia documentation makes it impossible to verify specific challenges or failures from this source"
+    ],
+    "key_lesson": "Formalizing informal transport sectors through technology and safety standards can address both safety and economic opportunity. Digital platforms can bring accountability to previously unregulated markets. NOTE: Limited Wikipedia data available for this entry.",
+    "status": "active",
+    "applicable_to": ["transportation", "safety", "technology", "urban development"],
+    "economic_tier": ["T2", "T3"]
+  }
+]
