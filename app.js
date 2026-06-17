@@ -291,7 +291,7 @@
       return {
         valid: false,
         message:
-          'We need more detail. Tell us: What is the problem? Who is affected? What do you want to achieve? At least 2-3 sentences each.',
+          'We\'d love to evaluate this! Just tell us a bit more \u2014 who is affected by this problem, and what do you want to do about it? Even 2-3 sentences makes a big difference in your result.',
       };
     }
 
@@ -300,7 +300,7 @@
       return {
         valid: false,
         message:
-          'We need more detail. Describe the problem and your goal in at least 2-3 sentences each.',
+          'Almost there! Describe the problem and your goal in a few sentences. The more specific you are, the more useful your evaluation will be.',
       };
     }
 
@@ -314,7 +314,7 @@
       return {
         valid: false,
         message:
-          'This looks like a question, not an idea. Tell us what you want to DO, not just what you\'re wondering about.',
+          'Great question! Now turn it into an action \u2014 what do you want to DO about it? For example: "I want to create a homework help group for mothers in my neighborhood."',
       };
     }
 
@@ -508,6 +508,101 @@
     const d = document.createElement('div');
     d.textContent = t;
     return d.innerHTML;
+  }
+
+
+  // ─── LEARNING PATH GENERATOR ───
+  function generateLearningPath(d) {
+    const score = d.verdict?.total_score || 0;
+    const barriers = [];
+    const dims = d.cultural?.dimensions || {};
+    const explanations = {
+      power_distance: { lesson: 'Working with authority', tip: 'Partner with a trusted local leader \u2014 a teacher, religious figure, or community elder. They open doors you can\'t.' },
+      individualism: { lesson: 'Building community trust', tip: 'Frame your idea as helping families, not individuals. Group identity matters more than personal benefit here.' },
+      masculinity: { lesson: 'Overcoming stigma', tip: 'Use private channels. People may want help but not want to be seen asking for it.' },
+      uncertainty_avoidance: { lesson: 'Earning institutional trust', tip: 'Get endorsed by a school, clinic, or local government office before asking people to try your service.' },
+      long_term_orientation: { lesson: 'Showing quick wins', tip: 'Start with a 2-week pilot. Show results fast. People here respond to visible, immediate impact.' },
+      indulgence: { lesson: 'Reaching people who don\'t ask', tip: 'Use intermediaries. Community health workers, mothers\' groups, or religious networks can reach people who won\'t come to you.' },
+    };
+
+    Object.entries(dims).forEach(([k, v]) => {
+      if (v && v.barrier === 'HIGH' && explanations[k]) {
+        barriers.push({ key: k, ...explanations[k], score: v.score || 50 });
+      }
+    });
+
+    const cat = d.idea_type || 'community';
+    const caseStudy = d.case_study || {};
+    const firstStep = d.verdict?.first_step || '';
+
+    // Week 1: Understand your context
+    const week1 = {
+      title: 'Understand Your Context',
+      icon: '\u{1F50D}',
+      lessons: [
+        { title: 'Read: How ' + (caseStudy.title || 'others') + ' started', text: caseStudy.narrative ? caseStudy.narrative.slice(0, 150) + '...' : 'Learn from someone who solved a similar problem in a similar context.' },
+        barriers.length ? { title: 'Learn: ' + barriers[0].lesson, text: barriers[0].tip } : { title: 'Learn: Your local context', text: 'Talk to 3 people in your community about the problem. Listen more than you talk.' },
+        { title: 'Do: Find your first ally', text: 'Identify 1 person who already has trust in your community. A teacher, health worker, or shop owner. Introduce yourself and your idea.' },
+      ],
+    };
+
+    // Week 2: Test with real people
+    const week2 = {
+      title: 'Test With Real People',
+      icon: '\u{1F9EA}',
+      lessons: [
+        { title: 'Read: The 10-person test', text: 'Ask 10 people the same question: "Would you use this?" If 7 say yes, you have something. If fewer, adjust your approach.' },
+        barriers.length > 1 ? { title: 'Learn: ' + barriers[1].lesson, text: barriers[1].tip } : { title: 'Learn: Listening deeply', text: 'Don\'t just ask if they want it. Ask what they\'ve tried before and why it didn\'t work.' },
+        { title: 'Do: Serve 3 people', text: firstStep || 'Find 3 people who need help and serve them this week. Document what happened.' },
+      ],
+    };
+
+    // Week 3: Build proof
+    const week3 = {
+      title: 'Build Your Proof',
+      icon: '\u{1F4CA}',
+      lessons: [
+        { title: 'Read: What counts as evidence', text: 'A number + a quote. "15 children improved reading scores" + "My daughter reads to me now." That\'s your proof.' },
+        { title: 'Learn: Writing your story', text: 'Write 1 paragraph: who you help, what you do, what changed. This becomes your pitch, your grant application, your share.' },
+        { title: 'Do: Write your proof-of-work', text: 'How many people served? What changed? What would you do differently? One page. That\'s your evidence.' },
+      ],
+    };
+
+    return { weeks: [week1, week2, week3], barriers };
+  }
+
+  function renderLearningPath(d) {
+    const path = generateLearningPath(d);
+    if (!path.weeks.length) return '';
+
+    let html = '<div class="learning-path">';
+    html += '<div class="learning-path-header">';
+    html += '<div class="learning-path-icon">\u{1F4DA}</div>';
+    html += '<div><div class="learning-path-title">Your Learning Path</div>';
+    html += '<div class="learning-path-sub">3 weeks from idea to proof. One lesson, one action per week.</div></div>';
+    html += '</div>';
+
+    html += '<div class="learning-path-timeline">';
+    path.weeks.forEach((week, wi) => {
+      const isLast = wi === path.weeks.length - 1;
+      html += '<div class="learning-week">';
+      html += '<div class="learning-week-marker">' + week.icon + '</div>';
+      html += '<div class="learning-week-content">';
+      html += '<div class="learning-week-title">Week ' + (wi + 1) + ': ' + week.title + '</div>';
+      week.lessons.forEach(lesson => {
+        html += '<div class="learning-lesson">';
+        html += '<div class="learning-lesson-title">' + escHtml(lesson.title) + '</div>';
+        html += '<div class="learning-lesson-text">' + escHtml(lesson.text) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      if (!isLast) html += '<div class="learning-week-connector"></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    html += '</div>';
+    return html;
   }
 
   // ─── RENDER RESULTS ───
@@ -1014,6 +1109,12 @@
       </div>
     </div>`;
 
+    // Learning Path
+    const learningPathHtml = renderLearningPath(d);
+    if (learningPathHtml) {
+      c.innerHTML += learningPathHtml;
+    }
+
     // What-If Mode
     c.innerHTML += `<div class="what-if-panel">
       <div class="what-if-header">
@@ -1311,21 +1412,64 @@
   };
 
   // ─── SHARE ───
+  // ─── SHAREABLE RESULT CARD ───
   window.__shareResults = function () {
     const verdict = $('.verdict');
     if (!verdict) return;
     const headline = $('.verdict-headline')?.textContent || '';
     const score = $('.verdict-score .score-count')?.textContent || '';
+    const badge = $('.verdict-badge')?.textContent || '';
+    const tone = $('.verdict-tone')?.textContent || '';
     const baseUrl = window.location.origin;
-    const text = `My social impact idea scored ${score}/10 on SEE \u2014 "${headline}" \u2014 Try it: ${baseUrl}?utm_source=share&utm_medium=native&utm_campaign=eval_results`;
+    const shareUrl = baseUrl + '?utm_source=share&utm_medium=card&utm_campaign=eval_results';
 
-    if (navigator.share) {
-      navigator.share({ title: 'My SEE Evaluation', text, url: window.location.origin }).catch(e => console.warn('[SEE]', e));
-    } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => {
+    // Create a visual share card
+    const card = document.createElement('div');
+    card.className = 'share-card-overlay';
+    card.innerHTML = `
+      <div class="share-card">
+        <div class="share-card-header">
+          <div class="share-card-logo">SEE</div>
+          <div class="share-card-tagline">Platform for Good</div>
+        </div>
+        <div class="share-card-score">${score}<span>/10</span></div>
+        <div class="share-card-badge">${esc(badge)}</div>
+        <div class="share-card-headline">${esc(headline)}</div>
+        <div class="share-card-tone">${esc(tone.slice(0, 120))}${tone.length > 120 ? '...' : ''}</div>
+        <div class="share-card-footer">
+          <span>Test your idea at</span>
+          <span class="share-card-url">${baseUrl}</span>
+        </div>
+      </div>
+      <div class="share-card-actions">
+        <button class="share-card-btn primary" id="shareCardNative">Share</button>
+        <button class="share-card-btn" id="shareCardCopy">Copy Link</button>
+        <button class="share-card-btn" id="shareCardClose">Close</button>
+      </div>
+    `;
+    document.body.appendChild(card);
+    requestAnimationFrame(() => card.classList.add('visible'));
+
+    const shareText = `My social impact idea scored ${score}/10 on SEE \u2014 "${headline}" \u2014 ${badge}\n\nTest your idea: ${shareUrl}`;
+
+    card.querySelector('#shareCardNative').addEventListener('click', () => {
+      if (navigator.share) {
+        navigator.share({ title: 'My SEE Evaluation', text: shareText, url: shareUrl }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(shareText).then(() => showToast('Copied to clipboard!'));
+      }
+      card.remove();
+    });
+
+    card.querySelector('#shareCardCopy').addEventListener('click', () => {
+      navigator.clipboard.writeText(shareText).then(() => {
         showToast('Copied to clipboard!');
+        card.remove();
       });
-    }
+    });
+
+    card.querySelector('#shareCardClose').addEventListener('click', () => card.remove());
+    card.addEventListener('click', (e) => { if (e.target === card) card.remove(); });
   };
 
   // ─── DOWNLOAD ───
