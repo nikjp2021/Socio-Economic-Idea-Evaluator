@@ -2481,6 +2481,8 @@
                 ? JSON.parse(data.evaluation.result_json)
                 : data.evaluation.result_json;
               renderResult(result);
+              const tryResults = document.getElementById('tryResults');
+              if (tryResults) tryResults.classList.add('visible');
               const trySection = document.getElementById('try');
               if (trySection) trySection.scrollIntoView({ behavior: 'smooth' });
             }
@@ -2570,6 +2572,8 @@
             const result = typeof data.evaluation.result_json === 'string'
               ? JSON.parse(data.evaluation.result_json) : data.evaluation.result_json;
             renderResult(result);
+            const tryResults = document.getElementById('tryResults');
+            if (tryResults) tryResults.classList.add('visible');
             const trySection = document.getElementById('try');
             if (trySection) trySection.scrollIntoView({ behavior: 'smooth' });
           }
