@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SEE — Will Your Social Impact Idea Work?</title>
   <meta name="description" content="Check your social impact idea against 136 countries, 182+ organizations, and the UN Sustainable Development Goals. Free. No sign-up. Results in 60 seconds.">
+  <meta name="theme-color" content="#faf7f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1a1a17" media="(prefers-color-scheme: dark)">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Will Your Social Impact Idea Work?">
@@ -16,8 +18,18 @@
   <meta name="twitter:description" content="Check your idea against 136 countries, 182+ organizations, and the UN Goals. Free. Results in 60 seconds.">
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&h=630&q=80">
 
-  <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F33F;</text></svg>">
+  <!-- Theme — apply immediately to prevent flash -->
+  <script>
+    (function() {
+      var t = localStorage.getItem('see_theme') || 'light';
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
+
+  <!-- Favicon — SEE lettermark -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232a6b24'/%3E%3Ctext x='5' y='23' font-family='Georgia,serif' font-weight='700' font-size='20' fill='%23faf7f2' letter-spacing='-1'%3ES%3C/text%3E%3Cpath d='M22 5 C24 2,28 2,29 4 C30 6,28 9,25 10 C23 11,21 10,22 5Z' fill='%233d8a35'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%232a6b24'/%3E%3Ctext x='28' y='120' font-family='Georgia,serif' font-weight='700' font-size='100' fill='%23faf7f2' letter-spacing='-4'%3ES%3C/text%3E%3Cpath d='M130 28 C136 14,156 10,162 18 C166 26,158 42,140 48 C128 52,118 48,130 28Z' fill='%233d8a35'/%3E%3C/svg%3E">
 
   <!-- Fonts — Libre Baskerville (warm editorial display) + Atkinson Hyperlegible (max-clarity body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,7 +49,13 @@
        ═══════════════════════════════════════════ -->
   <div class="gate-overlay" id="gateOverlay" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
     <div class="gate-card">
-      <div class="gate-logo">&#x1F33F;</div>
+      <div class="gate-logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="48" height="48" fill="none" role="img" aria-label="SEE logo">
+          <rect width="48" height="48" rx="10" fill="#2a6b24"/>
+          <text x="5" y="30" font-family="'Libre Baskerville',Georgia,serif" font-weight="700" font-size="22" fill="#faf7f2" letter-spacing="-0.5">S<tspan font-size="20">EE</tspan></text>
+          <path d="M36 8 C38 4,43 3,44 5 C45 7,43 10,39 11 C37 12,35 11,36 8Z" fill="#3d8a35"/>
+        </svg>
+      </div>
       <h2 class="gate-title" id="gateTitle">SEE</h2>
       <p class="gate-subtitle">Socio-Economic Evaluator</p>
       <p class="gate-desc">Enter your access code to continue.</p>
@@ -57,7 +75,13 @@
     <div class="auth-modal">
       <button class="auth-close" id="authClose" aria-label="Close sign in">&times;</button>
       <div class="auth-header">
-        <div class="auth-logo">&#x1F33F;</div>
+        <div class="auth-logo" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="48" height="48" fill="none" role="img" aria-label="SEE logo">
+            <rect width="48" height="48" rx="10" fill="#2a6b24"/>
+            <text x="5" y="30" font-family="'Libre Baskerville',Georgia,serif" font-weight="700" font-size="22" fill="#faf7f2" letter-spacing="-0.5">S<tspan font-size="20">EE</tspan></text>
+            <path d="M36 8 C38 4,43 3,44 5 C45 7,43 10,39 11 C37 12,35 11,36 8Z" fill="#3d8a35"/>
+          </svg>
+        </div>
         <h2 class="auth-title" id="authTitle">Sign In</h2>
         <p class="auth-sub" id="authSub">Save your evaluations and track your progress.</p>
       </div>
@@ -85,7 +109,14 @@
        NAVIGATION
        ═══════════════════════════════════════════ -->
   <nav class="nav" id="nav">
-    <a href="#" class="nav-logo"><span class="leaf">&#x1F33F;</span> SEE</a>
+    <a href="#" class="nav-logo" aria-label="SEE — Home">
+      <svg class="nav-logo-mark" viewBox="0 0 32 32" width="28" height="28" fill="none" aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill="#2a6b24"/>
+        <text x="5" y="23" font-family="'Libre Baskerville',Georgia,serif" font-weight="700" font-size="20" fill="#faf7f2" letter-spacing="-1">S</text>
+        <path d="M22 5 C24 2,28 2,29 4 C30 6,28 9,25 10 C23 11,21 10,22 5Z" fill="#3d8a35"/>
+      </svg>
+      <span class="nav-logo-text">SEE</span>
+    </a>
     <button class="nav-mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -97,6 +128,10 @@
       <li><a href="#try" data-page="home" class="nav-cta nav-page-link">Test Your Idea</a></li>
     </ul>
     <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <span class="theme-toggle-icon" id="themeToggleIcon">🌙</span>
+        <span class="theme-toggle-label" id="themeToggleLabel">Dark</span>
+      </button>
       <!-- Logged out state -->
       <div class="nav-auth" id="navAuthLoggedOut">
         <button class="nav-login-btn" id="navLoginBtn">Sign In</button>
@@ -752,7 +787,14 @@
     <div class="wrap">
       <div class="footer-inner">
         <div class="footer-brand">
-          <div class="footer-logo">&#x1F33F; SEE</div>
+          <div class="footer-logo">
+            <svg viewBox="0 0 32 32" width="24" height="24" fill="none" aria-hidden="true">
+              <rect width="32" height="32" rx="6" fill="#2a6b24"/>
+              <text x="5" y="23" font-family="'Libre Baskerville',Georgia,serif" font-weight="700" font-size="20" fill="#faf7f2" letter-spacing="-1">S</text>
+              <path d="M22 5 C24 2,28 2,29 4 C30 6,28 9,25 10 C23 11,21 10,22 5Z" fill="#3d8a35"/>
+            </svg>
+            <span>SEE</span>
+          </div>
           <p class="footer-desc">Socio-Economic Evaluator. Check your social impact idea against 136 countries and 182+ organizations. No sign-up needed.</p>
         </div>
         <div class="footer-links">

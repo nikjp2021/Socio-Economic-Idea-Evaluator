@@ -13,6 +13,30 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/projects.mjs",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/decisions.mjs",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/tasks.mjs",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/track.mjs",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/scale.mjs",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/funding.mjs",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/seed.mjs",
       "use": "@vercel/node"
     },
@@ -37,6 +61,12 @@
     { "source": "/api/eval", "destination": "/api/eval.mjs" },
     { "source": "/api/auth", "destination": "/api/auth.mjs" },
     { "source": "/api/evaluations", "destination": "/api/evaluations.mjs" },
+    { "source": "/api/projects", "destination": "/api/projects.mjs" },
+    { "source": "/api/decisions", "destination": "/api/decisions.mjs" },
+    { "source": "/api/tasks", "destination": "/api/tasks.mjs" },
+    { "source": "/api/track", "destination": "/api/track.mjs" },
+    { "source": "/api/scale", "destination": "/api/scale.mjs" },
+    { "source": "/api/funding", "destination": "/api/funding.mjs" },
     { "source": "/api/seed", "destination": "/api/seed.mjs" },
     { "source": "/api/reference", "destination": "/api/reference.mjs" }
   ],
