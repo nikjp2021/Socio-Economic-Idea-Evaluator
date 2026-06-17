@@ -3753,6 +3753,10 @@ body.gate-active {
 .sdg-modal-section { margin-bottom: 1.5rem; }
 .sdg-modal-section-title { font-weight: 700; font-size: 0.9rem; color: var(--ink); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
 .sdg-modal-targets { font-size: 0.875rem; color: var(--ink-light); line-height: 1.6; }
+.sdg-target-item { display: flex; align-items: flex-start; gap: 0.625rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(26,22,18,0.04); }
+.sdg-target-item:last-child { border-bottom: none; }
+.sdg-target-bullet { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 0.375rem; }
+.sdg-target-item span:last-child { font-size: 0.8125rem; line-height: 1.5; }
 .sdg-modal-mappings { display: flex; flex-direction: column; gap: 0.5rem; }
 .sdg-mapping-item { background: var(--cream); border-radius: 0.5rem; padding: 0.75rem 1rem; }
 .sdg-mapping-type { font-weight: 600; font-size: 0.85rem; color: var(--ink); }

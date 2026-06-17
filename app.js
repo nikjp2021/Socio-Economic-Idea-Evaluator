@@ -2843,12 +2843,35 @@
     const perView = window.innerWidth < 600 ? 1 : window.innerWidth < 900 ? 2 : 3;
     const totalSlides = Math.ceil(stories.length / perView);
 
+    // Helper to clean JSONB values into readable text
+    function cleanJsonb(val, maxLen) {
+      if (!val) return '';
+      let text = '';
+      if (typeof val === 'string') {
+        text = val.replace(/^"|"$/g, '').replace(/\\"/g, '"');
+        // Try parsing if it looks like JSON
+        if (text.startsWith('[') || text.startsWith('{')) {
+          try {
+            const parsed = JSON.parse(text);
+            if (Array.isArray(parsed)) text = parsed.join(', ');
+            else if (typeof parsed === 'object') text = Object.entries(parsed).map(([k, v]) => `${k}: ${v}`).join(', ');
+          } catch (_) {}
+        }
+      } else if (Array.isArray(val)) {
+        text = val.join(', ');
+      } else if (typeof val === 'object') {
+        text = Object.entries(val).map(([k, v]) => `${k}: ${v}`).join(', ');
+      }
+      if (maxLen && text.length > maxLen) text = text.slice(0, maxLen - 3) + '...';
+      return text;
+    }
+
     function renderSlide(s) {
       const color = sdgColors[s.sdg_number] || '#888';
       const img = s.image || SDG_IMAGES[s.sdg_number] || CATEGORY_IMAGES[(s.category || '').toLowerCase()] || SDG_IMAGES[8];
-      const excerpt = s.excerpt ? (s.excerpt.length > 120 ? s.excerpt.slice(0, 117) + '...' : s.excerpt) : '';
-      const impact = s.impact ? (typeof s.impact === 'string' ? s.impact : JSON.stringify(s.impact)) : '';
-      const impactShort = impact.length > 80 ? impact.slice(0, 77) + '...' : impact;
+      const excerpt = cleanJsonb(s.excerpt, 140);
+      const impactText = cleanJsonb(s.impact, 100);
+      const workedText = cleanJsonb(s.what_worked, 100);
       return `<div class="sdg-story-card">
         <div class="sdg-story-img"><img src="${img}" alt="${escHtml(s.title || '')}" loading="lazy"></div>
         <div class="sdg-story-body">
@@ -2856,8 +2879,8 @@
           <div class="sdg-story-title">${escHtml(s.title || s.organization || '')}</div>
           <div class="sdg-story-meta">${escHtml(s.organization || '')}${s.country ? ' &middot; ' + escHtml(s.country) : ''}${s.category ? ' &middot; ' + escHtml(s.category) : ''}</div>
           ${excerpt ? `<div class="sdg-story-excerpt">${escHtml(excerpt)}</div>` : ''}
-          ${impactShort ? `<div class="sdg-story-impact">&#x1F4CA; ${escHtml(impactShort)}</div>` : ''}
-          ${s.what_worked ? `<div class="sdg-story-worked">&#x2705; ${escHtml(typeof s.what_worked === 'string' ? s.what_worked : '')}</div>` : ''}
+          ${impactText ? `<div class="sdg-story-impact">&#x1F4CA; ${escHtml(impactText)}</div>` : ''}
+          ${workedText ? `<div class="sdg-story-worked">&#x2705; ${escHtml(workedText)}</div>` : ''}
         </div>
       </div>`;
     }
@@ -2955,10 +2978,32 @@
       else if (raw && typeof raw === 'object') mappings = raw;
     } catch (_) { /* ignore */ }
 
-    let html = `<div class="sdg-modal-header"><div class="sdg-modal-num" style="background:${color}">${sdgNum}</div><div><h3 style="color:${color}">${escHtml(sdg.name)}</h3><p style="font-size:0.875rem;color:var(--ink-muted)">${escHtml(sdg.description || '')}</p></div></div>`;
+    // Clean description
+    const desc = sdg.description || SDG_FALLBACK.find(s => s.number === sdgNum)?.description || '';
 
+    let html = `<div class="sdg-modal-header"><div class="sdg-modal-num" style="background:${color}">${sdgNum}</div><div><h3 style="color:${color}">${escHtml(sdg.name)}</h3><p style="font-size:0.875rem;color:var(--ink-muted);line-height:1.6">${escHtml(desc)}</p></div></div>`;
+
+    // Clean targets — handle JSON string, array, or plain string
+    let targetsText = '';
     if (sdg.targets) {
-      html += `<div class="sdg-modal-section"><div class="sdg-modal-section-title">Targets</div><div class="sdg-modal-targets">${escHtml(sdg.targets)}</div></div>`;
+      if (typeof sdg.targets === 'string') {
+        // Strip JSON quotes if present
+        targetsText = sdg.targets.replace(/^"|"$/g, '');
+      } else if (Array.isArray(sdg.targets)) {
+        targetsText = sdg.targets.join(' · ');
+      } else if (typeof sdg.targets === 'object') {
+        targetsText = JSON.stringify(sdg.targets);
+      }
+    }
+    // Fallback to local data if still empty
+    if (!targetsText || targetsText === '[]') {
+      targetsText = SDG_FALLBACK.find(s => s.number === sdgNum)?.targets || '';
+    }
+
+    if (targetsText && targetsText !== '[]') {
+      // Format each target as a styled bullet point
+      const targetItems = targetsText.split('·').map(t => t.trim()).filter(Boolean);
+      html += `<div class="sdg-modal-section"><div class="sdg-modal-section-title">Targets</div><div class="sdg-modal-targets">${targetItems.map(t => `<div class="sdg-target-item"><span class="sdg-target-bullet" style="background:${color}"></span><span>${escHtml(t)}</span></div>`).join('')}</div></div>`;
     }
 
     if (mappings && (Array.isArray(mappings) ? mappings.length : Object.keys(mappings).length)) {
