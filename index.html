@@ -86,14 +86,13 @@
        ═══════════════════════════════════════════ -->
   <nav class="nav" id="nav">
     <a href="#" class="nav-logo"><span class="leaf">&#x1F33F;</span> SEE</a>
+    <button class="nav-mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <ul class="nav-links">
-      <li><a href="#how">How It Works</a></li>
-      <li><a href="#community-feed">Community</a></li>
-      <li><a href="#quick-eval">Quick Eval</a></li>
-      <li><a href="#funding">Funding</a></li>
-      <li><a href="#try">Try It</a></li>
-      <li><a href="#explorer">Explorer</a></li>
-      <li><a href="#marketplace">Marketplace</a></li>
+      <li><a href="#" data-page="home" class="nav-page-link active">Home</a></li>
+      <li><a href="#explorer" data-page="explore" class="nav-page-link">Explore</a></li>
+      <li><a href="#community" data-page="community" class="nav-page-link">Community</a></li>
     </ul>
     <div class="nav-right">
       <!-- Logged out state -->
@@ -123,7 +122,7 @@
   <!-- ═══════════════════════════════════════════
        HERO — Asymmetric split with real imagery
        ═══════════════════════════════════════════ -->
-  <section class="hero">
+  <section class="hero" data-page="home">
     <div class="wrap">
       <div class="hero-grid">
         <div class="hero-content">
@@ -153,7 +152,7 @@
   <!-- ═══════════════════════════════════════════
        TRUST BAR
        ═══════════════════════════════════════════ -->
-  <div class="trust-bar" aria-hidden="true">
+  <div class="trust-bar" data-page="home" aria-hidden="true">
     <div class="trust-track">
       <span class="trust-item"><span class="num">136</span> Countries Analyzed</span>
       <span class="trust-item"><span class="num">6</span> Cultural Dimensions</span>
@@ -174,7 +173,7 @@
   <!-- ═══════════════════════════════════════════
        HOW IT WORKS — Timeline layout
        ═══════════════════════════════════════════ -->
-  <section class="how reveal" id="how">
+  <section class="how reveal" id="how" data-page="home">
     <div class="wrap">
       <div class="how-header">
         <h2 class="how-title-main">Three steps. No account needed.</h2>
@@ -218,7 +217,7 @@
   <!-- ═══════════════════════════════════════════
        EVIDENCE — Varied layouts, real imagery
        ═══════════════════════════════════════════ -->
-  <section class="evidence-section reveal">
+  <section class="evidence-section reveal" data-page="home" data-collapsible="true">
     <div class="wrap">
       <div class="evidence-header">
         <span class="evidence-kicker">What's behind it</span>
@@ -304,7 +303,7 @@
   <!-- ═══════════════════════════════════════════
        SDG — Compact visual grid
        ═══════════════════════════════════════════ -->
-  <section class="sdg-section reveal" id="sdg">
+  <section class="sdg-section reveal" id="sdg" data-page="explore" data-collapsible="true">
     <div class="wrap">
       <div class="sdg-layout">
         <div class="sdg-text">
@@ -341,7 +340,7 @@
   <!-- ═══════════════════════════════════════════
        SDG STORIES CAROUSEL
        ═══════════════════════════════════════════ -->
-  <section class="sdg-stories-section reveal" id="sdgStories">
+  <section class="sdg-stories-section reveal" id="sdgStories" data-page="community">
     <div class="wrap">
       
       <h2 class="section-title">Organizations Making the UN Goals Real</h2>
@@ -358,7 +357,7 @@
   <!-- ═══════════════════════════════════════════
        STORY — Inspirational real-world example
        ═══════════════════════════════════════════ -->
-  <section class="story-section reveal">
+  <section class="story-section reveal" data-page="community">
     <div class="wrap">
       <div class="story-grid">
         <div class="story-image">
@@ -393,7 +392,7 @@
   <!-- ═══════════════════════════════════════════
        CASE STUDY EXPLORER — Filterable knowledge base
        ═══════════════════════════════════════════ -->
-  <section class="explorer-section" id="explorer">
+  <section class="explorer-section" id="explorer" data-page="explore">
     <div class="wrap">
       <div class="section-header-center">
         
@@ -446,7 +445,7 @@
   <!-- ═══════════════════════════════════════════
        QUICK EVALUATE — Instant results, zero AI calls
        ═══════════════════════════════════════════ -->
-  <section class="quick-eval-section" id="quick-eval">
+  <section class="quick-eval-section" id="quick-eval" data-page="explore" data-collapsible="true">
     <div class="wrap">
       <div class="section-header-center">
         
@@ -468,7 +467,7 @@
   <!-- ═══════════════════════════════════════════
        COMMUNITY FEED — Public project updates
        ═══════════════════════════════════════════ -->
-  <section class="feed-section" id="community-feed">
+  <section class="feed-section" id="community-feed" data-page="community">
     <div class="wrap">
       <div class="section-header-center">
         
@@ -484,7 +483,7 @@
   <!-- ═══════════════════════════════════════════
        FUNDING — Match to funding sources
        ═══════════════════════════════════════════ -->
-  <section class="funding-section" id="funding">
+  <section class="funding-section" id="funding" data-page="explore" data-collapsible="true">
     <div class="wrap">
       <div class="section-header-center">
         
@@ -526,7 +525,7 @@
   <!-- ═══════════════════════════════════════════
        INSTANT CULTURAL LOOKUP — Zero AI calls
        ═══════════════════════════════════════════ -->
-  <section class="cultural-lookup-section" id="cultural-lookup">
+  <section class="cultural-lookup-section" id="cultural-lookup" data-page="explore" data-collapsible="true">
     <div class="wrap">
       <div class="lookup-hero-image">
         <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=900&q=80" alt="Woman using her phone to look up information, representing cultural research" loading="lazy">
@@ -548,7 +547,7 @@
   <!-- ═══════════════════════════════════════════
        EVALUATOR INPUT
        ═══════════════════════════════════════════ -->
-  <section class="input-section" id="try">
+  <section class="input-section" id="try" data-page="home">
     <div class="wrap">
       <div class="input-section-hero">
         <div class="input-section-hero-image">
@@ -624,7 +623,7 @@
   <!-- ═══════════════════════════════════════════
        COMMUNITY — Leaderboard + Stats
        ═══════════════════════════════════════════ -->
-  <section class="community-section" id="community">
+  <section class="community-section" id="community" data-page="community">
     <div class="wrap">
       <div class="community-header reveal">
         
@@ -663,7 +662,7 @@
   <!-- ═══════════════════════════════════════════
        FIGURES — Influential People Gallery
        ═══════════════════════════════════════════ -->
-  <section class="figures-section" id="figures">
+  <section class="figures-section" id="figures" data-page="explore">
     <div class="wrap">
       <div class="figures-header reveal">
         
@@ -690,7 +689,7 @@
   <!-- ═══════════════════════════════════════════
        MARKETPLACE — Social Impact Ideas Gallery
        ═══════════════════════════════════════════ -->
-  <section class="marketplace-section" id="marketplace">
+  <section class="marketplace-section" id="marketplace" data-page="explore">
     <div class="wrap">
       <div class="marketplace-header reveal">
         <div class="marketplace-header-image">
@@ -716,7 +715,7 @@
   <!-- ═══════════════════════════════════════════
        MENTORS — 20 Curated Mentor Personas
        ═══════════════════════════════════════════ -->
-  <section class="mentors-section" id="mentors">
+  <section class="mentors-section" id="mentors" data-page="explore">
     <div class="wrap">
       <div class="mentors-header reveal">
         
