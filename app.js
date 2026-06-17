@@ -41,41 +41,6 @@
     if (e.key === 'Enter') verifyGateCode();
   });
 
-  // ─── THEME TOGGLE ───
-  const themeToggle = $('#themeToggle');
-  const themeIcon = $('#themeToggleIcon');
-  const themeLabel = $('#themeToggleLabel');
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    if (theme === 'dark') {
-      themeIcon.textContent = '☀️';
-      themeLabel.textContent = 'Light';
-    } else {
-      themeIcon.textContent = '🌙';
-      themeLabel.textContent = 'Dark';
-    }
-    // Update meta theme-color for mobile browsers
-    let meta = document.querySelector('meta[name="theme-color"]');
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.name = 'theme-color';
-      document.head.appendChild(meta);
-    }
-    meta.content = theme === 'dark' ? '#1a1a17' : '#faf7f2';
-  }
-
-  // Load saved preference, default to light
-  const savedTheme = localStorage.getItem('see_theme') || 'light';
-  applyTheme(savedTheme);
-
-  themeToggle.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('see_theme', next);
-    applyTheme(next);
-  });
-
   // ─── NAV SCROLL ───
   const nav = $('#nav');
   let lastScroll = 0;
@@ -1085,25 +1050,6 @@
     initResultsTabs();
     initResultsScrollSpy();
     initRevealElements();
-
-    // Lifecycle CTA: Compare This Idea → Decide
-    if (isLoggedIn()) {
-      const resultContent = document.getElementById('resultContent');
-      if (resultContent) {
-        const ctaWrap = document.createElement('div');
-        ctaWrap.style.cssText = 'text-align:center;padding:1rem 0 0.5rem;';
-        ctaWrap.innerHTML = '<button class="lifecycle-cta" id="resultDecideBtn">⚖️ Compare This Idea → Decide</button>';
-        resultContent.appendChild(ctaWrap);
-        const decideBtn = document.getElementById('resultDecideBtn');
-        if (decideBtn) decideBtn.addEventListener('click', () => {
-          showProjectDashboard();
-          setTimeout(() => {
-            const tab = document.querySelector('.dash-tab[data-tab="decide"]');
-            if (tab) tab.click();
-          }, 300);
-        });
-      }
-    }
   }
 
   // ─── SCORE COUNT-UP ───
@@ -2523,7 +2469,7 @@
         card.style.cursor = 'pointer';
         card.addEventListener('click', async () => {
           const evalId = card.dataset.id;
-          if (!evalId || evalId.startsWith('local')) {
+          if (!evalId || evalId === 'local') {
             overlay.style.display = 'none';
             const trySection = document.getElementById('try');
             if (trySection) trySection.scrollIntoView({ behavior: 'smooth' });
@@ -2620,7 +2566,7 @@
       card.style.cursor = 'pointer';
       card.addEventListener('click', async () => {
         const evalId = card.dataset.id;
-        if (!evalId || evalId.startsWith('local')) { overlay.style.display = 'none'; return; }
+        if (!evalId || evalId === 'local') { overlay.style.display = 'none'; return; }
         overlay.style.display = 'none';
         try {
           const resp = await fetch('/api/evaluations?action=get&id=' + evalId, {
@@ -3109,7 +3055,7 @@
 
     const token = localStorage.getItem('see_token');
     if (!token) {
-      content.innerHTML = '<div class="dashboard-empty">Please <a href="#" onclick="document.getElementById(\'authOverlay\').style.display=\'flex\'">log in</a> to see your projects.</div>';
+      content.innerHTML = '<div class="dashboard-empty">Please <a href="#" onclick="document.getElementById(\'authModal\').style.display=\'flex\'">log in</a> to see your projects.</div>';
       return;
     }
 
@@ -3124,16 +3070,10 @@
       const projects = projData.projects || [];
       const evaluations = evalData.evaluations || [];
 
-      // Lifecycle bar
-      let html = renderLifecycleBar('evaluate');
-
-      html += '<div class="dashboard-tabs">';
+      let html = '<div class="dashboard-tabs">';
       html += '<button class="dash-tab active" data-tab="projects">Projects</button>';
-      html += '<button class="dash-tab" data-tab="decide">Decide</button>';
-      html += '<button class="dash-tab" data-tab="execute">Execute</button>';
-      html += '<button class="dash-tab" data-tab="track">Track</button>';
-      html += '<button class="dash-tab" data-tab="funding">Fund</button>';
-      html += '<button class="dash-tab" data-tab="scale">Scale</button>';
+      html += '<button class="dash-tab" data-tab="evaluations">Evaluations</button>';
+      html += '<button class="dash-tab" data-tab="funding">Funding</button>';
       html += '</div>';
 
       // Projects tab
@@ -3186,53 +3126,16 @@
       html += '<div class="dashboard-empty">Browse <a href="#funding" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">funding sources</a> matched to your projects.</div>';
       html += '</div>';
 
-      // Decide tab (M2)
-      html += '<div class="dash-panel hidden" id="dashDecide"><div class="dashboard-loading">Loading evaluations…</div></div>';
-
-      // Execute tab (M4)
-      html += '<div class="dash-panel hidden" id="dashExecute"><div class="dashboard-loading">Loading tasks…</div></div>';
-
-      // Track tab (M5)
-      html += '<div class="dash-panel hidden" id="dashTrack"><div class="dashboard-loading">Loading metrics…</div></div>';
-
-      // Scale tab (M7)
-      html += '<div class="dash-panel hidden" id="dashScale"><div class="dashboard-loading">Loading plans…</div></div>';
-
       content.innerHTML = html;
 
-      // Tab switching — lazy-load module panels
+      // Tab switching
       content.querySelectorAll('.dash-tab').forEach(tab => {
         tab.addEventListener('click', () => {
           content.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
           content.querySelectorAll('.dash-panel').forEach(p => p.classList.add('hidden'));
-          const tabName = tab.dataset.tab;
-          const panelId = 'dash' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
-          const target = content.querySelector('#' + panelId);
+          const target = content.querySelector('#dash' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1));
           if (target) target.classList.remove('hidden');
-          // Re-read first project ID (user may have navigated back)
-          const firstProjectId = projects.length > 0 ? projects[0].id : null;
-          // Lazy-load module panels on first click
-          if (target && tabName === 'decide' && target.querySelector('.dashboard-loading')) {
-            showDecidePanel(target, evaluations);
-          } else if (target && tabName === 'execute' && target.querySelector('.dashboard-loading')) {
-            showExecutePanel(target, firstProjectId);
-          } else if (target && tabName === 'track' && target.querySelector('.dashboard-loading')) {
-            showTrackPanel(target, firstProjectId);
-          } else if (target && tabName === 'scale' && target.querySelector('.dashboard-loading')) {
-            showScalePanel(target, firstProjectId);
-          } else if (target && tabName === 'projects') {
-            // Already rendered inline — just show it
-          }
-        });
-      });
-
-      // Lifecycle pill click → navigate to corresponding tab
-      content.querySelectorAll('.lifecycle-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-          const stage = pill.dataset.stage;
-          const targetTab = content.querySelector(`.dash-tab[data-tab="${stage}"]`);
-          if (targetTab) targetTab.click();
         });
       });
 
@@ -3395,482 +3298,6 @@
     } catch (e) { console.warn("[SEE]", e);
       container.innerHTML = '<div class="dashboard-error">Failed to load project.</div>';
     }
-  }
-
-  // ─── LIFECYCLE BAR ───
-
-  function renderLifecycleBar(activeStage) {
-    const stages = [
-      { key: 'evaluate', label: 'Evaluate', icon: '📊' },
-      { key: 'decide', label: 'Decide', icon: '⚖️' },
-      { key: 'plan', label: 'Plan', icon: '🗺️' },
-      { key: 'execute', label: 'Execute', icon: '🚀' },
-      { key: 'track', label: 'Track', icon: '📈' },
-      { key: 'fund', label: 'Fund', icon: '💰' },
-      { key: 'scale', label: 'Scale', icon: '🌍' },
-    ];
-    const activeIdx = stages.findIndex(s => s.key === activeStage);
-    let html = '<div class="lifecycle-bar">';
-    stages.forEach((s, i) => {
-      const state = i < activeIdx ? 'completed' : i === activeIdx ? 'current' : 'upcoming';
-      html += `<span class="lifecycle-pill ${state}" data-stage="${s.key}">${s.icon} ${s.label}</span>`;
-      if (i < stages.length - 1) html += '<span class="lifecycle-connector">→</span>';
-    });
-    html += '</div>';
-    return html;
-  }
-
-  // ─── M2: DECIDE PANEL ───
-
-  async function showDecidePanel(container, evaluations) {
-    if (!evaluations || evaluations.length < 2) {
-      container.innerHTML = '<div class="dashboard-empty">You need at least 2 evaluations to compare. <a href="#try" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">Evaluate more ideas</a></div>';
-      return;
-    }
-
-    const verdictColors = { GO: 'var(--forest)', 'GO WITH EDUCATION': 'var(--amber)', PIVOT: 'var(--terracotta)', SHELVE: '#999' };
-    let selectedIds = [];
-
-    function renderSelectView() {
-      let html = '<div class="dashboard-section-title">Select ideas to compare</div>';
-      html += '<div class="decide-select-grid">';
-      evaluations.forEach(ev => {
-        const score = ev.score || '—';
-        const idea = (ev.idea_text || '').length > 70 ? ev.idea_text.slice(0, 67) + '...' : ev.idea_text;
-        html += `<label class="decide-card" data-id="${ev.id}">
-          <input type="checkbox" value="${ev.id}" class="decide-check">
-          <span class="decide-card-score" style="color:${verdictColors[ev.verdict] || 'var(--ink)'}">${score}</span>
-          <span class="decide-card-idea">${escHtml(idea)}</span>
-          <span class="decide-card-verdict">${escHtml(ev.verdict_label || ev.verdict || '')}</span>
-        </label>`;
-      });
-      html += '</div>';
-      html += '<button class="decide-compare-btn" disabled>Compare Selected</button>';
-      container.innerHTML = html;
-
-      const checks = container.querySelectorAll('.decide-check');
-      const btn = container.querySelector('.decide-compare-btn');
-
-      checks.forEach(cb => {
-        cb.addEventListener('change', () => {
-          selectedIds = Array.from(checks).filter(c => c.checked).map(c => c.value);
-          btn.disabled = selectedIds.length < 2;
-          container.querySelectorAll('.decide-card').forEach(card => {
-            card.classList.toggle('selected', card.querySelector('input').checked);
-          });
-        });
-      });
-
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        btn.textContent = 'Comparing…';
-        try {
-          const resp = await fetch('/api/decisions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
-            body: JSON.stringify({ action: 'compare', idea_ids: selectedIds, weights: {} }),
-          });
-          const data = await resp.json();
-          if (data.ranked) {
-            renderCompareView(data);
-          } else {
-            showToast('Comparison failed: ' + (data.error || 'Unknown error'), 'error');
-            btn.disabled = false;
-            btn.textContent = 'Compare Selected';
-          }
-        } catch (e) {
-          console.warn('[SEE]', e);
-          showToast('Comparison request failed.', 'error');
-          btn.disabled = false;
-          btn.textContent = 'Compare Selected';
-        }
-      });
-    }
-
-    function renderCompareView(data) {
-      const ranked = data.ranked || [];
-      const tradeoffs = data.tradeoffs || [];
-
-      let html = '<button class="dash-back-btn" id="decideBackBtn">\u2190 Back to selection</button>';
-      html += '<div class="dashboard-section-title">Comparison Results</div>';
-
-      html += '<table class="decide-rank-table"><thead><tr><th>#</th><th>Idea</th><th>Score</th><th>Verdict</th></tr></thead><tbody>';
-      ranked.forEach((r, i) => {
-        const eval_ = evaluations.find(e => String(e.id) === String(r.evaluation_id || r.id));
-        const idea = eval_ ? (eval_.idea_text || '').slice(0, 50) : 'Idea #' + (i + 1);
-        const score = r.score || r.weighted_score || '—';
-        const verdict = r.verdict || r.verdict_label || '';
-        html += `<tr>
-          <td class="decide-rank-pos">${i + 1}</td>
-          <td>${escHtml(idea)}</td>
-          <td><strong>${score}</strong></td>
-          <td>${escHtml(verdict)}</td>
-        </tr>`;
-      });
-      html += '</tbody></table>';
-
-      if (tradeoffs.length > 0) {
-        tradeoffs.forEach(t => {
-          html += `<div class="decide-tradeoff">
-            <div class="decide-tradeoff-title">${escHtml(t.dimension || t.title || 'Tradeoff')}</div>
-            ${escHtml(t.insight || t.summary || JSON.stringify(t))}
-          </div>`;
-        });
-      }
-
-      html += '<button class="decide-pick-btn" id="decidePickBtn">\u2705 Pick Winner</button>';
-      container.innerHTML = html;
-
-      container.querySelector('#decideBackBtn').addEventListener('click', () => renderSelectView());
-
-      const pickBtn = container.querySelector('#decidePickBtn');
-      if (pickBtn) {
-        pickBtn.addEventListener('click', async () => {
-          const winnerId = ranked[0]?.evaluation_id || ranked[0]?.id;
-          if (!winnerId) return;
-          pickBtn.disabled = true;
-          pickBtn.textContent = 'Saving…';
-          try {
-            await fetch('/api/decisions', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
-              body: JSON.stringify({ action: 'decide', session_id: data.session_id, winner_id: winnerId }),
-            });
-            showToast('Winner selected!', 'success');
-          } catch (e) { console.warn('[SEE]', e); }
-        });
-      }
-    }
-
-    renderSelectView();
-  }
-
-  // ─── M4: EXECUTE PANEL ───
-
-  async function showExecutePanel(container, projectId) {
-    const token = getAuthToken();
-    if (!projectId) {
-      container.innerHTML = '<div class="project-select-prompt">Select a project first to manage tasks. <span class="project-select-link" id="execGotoProjects">Go to Projects</span></div>';
-      const link = container.querySelector('#execGotoProjects');
-      if (link) link.addEventListener('click', () => {
-        const tab = document.querySelector('.dash-tab[data-tab="projects"]');
-        if (tab) tab.click();
-      });
-      return;
-    }
-
-    container.innerHTML = '<div class="dashboard-loading">Loading tasks…</div>';
-
-    try {
-      const resp = await fetch(`/api/tasks?action=today&project_id=${projectId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-      const data = await resp.json();
-      renderTaskView(data, projectId, container, token);
-    } catch (e) {
-      console.warn('[SEE]', e);
-      container.innerHTML = '<div class="dashboard-error">Failed to load tasks.</div>';
-    }
-  }
-
-  function renderTaskView(data, projectId, container, token) {
-    const overdue = data.overdue || [];
-    const dueToday = data.due_today || [];
-    const upcoming = data.upcoming || [];
-
-    let html = '';
-    html += '<button class="lifecycle-cta" id="taskAddBtn">+ Add Task</button>';
-    html += '<div id="taskAddFormWrap"></div>';
-
-    function renderSection(title, tasks, cssClass) {
-      if (tasks.length === 0) return '';
-      let s = `<div class="task-section-title">${title} <span class="task-section-badge ${cssClass}">${tasks.length}</span></div>`;
-      s += '<div class="task-list">';
-      tasks.forEach(t => {
-        const due = t.due_date ? new Date(t.due_date).toLocaleDateString() : '';
-        s += `<div class="task-card ${cssClass}" data-task-id="${t.id}">
-          <div class="task-title">${escHtml(t.title)}</div>
-          ${due ? `<div class="task-due">${due}</div>` : ''}
-          ${t.status !== 'completed' ? `<button class="task-complete-btn" data-task-id="${t.id}">Complete</button>` : '<span style="color:var(--forest);font-size:0.75rem;font-weight:600">✓ Done</span>'}
-        </div>`;
-      });
-      s += '</div>';
-      return s;
-    }
-
-    html += renderSection('Overdue', overdue, 'overdue');
-    html += renderSection('Due Today', dueToday, 'today');
-    html += renderSection('Upcoming', upcoming, 'upcoming');
-
-    if (overdue.length + dueToday.length + upcoming.length === 0) {
-      html += '<div class="dashboard-empty" style="margin-top:1rem">No tasks yet. Add your first task above!</div>';
-    }
-
-    container.innerHTML = html;
-
-    // Add task form
-    container.querySelector('#taskAddBtn').addEventListener('click', () => {
-      const wrap = container.querySelector('#taskAddFormWrap');
-      if (wrap.innerHTML.trim()) { wrap.innerHTML = ''; return; }
-      wrap.innerHTML = `<div class="task-add-form">
-        <input type="text" id="taskTitleInput" placeholder="Task title…" required>
-        <input type="date" id="taskDueInput">
-        <button class="task-add-submit" id="taskSubmitBtn">Add</button>
-      </div>`;
-      wrap.querySelector('#taskSubmitBtn').addEventListener('click', async () => {
-        const title = wrap.querySelector('#taskTitleInput').value.trim();
-        const dueDate = wrap.querySelector('#taskDueInput').value;
-        if (!title) return;
-        try {
-          await fetch('/api/tasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ action: 'create', project_id: projectId, title, due_date: dueDate || null }),
-          });
-          showToast('Task added!', 'success');
-          showExecutePanel(container, projectId);
-        } catch (e) { console.warn('[SEE]', e); showToast('Failed to add task.', 'error'); }
-      });
-    });
-
-    // Complete buttons
-    container.querySelectorAll('.task-complete-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        btn.textContent = '…';
-        try {
-          await fetch('/api/tasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ action: 'complete', id: btn.dataset.taskId }),
-          });
-          showToast('Task completed! 🎉', 'success');
-          showExecutePanel(container, projectId);
-        } catch (e) { console.warn('[SEE]', e); showToast('Failed to complete task.', 'error'); }
-      });
-    });
-  }
-
-  // ─── M5: TRACK PANEL ───
-
-  async function showTrackPanel(container, projectId) {
-    const token = getAuthToken();
-    if (!projectId) {
-      container.innerHTML = '<div class="project-select-prompt">Select a project first to track metrics. <span class="project-select-link" id="trackGotoProjects">Go to Projects</span></div>';
-      const link = container.querySelector('#trackGotoProjects');
-      if (link) link.addEventListener('click', () => {
-        const tab = document.querySelector('.dash-tab[data-tab="projects"]');
-        if (tab) tab.click();
-      });
-      return;
-    }
-
-    container.innerHTML = '<div class="dashboard-loading">Loading metrics…</div>';
-
-    try {
-      const resp = await fetch(`/api/track?action=dashboard&project_id=${projectId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-      const data = await resp.json();
-      renderTrackView(data, projectId, container, token);
-    } catch (e) {
-      console.warn('[SEE]', e);
-      container.innerHTML = '<div class="dashboard-error">Failed to load metrics.</div>';
-    }
-  }
-
-  function renderTrackView(data, projectId, container, token) {
-    const metrics = data.metrics || [];
-
-    let html = '';
-    html += '<button class="lifecycle-cta" id="trackLogBtn">+ Log Metric</button>';
-    html += '<div id="trackLogFormWrap"></div>';
-
-    if (metrics.length > 0) {
-      html += '<div class="metric-grid">';
-      metrics.forEach(m => {
-        const delta = parseFloat(m.delta) || 0;
-        const deltaPct = m.delta_pct != null ? parseFloat(m.delta_pct).toFixed(1) : null;
-        const deltaClass = delta >= 0 ? 'positive' : 'negative';
-        const arrow = delta >= 0 ? '↑' : '↓';
-
-        // Sparkline from history
-        let sparklineHtml = '';
-        const history = m.history || [];
-        if (history.length > 1) {
-          const values = history.map(h => parseFloat(h.value) || 0);
-          const max = Math.max(...values, 1);
-          sparklineHtml = '<div class="metric-sparkline">';
-          values.forEach(v => {
-            const pct = Math.max(4, (v / max) * 100);
-            sparklineHtml += `<div class="metric-sparkline-bar" style="height:${pct}%"></div>`;
-          });
-          sparklineHtml += '</div>';
-        }
-
-        html += `<div class="metric-card">
-          <div class="metric-name">${escHtml(m.metric_name)}</div>
-          <div class="metric-value">${escHtml(String(m.latest_value))}</div>
-          ${deltaPct ? `<div class="metric-delta ${deltaClass}">${arrow} ${Math.abs(delta)} (${deltaPct}%)</div>` : ''}
-          ${sparklineHtml}
-        </div>`;
-      });
-      html += '</div>';
-    } else {
-      html += '<div class="dashboard-empty" style="margin-top:1rem">No metrics yet. Log your first metric above!</div>';
-    }
-
-    container.innerHTML = html;
-
-    // Log metric form
-    container.querySelector('#trackLogBtn').addEventListener('click', () => {
-      const wrap = container.querySelector('#trackLogFormWrap');
-      if (wrap.innerHTML.trim()) { wrap.innerHTML = ''; return; }
-      wrap.innerHTML = `<div class="metric-log-form">
-        <input type="text" id="trackNameInput" placeholder="Metric name (e.g. Revenue)" required>
-        <input type="number" id="trackValueInput" placeholder="Value" step="any" required>
-        <input type="text" id="trackUnitInput" placeholder="Unit (optional)">
-        <button class="metric-log-submit" id="trackSubmitBtn">Log</button>
-      </div>`;
-      wrap.querySelector('#trackSubmitBtn').addEventListener('click', async () => {
-        const name = wrap.querySelector('#trackNameInput').value.trim();
-        const value = wrap.querySelector('#trackValueInput').value;
-        const unit = wrap.querySelector('#trackUnitInput').value.trim();
-        if (!name || !value) return;
-        try {
-          await fetch('/api/track', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ action: 'log', project_id: projectId, metric_name: name, metric_value: parseFloat(value), metric_unit: unit || null }),
-          });
-          showToast('Metric logged!', 'success');
-          showTrackPanel(container, projectId);
-        } catch (e) { console.warn('[SEE]', e); showToast('Failed to log metric.', 'error'); }
-      });
-    });
-  }
-
-  // ─── M7: SCALE PANEL ───
-
-  async function showScalePanel(container, projectId) {
-    const token = getAuthToken();
-    if (!projectId) {
-      container.innerHTML = '<div class="project-select-prompt">Select a project first to manage scaling plans. <span class="project-select-link" id="scaleGotoProjects">Go to Projects</span></div>';
-      const link = container.querySelector('#scaleGotoProjects');
-      if (link) link.addEventListener('click', () => {
-        const tab = document.querySelector('.dash-tab[data-tab="projects"]');
-        if (tab) tab.click();
-      });
-      return;
-    }
-
-    container.innerHTML = '<div class="dashboard-loading">Loading plans…</div>';
-
-    try {
-      const resp = await fetch(`/api/scale?action=dashboard&project_id=${projectId}`, { headers: { 'Authorization': `Bearer ${token}` } });
-      const data = await resp.json();
-      renderScaleView(data, projectId, container, token);
-    } catch (e) {
-      console.warn('[SEE]', e);
-      container.innerHTML = '<div class="dashboard-error">Failed to load scaling data.</div>';
-    }
-  }
-
-  function renderScaleView(data, projectId, container, token) {
-    const plans = data.plans || [];
-    const partnerships = data.partnerships || [];
-
-    let html = '<div class="scale-sections">';
-
-    // Plans section
-    html += `<div>
-      <div class="scale-section-title">Scaling Plans</div>
-      <button class="lifecycle-cta" id="scaleAddPlanBtn">+ Add Plan</button>
-      <div id="scalePlanFormWrap"></div>`;
-    if (plans.length > 0) {
-      plans.forEach(p => {
-        const readiness = p.readiness_score || 0;
-        html += `<div class="plan-card">
-          <div class="plan-type">${escHtml(p.plan_type || 'general')}</div>
-          <div class="plan-target">${escHtml(p.target_market || '')}</div>
-          <div class="plan-readiness">
-            <span class="plan-readiness-label">Readiness</span>
-            <div class="plan-readiness-bar"><div class="plan-readiness-fill" style="width:${readiness}%"></div></div>
-            <span class="plan-readiness-pct">${readiness}%</span>
-          </div>
-        </div>`;
-      });
-    } else {
-      html += '<div class="dashboard-empty" style="margin-top:0.5rem">No scaling plans yet.</div>';
-    }
-    html += '</div>';
-
-    // Partnerships section
-    html += `<div>
-      <div class="scale-section-title">Partnerships</div>
-      <button class="lifecycle-cta amber" id="scaleAddPartnerBtn">+ Add Partner</button>
-      <div id="scalePartnerFormWrap"></div>`;
-    if (partnerships.length > 0) {
-      partnerships.forEach(p => {
-        const status = p.status || 'pending';
-        html += `<div class="partner-card">
-          <div class="partner-name">${escHtml(p.partner_name || '')}</div>
-          <span class="partner-type">${escHtml(p.partner_type || '')}</span>
-          <span class="partner-status ${status}">${escHtml(status)}</span>
-        </div>`;
-      });
-    } else {
-      html += '<div class="dashboard-empty" style="margin-top:0.5rem">No partnerships yet.</div>';
-    }
-    html += '</div>';
-
-    html += '</div>';
-    container.innerHTML = html;
-
-    // Add Plan form
-    container.querySelector('#scaleAddPlanBtn').addEventListener('click', () => {
-      const wrap = container.querySelector('#scalePlanFormWrap');
-      if (wrap.innerHTML.trim()) { wrap.innerHTML = ''; return; }
-      wrap.innerHTML = `<div class="scale-add-form">
-        <select id="scalePlanType"><option value="market_expansion">Market Expansion</option><option value="product_scaling">Product Scaling</option><option value="partnership">Partnership</option><option value="franchise">Franchise</option></select>
-        <input type="text" id="scalePlanTarget" placeholder="Target market">
-        <button class="scale-add-submit" id="scalePlanSubmit">Create</button>
-      </div>`;
-      wrap.querySelector('#scalePlanSubmit').addEventListener('click', async () => {
-        const planType = wrap.querySelector('#scalePlanType').value;
-        const target = wrap.querySelector('#scalePlanTarget').value.trim();
-        try {
-          await fetch('/api/scale', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ action: 'plan', project_id: projectId, plan_type: planType, target_market: target }),
-          });
-          showToast('Scaling plan created!', 'success');
-          showScalePanel(container, projectId);
-        } catch (e) { console.warn('[SEE]', e); showToast('Failed to create plan.', 'error'); }
-      });
-    });
-
-    // Add Partner form
-    container.querySelector('#scaleAddPartnerBtn').addEventListener('click', () => {
-      const wrap = container.querySelector('#scalePartnerFormWrap');
-      if (wrap.innerHTML.trim()) { wrap.innerHTML = ''; return; }
-      wrap.innerHTML = `<div class="scale-add-form">
-        <input type="text" id="scalePartnerName" placeholder="Partner name">
-        <input type="text" id="scalePartnerType" placeholder="Type (e.g. NGO, Investor)">
-        <button class="scale-add-submit" id="scalePartnerSubmit">Add</button>
-      </div>`;
-      wrap.querySelector('#scalePartnerSubmit').addEventListener('click', async () => {
-        const name = wrap.querySelector('#scalePartnerName').value.trim();
-        const type = wrap.querySelector('#scalePartnerType').value.trim();
-        if (!name) return;
-        try {
-          await fetch('/api/scale', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ action: 'partnership', project_id: projectId, partner_name: name, partner_type: type }),
-          });
-          showToast('Partnership added!', 'success');
-          showScalePanel(container, projectId);
-        } catch (e) { console.warn('[SEE]', e); showToast('Failed to add partnership.', 'error'); }
-      });
-    });
   }
 
   // ─── FUNDING MATCHER (Phase 3) ───
@@ -4517,7 +3944,7 @@
     if (myEvals) myEvals.addEventListener('click', (e) => { e.preventDefault(); showMyEvaluations(); });
 
     const myDashboard = $('#navMyDashboard');
-    if (myDashboard) myDashboard.addEventListener('click', (e) => { e.preventDefault(); showProjectDashboard(); });
+    if (myDashboard) myDashboard.addEventListener('click', (e) => { e.preventDefault(); showDashboard(); });
 
     const myFavorites = $('#navMyFavorites');
     if (myFavorites) myFavorites.addEventListener('click', (e) => { e.preventDefault(); showFavorites(); });
