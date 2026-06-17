@@ -3055,7 +3055,7 @@
 
     const token = localStorage.getItem('see_token');
     if (!token) {
-      content.innerHTML = '<div class="dashboard-empty">Please <a href="#" onclick="document.getElementById(\'authModal\').style.display=\'flex\'">log in</a> to see your projects.</div>';
+      content.innerHTML = '<div class="dashboard-empty">Please <a href="#" onclick="document.getElementById(\'authOverlay\').style.display=\'flex\'">log in</a> to see your projects.</div>';
       return;
     }
 
@@ -3128,14 +3128,37 @@
 
       content.innerHTML = html;
 
-      // Tab switching
+      // Tab switching — lazy-load module panels
       content.querySelectorAll('.dash-tab').forEach(tab => {
         tab.addEventListener('click', () => {
           content.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
           content.querySelectorAll('.dash-panel').forEach(p => p.classList.add('hidden'));
-          const target = content.querySelector('#dash' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1));
+          const tabName = tab.dataset.tab;
+          const panelId = 'dash' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
+          const target = content.querySelector('#' + panelId);
           if (target) target.classList.remove('hidden');
+          // Re-read first project ID (user may have navigated back)
+          const firstProjectId = projects.length > 0 ? projects[0].id : null;
+          // Lazy-load module panels on first click
+          if (target && tabName === 'decide' && target.querySelector('.dashboard-loading')) {
+            showDecidePanel(target, evaluations);
+          } else if (target && tabName === 'execute' && target.querySelector('.dashboard-loading')) {
+            showExecutePanel(target, firstProjectId);
+          } else if (target && tabName === 'track' && target.querySelector('.dashboard-loading')) {
+            showTrackPanel(target, firstProjectId);
+          } else if (target && tabName === 'scale' && target.querySelector('.dashboard-loading')) {
+            showScalePanel(target, firstProjectId);
+          }
+        });
+      });
+
+      // Lifecycle pill click → navigate to corresponding tab
+      content.querySelectorAll('.lifecycle-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          const stage = pill.dataset.stage;
+          const targetTab = content.querySelector(`.dash-tab[data-tab="${stage}"]`);
+          if (targetTab) targetTab.click();
         });
       });
 
