@@ -831,12 +831,52 @@
       <div id="whatIfResult" class="what-if-result"></div>
     </div>`;
 
-    // Wire up What-If after render
-    setTimeout(() => {
+    // Wire up What-If after render — wait for Hofstede data if needed
+    async function initWhatIf() {
       const sel = document.getElementById('whatIfCountry');
       const resultEl = document.getElementById('whatIfResult');
       if (!sel || !resultEl) return;
-      const hofData = window.__hofstedeData || [];
+
+      // Wait for Hofstede data to load (max 3 seconds)
+      let hofData = window.__hofstedeData || [];
+      if (!hofData.length) {
+        for (let i = 0; i < 30; i++) {
+          await new Promise(r => setTimeout(r, 100));
+          hofData = window.__hofstedeData || [];
+          if (hofData.length) break;
+        }
+      }
+
+      if (!hofData.length) {
+        // Final fallback: fetch directly
+        try {
+          const resp = await fetch('data/hofstede-database.json');
+          const json = await resp.json();
+          const countries = json.countries || json;
+          if (Array.isArray(countries)) {
+            hofData = countries.map(c => ({
+              code: c.code || '', name: c.name || c.code || '',
+              power_distance: c.pdi || 50, individualism: c.idv || 50,
+              masculinity: c.mas || 50, uncertainty_avoidance: c.uai || 50,
+              long_term_orientation: c.lto || 50, indulgence: c.ivr || 50,
+            }));
+          } else if (typeof countries === 'object') {
+            hofData = Object.entries(countries).map(([code, c]) => ({
+              code: c.code || code, name: c.name || code,
+              power_distance: c.pdi || 50, individualism: c.idv || 50,
+              masculinity: c.mas || 50, uncertainty_avoidance: c.uai || 50,
+              long_term_orientation: c.lto || 50, indulgence: c.ivr || 50,
+            }));
+          }
+          window.__hofstedeData = hofData;
+        } catch (_) {}
+      }
+
+      if (!hofData.length) {
+        sel.innerHTML = '<option value="">Could not load country data</option>';
+        return;
+      }
+
       // Populate country dropdown
       hofData.sort((a, b) => (a.name || '').localeCompare(b.name || '')).forEach(c => {
         if (c.code === d.country) return;
@@ -894,7 +934,8 @@
         ${dimHTML}
         <div class="what-if-note">This is an estimate based on cultural dimensions. A full evaluation would include community viability, case study matching, and bootstrapper scoring.</div>`;
       });
-    }, 200);
+    }
+    initWhatIf();
 
     // Save evaluation banner (if not logged in)
     if (!localStorage.getItem('see_token')) {
