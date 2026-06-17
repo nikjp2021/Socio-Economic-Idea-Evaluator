@@ -2012,6 +2012,26 @@
     try {
       localStorage.setItem('see_last_eval', JSON.stringify(data));
       localStorage.setItem('see_last_eval_time', Date.now().toString());
+
+      // Also save to history (keep last 10)
+      const history = JSON.parse(localStorage.getItem('see_eval_history') || '[]');
+      const entry = {
+        id: 'local_' + Date.now(),
+        idea_text: (data._input?.problem || '') + ' ' + (data._input?.goal || ''),
+        score: data.verdict?.total_score,
+        verdict: data.verdict?.verdict,
+        verdict_label: data.verdict?.verdict === 'GO' ? 'READY TO TEST' : data.verdict?.verdict === 'PIVOT' ? 'CHANGE YOUR APPROACH' : data.verdict?.verdict,
+        country: data.country_name || data.country || '',
+        idea_type: data.idea_type || '',
+        created_at: new Date().toISOString(),
+        result_json: data,
+      };
+      // Deduplicate by idea text (don't add if same idea was just evaluated)
+      const recentDuplicate = history.find(h => h.idea_text.trim() === entry.idea_text.trim());
+      if (!recentDuplicate) {
+        history.unshift(entry);
+        localStorage.setItem('see_eval_history', JSON.stringify(history.slice(0, 10)));
+      }
     } catch (_) { /* quota exceeded or private mode */ }
   }
 
@@ -2233,11 +2253,43 @@
     const dropdown = $('#navDropdown');
     if (dropdown) dropdown.style.display = 'none';
 
-    try {
-      const data = await apiEvaluationsGet('list');
-      if (data.error) { showToast('Please sign in to view evaluations.', 'error'); return; }
+    let evals = [];
 
-      const evals = data.evaluations || [];
+    // Try DB first (if logged in)
+    if (isLoggedIn()) {
+      try {
+        const data = await apiEvaluationsGet('list');
+        if (data.evaluations) evals = data.evaluations;
+      } catch (_) {}
+    }
+
+    // Fallback: load from localStorage history
+    if (!evals.length) {
+      try {
+        const history = JSON.parse(localStorage.getItem('see_eval_history') || '[]');
+        if (history.length) {
+          evals = history;
+        }
+      } catch (_) {}
+    }
+
+    // Last resort: single evaluation
+    if (!evals.length) {
+      const local = loadLastEvaluation();
+      if (local && local.verdict) {
+        evals = [{
+          id: 'local',
+          idea_text: (local._input?.problem || '') + ' ' + (local._input?.goal || ''),
+          score: local.verdict?.total_score,
+          verdict: local.verdict?.verdict,
+          verdict_label: local.verdict?.verdict === 'GO' ? 'READY TO TEST' : local.verdict?.verdict === 'PIVOT' ? 'CHANGE YOUR APPROACH' : local.verdict?.verdict,
+          created_at: localStorage.getItem('see_last_eval_time') ? new Date(parseInt(localStorage.getItem('see_last_eval_time'))).toISOString() : new Date().toISOString(),
+          result_json: local,
+        }];
+      }
+    }
+
+    try {
       let html = '<div class="my-evals-panel">';
       html += '<div class="my-evals-header"><h3>My Evaluations</h3><button class="my-evals-close" id="myEvalsClose">&times;</button></div>';
 
@@ -2500,22 +2552,13 @@
     if (myEvals) myEvals.addEventListener('click', (e) => { e.preventDefault(); showMyEvaluations(); });
 
     const myDashboard = $('#navMyDashboard');
-    if (myDashboard) myDashboard.addEventListener('click', (e) => {
-      e.preventDefault();
-      showToast('Dashboard coming soon!', 'success');
-    });
+    if (myDashboard) myDashboard.addEventListener('click', (e) => { e.preventDefault(); showDashboard(); });
 
     const myFavorites = $('#navMyFavorites');
-    if (myFavorites) myFavorites.addEventListener('click', (e) => {
-      e.preventDefault();
-      showToast('Favorites coming soon!', 'success');
-    });
+    if (myFavorites) myFavorites.addEventListener('click', (e) => { e.preventDefault(); showMyEvaluations(); });
 
     const myProfile = $('#navMyProfile');
-    if (myProfile) myProfile.addEventListener('click', (e) => {
-      e.preventDefault();
-      showToast('Profile coming soon!', 'success');
-    });
+    if (myProfile) myProfile.addEventListener('click', (e) => { e.preventDefault(); showDashboard(); });
 
     const logout = $('#navLogout');
     if (logout) logout.addEventListener('click', (e) => {
@@ -2944,31 +2987,71 @@
     const dropdown = $('#navDropdown');
     if (dropdown) dropdown.style.display = 'none';
 
-    if (!isLoggedIn()) {
-      showAuthModal('login');
-      return;
-    }
-
     overlay.style.display = 'flex';
     content.innerHTML = '<div class="dashboard-loading">Loading your data…</div>';
 
-    try {
-      const resp = await fetch('/api/reference?data=dashboard', {
-        headers: { 'Authorization': 'Bearer ' + getAuthToken() },
-      });
-      const json = await resp.json();
-      const data = json.data || {};
+    let stats = {};
+    let evals = [];
+    let typeBreakdown = [];
+    let verdictBreakdown = [];
 
-      if (data.error) {
-        content.innerHTML = `<div class="dashboard-error">${escHtml(data.error)}</div>`;
-        return;
+    if (isLoggedIn()) {
+      try {
+        const resp = await fetch('/api/reference?data=dashboard', {
+          headers: { 'Authorization': 'Bearer ' + getAuthToken() },
+        });
+        const json = await resp.json();
+        const data = json.data || {};
+        if (!data.error) {
+          stats = data.stats || {};
+          evals = data.evaluations || [];
+          typeBreakdown = data.type_breakdown || [];
+          verdictBreakdown = data.verdict_breakdown || [];
+        }
+      } catch (_) {}
+    }
+
+    // Fallback: use localStorage history if no DB data
+    if (!evals.length) {
+      try {
+        const history = JSON.parse(localStorage.getItem('see_eval_history') || '[]');
+        if (history.length) {
+          evals = history;
+        }
+      } catch (_) {}
+    }
+
+    // Last resort: single evaluation
+    if (!evals.length) {
+      const local = loadLastEvaluation();
+      if (local && local.verdict) {
+        const localTime = localStorage.getItem('see_last_eval_time');
+        evals = [{
+          idea_text: (local._input?.problem || '') + ' ' + (local._input?.goal || ''),
+          score: local.verdict?.total_score,
+          verdict: local.verdict?.verdict,
+          verdict_label: local.verdict?.verdict === 'GO' ? 'READY TO TEST' : local.verdict?.verdict === 'PIVOT' ? 'CHANGE YOUR APPROACH' : local.verdict?.verdict,
+          created_at: localTime ? new Date(parseInt(localTime)).toISOString() : new Date().toISOString(),
+        }];
       }
+    }
 
-      const stats = data.stats || {};
-      const evals = data.evaluations || [];
-      const typeBreakdown = data.type_breakdown || [];
-      const verdictBreakdown = data.verdict_breakdown || [];
+    // Compute stats from evaluations if not provided by API
+    if (!stats.total && evals.length) {
+      const scores = evals.map(e => Number(e.score)).filter(s => !isNaN(s));
+      stats = {
+        total: evals.length,
+        avg_score: scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '—',
+        min_score: scores.length ? Math.min(...scores).toFixed(1) : '—',
+        max_score: scores.length ? Math.max(...scores).toFixed(1) : '—',
+      };
+      // Compute verdict breakdown
+      const vCounts = {};
+      evals.forEach(e => { const v = e.verdict || 'UNKNOWN'; vCounts[v] = (vCounts[v] || 0) + 1; });
+      verdictBreakdown = Object.entries(vCounts).map(([verdict, count]) => ({ verdict, count }));
+    }
 
+    try {
       let html = '';
 
       // Stats cards
