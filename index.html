@@ -392,14 +392,12 @@
       <div class="section-header-center">
         <p class="how-header"><span class="how-header-line"></span>Learn From</p>
         <h2 class="section-title-mixed">What <span class="title-serif">Worked</span> &amp; What <span class="title-serif">Failed</span></h2>
-        <p class="section-subtitle">140 real organizations. Filter by what you're building, where, and whether you want to study successes or failures.</p>
+        <p class="section-subtitle">140 real organizations. Filter by what you're building and where.</p>
       </div>
       <div class="explorer-toolbar" id="explorerFilters">
-        <div class="explorer-search-wrap">
-          <input type="text" class="explorer-search" id="explorerSearch" placeholder="Search organizations…" autocomplete="off">
-        </div>
+        <input type="text" class="explorer-search" id="explorerSearch" placeholder="Search…" autocomplete="off">
         <select class="explorer-select" id="explorerCatSelect" data-filter="cat">
-          <option value="all">All Categories</option>
+          <option value="all">All Types</option>
           <option value="education">Education</option>
           <option value="health">Health</option>
           <option value="food">Food</option>
@@ -428,9 +426,10 @@
         </select>
         <span class="explorer-count" id="explorerCount"></span>
       </div>
-      <div class="explorer-list" id="explorerGrid">
-        <div class="explorer-loading">Loading case studies…</div>
+      <div class="explorer-grid" id="explorerGrid">
+        <div class="explorer-loading">Loading…</div>
       </div>
+      <div class="explorer-more" id="explorerMore"></div>
     </div>
   </section>
 
