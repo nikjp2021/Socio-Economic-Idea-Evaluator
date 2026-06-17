@@ -4005,9 +4005,16 @@
       } catch (e) { console.warn("[SEE]", e); }
     }
 
+    // Hardcoded fallback if both API and local files fail
     if (!stories.length) {
-      track.innerHTML = '<p style="color:var(--ink-muted);text-align:center;padding:2rem">Stories loading&hellip;</p>';
-      return;
+      stories = [
+        { title: 'Kiva: Crowdfunded Microloans', organization: 'Kiva', country: 'Global', category: 'financial', sdg_number: 1, sdg_name: 'No Poverty', excerpt: 'Connected lenders to borrowers in 77 countries. $1.9B in loans funded.', impact: '4.8M borrowers funded', what_worked: 'Trust-based lending with personal stories' },
+        { title: 'BRAC: Ultra-Poor Graduation', organization: 'BRAC', country: 'Bangladesh', category: 'community', sdg_number: 8, sdg_name: 'Decent Work', excerpt: 'Graduation program for extreme poverty. Asset transfers plus mentoring.', impact: '95% of participants sustained gains after 3 years', what_worked: 'Holistic approach: assets + training + mentoring' },
+        { title: 'Aravind Eye Care', organization: 'Aravind', country: 'India', category: 'health', sdg_number: 3, sdg_name: 'Good Health', excerpt: 'High-volume, low-cost eye surgery model. 70% of patients pay nothing.', impact: '600,000+ surgeries per year', what_worked: 'Cross-subsidy model: paying patients fund free ones' },
+        { title: 'GiveDirectly: Cash Transfers', organization: 'GiveDirectly', country: 'Kenya', category: 'financial', sdg_number: 1, sdg_name: 'No Poverty', excerpt: 'Direct cash transfers to extreme poor. No conditions, no overhead.', impact: 'Recipient consumption up 33%', what_worked: 'Trust poor people to spend money wisely' },
+        { title: 'Solar Sister: Women Energy Entrepreneurs', organization: 'Solar Sister', country: 'Nigeria', category: 'women', sdg_number: 7, sdg_name: 'Clean Energy', excerpt: 'Women-led distribution of solar products in rural Africa.', impact: '4,000+ entrepreneurs, 1.5M people reached', what_worked: 'Existing social networks as distribution channels' },
+        { title: 'One Acre Fund: Smallholder Farmers', organization: 'One Acre Fund', country: 'Kenya', category: 'food', sdg_number: 2, sdg_name: 'Zero Hunger', excerpt: 'Seeds, fertilizer, training, and market access for small farmers.', impact: '1.5M farmers served, 50% income increase', what_worked: 'Farmers repay in installments after harvest' },
+      ];
     }
 
     // Shuffle stories for variety
