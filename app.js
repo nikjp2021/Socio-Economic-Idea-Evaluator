@@ -2514,6 +2514,112 @@
     }
   }
 
+  // ─── HELPER: Clean JSONB values into readable text ───
+  function cleanJsonb(val, maxLen) {
+    if (!val) return '';
+    let text = '';
+    if (typeof val === 'string') {
+      text = val.replace(/^"|"$/g, '').replace(/\\"/g, '"');
+      if (text.startsWith('[') || text.startsWith('{')) {
+        try {
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed)) text = parsed.join(', ');
+          else if (typeof parsed === 'object') text = Object.entries(parsed).map(([k, v]) => `${k}: ${v}`).join(', ');
+        } catch (_) {}
+      }
+    } else if (Array.isArray(val)) {
+      text = val.join(', ');
+    } else if (typeof val === 'object') {
+      text = Object.entries(val).map(([k, v]) => `${k}: ${v}`).join(', ');
+    }
+    if (maxLen && text.length > maxLen) text = text.slice(0, maxLen - 3) + '…';
+    return text;
+  }
+
+  // ─── CASE STUDY EXPLORER ───
+  let _allCaseStudies = [];
+  let _explorerFilters = { cat: 'all', zone: 'all', status: 'all' };
+
+  async function initExplorer() {
+    const grid = $('#explorerGrid');
+    const countEl = $('#explorerCount');
+    if (!grid) return;
+
+    // Load case studies
+    if (!_allCaseStudies.length) {
+      try {
+        const resp = await fetch('/api/reference?data=cases&limit=200');
+        const json = await resp.json();
+        _allCaseStudies = json.data || [];
+      } catch (_) {}
+      // Fallback: try local
+      if (!_allCaseStudies.length) {
+        try {
+          const libResp = await fetch('case-studies/library.json');
+          const lib = await libResp.json();
+          _allCaseStudies = lib.case_studies || [];
+        } catch (_) {}
+      }
+    }
+
+    function renderGrid() {
+      const filtered = _allCaseStudies.filter(cs => {
+        if (_explorerFilters.cat !== 'all' && cs.category !== _explorerFilters.cat) return false;
+        if (_explorerFilters.zone !== 'all' && cs.zone !== _explorerFilters.zone) return false;
+        if (_explorerFilters.status === 'active' && cs.status === 'failed') return false;
+        if (_explorerFilters.status === 'failed' && cs.status !== 'failed') return false;
+        return true;
+      });
+
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="explorer-empty">No case studies match these filters. Try different options.</div>';
+        if (countEl) countEl.textContent = '';
+        return;
+      }
+
+      if (countEl) countEl.textContent = `${filtered.length} case ${filtered.length === 1 ? 'study' : 'studies'}`;
+
+      grid.innerHTML = filtered.slice(0, 24).map(cs => {
+        const isFailed = cs.status === 'failed';
+        const worked = cleanJsonb(cs.what_worked, 100);
+        const failed = cleanJsonb(cs.what_didnt, 100);
+        const impact = cleanJsonb(cs.impact, 80);
+        return `<div class="explorer-card ${isFailed ? 'explorer-failed' : ''}">
+          <div class="explorer-card-header">
+            ${isFailed ? '<span class="explorer-badge failed">&#x274C; Failed</span>' : '<span class="explorer-badge success">&#x2705; Success</span>'}
+            <span class="explorer-cat">${escHtml(cs.category || '')}</span>
+            ${cs.country ? `<span class="explorer-country">${escHtml(cs.country)}</span>` : ''}
+          </div>
+          <div class="explorer-card-title">${escHtml(cs.title || cs.organization || '')}</div>
+          ${cs.key_lesson ? `<div class="explorer-card-lesson">&ldquo;${escHtml(cs.key_lesson)}&rdquo;</div>` : ''}
+          <div class="explorer-card-details">
+            ${worked ? `<div class="explorer-detail worked"><strong>What worked:</strong> ${escHtml(worked)}</div>` : ''}
+            ${failed ? `<div class="explorer-detail failed"><strong>What failed:</strong> ${escHtml(failed)}</div>` : ''}
+            ${impact ? `<div class="explorer-detail impact"><strong>Impact:</strong> ${escHtml(impact)}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Wire filter buttons
+    const filtersEl = $('#explorerFilters');
+    if (filtersEl) {
+      filtersEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('.explorer-filter');
+        if (!btn) return;
+        const filterType = btn.dataset.filter;
+        const val = btn.dataset.val;
+        _explorerFilters[filterType] = val;
+        // Update active state within same filter group
+        btn.closest('.explorer-filter-row').querySelectorAll('.explorer-filter').forEach(f => f.classList.remove('active'));
+        btn.classList.add('active');
+        renderGrid();
+      });
+    }
+
+    renderGrid();
+  }
+
   // ─── CULTURAL LOOKUP ───
   const DIM_PRACTICAL = {
     pdi: {
@@ -3019,29 +3125,6 @@
     const perView = window.innerWidth < 600 ? 1 : window.innerWidth < 900 ? 2 : 3;
     const totalSlides = Math.ceil(stories.length / perView);
 
-    // Helper to clean JSONB values into readable text
-    function cleanJsonb(val, maxLen) {
-      if (!val) return '';
-      let text = '';
-      if (typeof val === 'string') {
-        text = val.replace(/^"|"$/g, '').replace(/\\"/g, '"');
-        // Try parsing if it looks like JSON
-        if (text.startsWith('[') || text.startsWith('{')) {
-          try {
-            const parsed = JSON.parse(text);
-            if (Array.isArray(parsed)) text = parsed.join(', ');
-            else if (typeof parsed === 'object') text = Object.entries(parsed).map(([k, v]) => `${k}: ${v}`).join(', ');
-          } catch (_) {}
-        }
-      } else if (Array.isArray(val)) {
-        text = val.join(', ');
-      } else if (typeof val === 'object') {
-        text = Object.entries(val).map(([k, v]) => `${k}: ${v}`).join(', ');
-      }
-      if (maxLen && text.length > maxLen) text = text.slice(0, maxLen - 3) + '...';
-      return text;
-    }
-
     function renderSlide(s) {
       const color = sdgColors[s.sdg_number] || '#888';
       const img = s.image || SDG_IMAGES[s.sdg_number] || CATEGORY_IMAGES[(s.category || '').toLowerCase()] || SDG_IMAGES[8];
@@ -3335,6 +3418,7 @@
     initFiguresGallery();
     initSDGExplorer();
     initSDGStoriesCarousel();
+    initExplorer();
 
     // Restore last evaluation if returning user
     const lastEval = loadLastEvaluation();
