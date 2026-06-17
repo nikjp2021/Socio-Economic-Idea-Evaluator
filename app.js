@@ -193,7 +193,7 @@
   // ─── LOADING ANIMATION ───
   const loadingOverlay = $('#loadingOverlay');
   const loadingSteps = [
-    'Parsing your idea...',
+    'Reading your idea...',
     'Checking 136 countries...',
     'Analyzing cultural fit...',
     'Matching case studies...',
@@ -275,7 +275,7 @@
         else if (msg.includes('429') || msg.includes('quota') || msg.includes('rate') || msg.includes('busy'))
           msg = 'Our evaluation service is busy right now. Please try again in a few minutes.';
         else if (msg.includes('limit'))
-          msg = 'Something went wrong. Please try again.';
+          msg = 'Something went wrong on our end. Please try again in a moment.';
         tryError.textContent = msg;
         tryError.classList.add('visible');
         return;
@@ -810,7 +810,7 @@
       <div class="first-step-text">${esc(d.verdict.first_step)}</div>
       <div class="first-step-actions">
         <button class="first-step-btn copy-step" onclick="navigator.clipboard.writeText(this.closest('.first-step').querySelector('.first-step-text').textContent).then(()=>{this.textContent='Copied!';setTimeout(()=>{this.innerHTML='&#x1F4CB; Copy Step'},1500)})">&#x1F4CB; Copy Step</button>
-        <button class="first-step-btn whatsapp-step" onclick="window.open('https://wa.me/?text='+encodeURIComponent('My first step from SEE: '+document.querySelector('.first-step-text').textContent),'_blank')">&#x1F4AC; Share on WhatsApp</button>
+        <button class="first-step-btn whatsapp-step" onclick="window.open('https://wa.me/?text='+encodeURIComponent('My first step from SEE: '+document.querySelector('.first-step-text').textContent+'\n\nTest your idea: '+window.location.origin+'?utm_source=whatsapp&utm_medium=share&utm_campaign=first_step'),'_blank')">&#x1F4AC; Share on WhatsApp</button>
       </div>
     </div>`;
 
@@ -825,7 +825,7 @@
       </div>
       <div class="what-if-controls">
         <select id="whatIfCountry" class="what-if-select">
-          <option value="">Select a country...</option>
+          <option value="">Select a country…</option>
         </select>
       </div>
       <div id="whatIfResult" class="what-if-result"></div>
@@ -1009,7 +1009,8 @@
     if (!verdict) return;
     const headline = $('.verdict-headline')?.textContent || '';
     const score = $('.verdict-score .score-count')?.textContent || '';
-    const text = `My social impact idea scored ${score}/10 on SEE \u2014 "${headline}" \u2014 Try it: ${window.location.origin}`;
+    const baseUrl = window.location.origin;
+    const text = `My social impact idea scored ${score}/10 on SEE \u2014 "${headline}" \u2014 Try it: ${baseUrl}?utm_source=share&utm_medium=native&utm_campaign=eval_results`;
 
     if (navigator.share) {
       navigator.share({ title: 'My SEE Evaluation', text, url: window.location.origin }).catch(() => {});
@@ -1091,7 +1092,7 @@
       URL.revokeObjectURL(url);
     };
     img.src = url;
-    showToast('Downloading Lean Canvas...', 'success');
+    showToast('Lean Canvas downloaded!', 'success');
   };
 
   window.__exportCanvasText = function (canvasId) {
@@ -1371,7 +1372,7 @@
       </div>
       <div class="passport-footer">
         <button class="passport-export-btn" onclick="window.__exportPassportPNG()">&#x1F4F8; Save as Image</button>
-        <span class="passport-brand">Socio-Economic Evaluator &mdash; ${window.location.origin}</span>
+        <span class="passport-brand">${window.location.origin}?utm_source=passport&utm_medium=image&utm_campaign=cultural_passport</span>
       </div>
     </div>`;
   }
@@ -1392,13 +1393,14 @@
     const verdictEmoji = { GO: '&#x2705;', 'GO WITH EDUCATION': '&#x1F4A1;', PIVOT: '&#x1F504;', SHELVE: '&#x1F91D;' };
 
     // LinkedIn post
-    const linkedinPost = `I just evaluated my social impact idea and scored ${score}/10.\n\n${verdictEmoji[verdict] || ''} ${hook}\n\nWhat I learned:\n${primarySDG ? `• Addresses ${primarySDG}` : ''}${secondarySDG ? `\n• Also impacts ${secondarySDG}` : ''}\n• Cultural fit analysis across 136 countries\n• Matched with real-world case studies\n\nMy first step: ${firstStep}\n\nWant to test your idea? Try the Socio-Economic Evaluator — free, no sign-up, results in 60 seconds.\n\n#SocialImpact #SocialEnterprise #${ideaType.replace(/_/g, '')} #SDGs`;
+    const seeUrl = window.location.origin + '?utm_source=linkedin&utm_medium=share&utm_campaign=story_engine';
+    const linkedinPost = `I just evaluated my social impact idea and scored ${score}/10.\n\n${verdictEmoji[verdict] || ''} ${hook}\n\nWhat I learned:\n${primarySDG ? `• Addresses ${primarySDG}` : ''}${secondarySDG ? `\n• Also impacts ${secondarySDG}` : ''}\n• Cultural fit analysis across 136 countries\n• Matched with real-world case studies\n\nMy first step: ${firstStep}\n\nWant to test your idea? Try the Socio-Economic Evaluator — free, no sign-up, results in 60 seconds.\n${seeUrl}\n\n#SocialImpact #SocialEnterprise #${ideaType.replace(/_/g, '')} #SDGs`;
 
     // Elevator pitch (60 seconds)
     const elevatorPitch = pitch || `"${hook}" scored ${score}/10. ${verdict === 'GO' ? 'This is ready to test.' : verdict === 'PIVOT' ? 'The problem is real but the approach needs to change.' : 'There are specific barriers to address first.'} ${firstStep}`;
 
     // WhatsApp status
-    const whatsappStatus = `${verdictEmoji[verdict] || ''} My ${ideaType} idea scored ${score}/10. ${hook ? `"${hook}"` : ''} First step: ${firstStep}`;
+    const whatsappStatus = `${verdictEmoji[verdict] || ''} My ${ideaType} idea scored ${score}/10. ${hook ? `"${hook}"` : ''} First step: ${firstStep}\n\n${window.location.origin}?utm_source=whatsapp&utm_medium=status&utm_campaign=story_engine`;
 
     function copyBtn(text, id) {
       return `<button class="story-copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('${id}').textContent).then(()=>{this.textContent='Copied!';setTimeout(()=>{this.innerHTML='&#x1F4CB; Copy'},1500)})">&#x1F4CB; Copy</button>`;
@@ -1523,7 +1525,7 @@
             <span>${date}</span>
           </div>
           <div class="cert-footer">
-            <span>Evaluated through 7 layers of analysis &middot; 136 countries &middot; 182+ case studies</span>
+            <span>Deep analysis across 136 countries and 182+ case studies &middot; ${window.location.origin}?utm_source=certificate&utm_medium=image&utm_campaign=sdg_cert</span>
           </div>
         </div>
       </div>
@@ -3136,7 +3138,7 @@
 
     const sdg = _sdgData.find(s => s.number === sdgNum);
     if (!sdg) {
-      content.innerHTML = `<div class="sdg-modal-header"><div class="sdg-modal-num" style="background:#888">${sdgNum}</div><h3>SDG ${sdgNum}</h3></div><p style="color:var(--ink-muted)">Data not available.</p>`;
+      content.innerHTML = `<div class="sdg-modal-header"><div class="sdg-modal-num" style="background:#888">${sdgNum}</div><h3>SDG ${sdgNum}</h3></div><p style="color:var(--ink-muted)">No detailed data for this SDG yet. Check back soon.</p>`;
       modal.style.display = 'flex';
       return;
     }
