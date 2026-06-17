@@ -41,6 +41,16 @@
     if (e.key === 'Enter') verifyGateCode();
   });
 
+  // Demo button — bypass gate without code
+  const gateDemoBtn = $('#gateDemoBtn');
+  if (gateDemoBtn) {
+    gateDemoBtn.addEventListener('click', () => {
+      localStorage.setItem('see_unlocked', 'true');
+      gateOverlay.classList.add('hidden');
+      document.body.classList.remove('gate-active');
+    });
+  }
+
   // ─── THEME TOGGLE ───
   const themeToggle = $('#themeToggle');
   const themeIcon = $('#themeToggleIcon');
@@ -1156,6 +1166,53 @@
     initResultsTabs();
     initResultsScrollSpy();
     initRevealElements();
+
+    // Save as Project CTA (visible to all users, prompts login if needed)
+    {
+      const saveProjectWrap = document.createElement('div');
+      saveProjectWrap.style.cssText = 'text-align:center;padding:1rem 0 0.5rem;';
+      saveProjectWrap.innerHTML = '<button class="lifecycle-cta" id="resultSaveProjectBtn" style="background:var(--amber);color:var(--ink)">\u{1F4BE} Save as Project \u2192</button>';
+      resultContent.appendChild(saveProjectWrap);
+      document.getElementById('resultSaveProjectBtn').addEventListener('click', async () => {
+        if (!isLoggedIn()) {
+          showToast('Please log in to save a project.', 'error');
+          const authOverlay = document.getElementById('authOverlay');
+          if (authOverlay) authOverlay.style.display = 'flex';
+          return;
+        }
+        const btn = document.getElementById('resultSaveProjectBtn');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        try {
+          const resp = await fetch('/api/projects?action=create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getAuthToken() },
+            body: JSON.stringify({
+              title: (d._input?.problem || 'My Project').slice(0, 80),
+              description: (d._input?.problem || '') + '. ' + (d._input?.goal || ''),
+              roadmap: d.verdict?.proof_of_work || null,
+              intake: d._input || {},
+            }),
+          });
+          const data = await resp.json();
+          if (data.id) {
+            btn.textContent = '\u2705 Saved! Open Dashboard';
+            btn.style.background = 'var(--forest)';
+            btn.style.color = 'white';
+            btn.addEventListener('click', () => { showProjectDashboard(); }, { once: true });
+            showToast('Project saved! Check your dashboard.', 'success');
+          } else {
+            btn.textContent = 'Save as Project';
+            btn.disabled = false;
+            showToast(data.error || 'Failed to save.', 'error');
+          }
+        } catch (e) {
+          btn.textContent = 'Save as Project';
+          btn.disabled = false;
+          showToast('Failed to save project.', 'error');
+        }
+      });
+    }
 
     // Lifecycle CTA: Compare This Idea → Decide
     if (isLoggedIn()) {
@@ -3225,6 +3282,7 @@
       html += '<div class="dashboard-tabs">';
       html += '<button class="dash-tab active" data-tab="projects">Projects</button>';
       html += '<button class="dash-tab" data-tab="decide">Decide</button>';
+      html += '<button class="dash-tab" data-tab="plan">Plan</button>';
       html += '<button class="dash-tab" data-tab="execute">Execute</button>';
       html += '<button class="dash-tab" data-tab="track">Track</button>';
       html += '<button class="dash-tab" data-tab="funding">Fund</button>';
@@ -3277,13 +3335,43 @@
       }
       html += '</div>';
 
-      // Funding tab
-      html += '<div class="dash-panel hidden" id="dashFunding">';
-      html += '<div class="dashboard-empty">Browse <a href="#funding" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">funding sources</a> matched to your projects.</div>';
-      html += '</div>';
+      // Funding tab — loads actual funding matcher
+      html += '<div class="dash-panel hidden" id="dashFunding"><div class="dashboard-loading">Loading funding sources…</div></div>';
 
       // Decide tab (M2)
       html += '<div class="dash-panel hidden" id="dashDecide"><div class="dashboard-loading">Loading evaluations…</div></div>';
+
+      // Plan tab — pulls 14-day plan from last evaluation
+      html += '<div class="dash-panel hidden" id="dashPlan">';
+      const lastEval = loadLastEvaluation();
+      if (lastEval && lastEval.verdict && lastEval.verdict.proof_of_work) {
+        const pow = lastEval.verdict.proof_of_work;
+        const planSteps = [
+          { id: 'd12', l: 'Day 1\u20132', t: pow.week_1.day_1_2 },
+          { id: 'd34', l: 'Day 3\u20134', t: pow.week_1.day_3_4 },
+          { id: 'd57', l: 'Day 5\u20137', t: pow.week_1.day_5_7 },
+          { id: 'd810', l: 'Day 8\u201310', t: pow.week_2.day_8_10 },
+          { id: 'd1112', l: 'Day 11\u201312', t: pow.week_2.day_11_12 },
+          { id: 'd1314', l: 'Day 13\u201314', t: pow.week_2.day_13_14 },
+        ];
+        const planKey = 'see_plan_' + (lastEval.country || 'x') + '_' + (lastEval.idea_type || 'x');
+        let savedProgress = {};
+        try { savedProgress = JSON.parse(localStorage.getItem(planKey) || '{}'); } catch(e) {}
+        const completedCount = planSteps.filter(s => savedProgress[s.id]).length;
+        const progressPct = Math.round((completedCount / planSteps.length) * 100);
+        html += '<div class="dashboard-section-title">Your 14-Day Plan</div>';
+        html += '<div class="progress-tracker"><div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:' + progressPct + '%"></div></div><div class="progress-label">' + completedCount + '/' + planSteps.length + ' phases complete \u2014 ' + progressPct + '%</div></div>';
+        planSteps.forEach(function(s) {
+          const checked = savedProgress[s.id] ? 'checked' : '';
+          html += '<div class="step task-step ' + (checked ? 'task-done' : '') + '"><label class="task-checkbox-wrap"><input type="checkbox" class="task-checkbox" data-plan-key="' + planKey + '" data-task-id="' + s.id + '" ' + checked + '><span class="task-checkmark"></span></label><div class="step-content"><div class="step-label">' + s.l + '</div><div class="step-text">' + (s.t || '') + '</div></div></div>';
+        });
+        if (pow.success_criteria) {
+          html += '<div class="r-card" style="margin-top:1rem"><div class="r-label">How Do You Know If It Is Working?</div><div class="text-body-sm">' + (pow.success_criteria) + '</div></div>';
+        }
+      } else {
+        html += '<div class="dashboard-empty">No evaluation yet. <a href="#try" onclick="event.preventDefault();document.getElementById(\'dashboardOverlay\').style.display=\'none\';window.location.hash=\'try\'">Evaluate an idea</a> to get your 14-day plan.</div>';
+      }
+      html += '</div>';
 
       // Execute tab (M4)
       html += '<div class="dash-panel hidden" id="dashExecute"><div class="dashboard-loading">Loading tasks…</div></div>';
@@ -3344,10 +3432,58 @@
           // Lazy-load module panels on first click
           if (target && tabName === 'decide' && target.querySelector('.dashboard-loading')) {
             showDecidePanel(target, evaluations);
+          } else if (target && tabName === 'plan' && target.querySelector('.task-checkbox')) {
+            // Wire up plan checkboxes on first click
+            target.querySelectorAll('.task-checkbox').forEach(cb => {
+              if (cb.dataset.bound) return;
+              cb.dataset.bound = 'true';
+              cb.addEventListener('change', () => {
+                const key = cb.dataset.planKey;
+                const taskId = cb.dataset.taskId;
+                let progress = {};
+                try { progress = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+                if (cb.checked) { progress[taskId] = true; } else { delete progress[taskId]; }
+                localStorage.setItem(key, JSON.stringify(progress));
+                const step = cb.closest('.task-step');
+                if (step) step.classList.toggle('task-done', cb.checked);
+                const total = target.querySelectorAll('.task-checkbox').length;
+                const done = target.querySelectorAll('.task-checkbox:checked').length;
+                const pct = Math.round((done / total) * 100);
+                const bar = target.querySelector('.progress-bar-fill');
+                const label = target.querySelector('.progress-label');
+                if (bar) bar.style.width = pct + '%';
+                if (label) label.textContent = done + '/' + total + ' phases complete \u2014 ' + pct + '%';
+              });
+            });
           } else if (target && tabName === 'execute' && target.querySelector('.dashboard-loading')) {
             showExecutePanel(target, firstProjectId);
           } else if (target && tabName === 'track' && target.querySelector('.dashboard-loading')) {
             showTrackPanel(target, firstProjectId);
+          } else if (target && tabName === 'fund' && target.querySelector('.dashboard-loading')) {
+            // Load funding sources
+            (async () => {
+              try {
+                const resp = await fetch('/api/funding?action=list&limit=20');
+                const data = await resp.json();
+                const sources = data.sources || [];
+                if (sources.length) {
+                  const typeLabels = { grant: 'Grant', fellowship: 'Fellowship', crowdfunding: 'Crowdfunding', impact_investment: 'Impact Investment', microfinance: 'Microfinance', csr: 'CSR', program: 'Program' };
+                  let html = '<div class="dashboard-section-title">Funding Sources</div>';
+                  html += '<div class="funding-grid-dashboard">';
+                  sources.forEach(s => {
+                    const amount = s.min_amount && s.max_amount ? s.currency + ' ' + s.min_amount.toLocaleString() + ' \u2013 ' + s.max_amount.toLocaleString() : 'Varies';
+                    const countries = (s.countries || []).includes('*') ? 'Global' : (s.countries || []).join(', ');
+                    html += '<div class="funding-card"><div class="funding-card-type">' + (typeLabels[s.type] || s.type) + '</div><div class="funding-card-name">' + escHtml(s.name) + '</div><div class="funding-card-meta"><span class="funding-amount">' + amount + '</span><span class="funding-countries">' + escHtml(countries) + '</span></div>' + (s.url ? '<a href="' + escHtml(s.url) + '" target="_blank" rel="noopener" class="funding-card-link">Apply \u2192</a>' : '') + '</div>';
+                  });
+                  html += '</div>';
+                  target.innerHTML = html;
+                } else {
+                  target.innerHTML = '<div class="dashboard-empty">No funding sources available yet.</div>';
+                }
+              } catch (e) {
+                target.innerHTML = '<div class="dashboard-error">Failed to load funding sources.</div>';
+              }
+            })();
           } else if (target && tabName === 'scale' && target.querySelector('.dashboard-loading')) {
             showScalePanel(target, firstProjectId);
           }

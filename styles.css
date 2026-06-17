@@ -2263,6 +2263,23 @@ section[data-page="home"], div[data-page="home"] { display: block; }
   display: block;
   animation: shakeIn 0.4s var(--ease-out);
 }
+.gate-demo-btn {
+  background: none;
+  border: 1.5px solid rgba(250,247,242,0.2);
+  border-radius: var(--radius-pill);
+  padding: 0.5rem 1.25rem;
+  color: rgba(250,247,242,0.6);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+.gate-demo-btn:hover {
+  border-color: rgba(250,247,242,0.4);
+  color: rgba(250,247,242,0.9);
+}
 body.gate-active {
   overflow: hidden;
 }
@@ -4120,6 +4137,13 @@ body.gate-active {
 .story-update-emoji { font-size: 1rem; flex-shrink: 0; width: 1.5rem; text-align: center; }
 .story-update-title { font-size: 0.8rem; font-weight: 700; color: var(--ink); margin-bottom: 0.15rem; }
 .story-update-text { font-size: 0.75rem; color: var(--ink-muted); line-height: 1.5; }
+.funding-grid-dashboard { display: flex; flex-direction: column; gap: 0.75rem; }
+.funding-grid-dashboard .funding-card { background: var(--white); border-radius: 0.75rem; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+.funding-grid-dashboard .funding-card-type { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); margin-bottom: 0.35rem; }
+.funding-grid-dashboard .funding-card-name { font-size: 0.9rem; font-weight: 700; color: var(--ink); margin-bottom: 0.5rem; }
+.funding-grid-dashboard .funding-card-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: var(--ink-muted); margin-bottom: 0.5rem; }
+.funding-grid-dashboard .funding-card-link { font-size: 0.8rem; font-weight: 600; color: var(--forest); text-decoration: none; }
+.funding-grid-dashboard .funding-card-link:hover { text-decoration: underline; }
 .dash-verdict-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; }
 .dash-verdict-item { background: var(--white); border-radius: 0.5rem; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.5rem; min-width: 120px; }
 .dash-verdict-count { font-weight: 800; font-size: 1.25rem; color: var(--ink); font-family: var(--font-display); }
