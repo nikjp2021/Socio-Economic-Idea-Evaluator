@@ -2939,11 +2939,41 @@
     if (!grid) return;
 
     if (!_allFigures.length) {
+      // Try API first
       try {
         const resp = await fetch('/api/reference?data=figures&limit=100');
         const json = await resp.json();
         _allFigures = json.data || [];
-      } catch (_) {
+      } catch (_) {}
+
+      // Fallback: load from local JSON files
+      if (!_allFigures.length) {
+        try {
+          const [libResp, zonesResp] = await Promise.all([
+            fetch('case-studies/library.json').catch(() => null),
+            fetch('case-studies/zones-library.json').catch(() => null),
+          ]);
+          if (libResp) {
+            const lib = await libResp.json();
+            const figs = lib.figures || [];
+            _allFigures.push(...figs);
+          }
+          if (zonesResp) {
+            const zones = await zonesResp.json();
+            Object.entries(zones).forEach(([zoneKey, zoneData]) => {
+              if (zoneKey === 'metadata') return;
+              if (zoneData?.figures) {
+                zoneData.figures.forEach(f => {
+                  if (!f.zone) f.zone = zoneKey;
+                  _allFigures.push(f);
+                });
+              }
+            });
+          }
+        } catch (_) {}
+      }
+
+      if (!_allFigures.length) {
         grid.innerHTML = '<div class="figures-empty">Could not load figures.</div>';
         return;
       }
