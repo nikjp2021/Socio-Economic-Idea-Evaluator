@@ -106,7 +106,7 @@
   // Handle hash-based routing
   function handleRoute() {
     const hash = window.location.hash.slice(1);
-    if (hash === 'explore' || hash === 'community') {
+    if (hash === 'explore' || hash === 'community' || hash === 'dimensions') {
       showPage(hash);
     } else {
       showPage('home');
