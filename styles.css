@@ -3635,82 +3635,73 @@ body.gate-active {
   gap: 1rem;
   margin-bottom: 2rem;
 }
+/* ─── DIMENSION CARDS ─── */
 .lookup-dim-card {
-  background: #faf7f2;
-  border-radius: 12px;
+  background: var(--white);
+  border-radius: var(--radius-md);
   padding: 1.25rem;
-  border-left: 4px solid #2d5a27;
+  border-left: 4px solid var(--cream-deeper);
+  transition: border-color 0.2s;
 }
-.lookup-dim-name {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #2d5a27;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 0.5rem;
+.lookup-dim-card.dim-high { border-left-color: var(--terracotta); }
+.lookup-dim-card.dim-low { border-left-color: var(--forest); }
+.lookup-dim-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.lookup-dim-name { font-weight: 600; font-size: 0.8125rem; color: var(--ink); }
+.lookup-dim-score { font-family: var(--font-display); font-size: 1.375rem; font-weight: 600; }
+.lookup-dim-bar-track { height: 6px; background: var(--cream-deeper); border-radius: 99px; overflow: hidden; margin-bottom: 0.75rem; }
+.lookup-dim-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s var(--ease-out); }
+.lookup-barrier-tag {
+  display: inline-block; padding: 0.15rem 0.5rem; border-radius: 99px;
+  font-size: 0.5625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 0.625rem;
 }
-.lookup-dim-bar-track {
-  height: 8px;
-  background: #e0d8cc;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 0.35rem;
+.lookup-barrier-tag.high { background: var(--terracotta-dim); color: var(--terracotta); }
+.lookup-barrier-tag.low { background: var(--forest-dim); color: var(--forest); }
+.lookup-dim-meaning { font-size: 0.8125rem; color: var(--ink-light); line-height: 1.5; margin-bottom: 0.625rem; }
+.lookup-dim-advice { font-size: 0.75rem; color: var(--forest); line-height: 1.5; margin-bottom: 0.375rem; }
+.lookup-dim-advice strong { font-weight: 700; }
+.lookup-dim-avoid { font-size: 0.75rem; color: var(--terracotta); line-height: 1.5; }
+.lookup-dim-avoid strong { font-weight: 700; }
+
+/* ─── SUMMARY (What Works / What Fails) ─── */
+.lookup-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.lookup-summary-section { padding: 1.25rem; border-radius: var(--radius-md); }
+.lookup-summary-section.works { background: var(--forest-dim); border: 1px solid rgba(45,90,39,0.1); }
+.lookup-summary-section.fails { background: var(--terracotta-dim); border: 1px solid rgba(181,84,58,0.1); }
+.lookup-summary-title { font-size: 0.8125rem; font-weight: 700; color: var(--ink); margin-bottom: 0.75rem; }
+.lookup-summary-section ul { list-style: none; padding: 0; margin: 0; }
+.lookup-summary-section li { font-size: 0.75rem; color: var(--ink-light); line-height: 1.6; padding: 0.25rem 0; padding-left: 1rem; position: relative; }
+.lookup-summary-section li::before { content: ''; position: absolute; left: 0; top: 0.5rem; width: 6px; height: 6px; border-radius: 50%; }
+.lookup-summary-section.works li::before { background: var(--forest); }
+.lookup-summary-section.fails li::before { background: var(--terracotta); }
+
+/* ─── HOW TO START ─── */
+.lookup-start { background: var(--cream); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem; }
+.lookup-start-title { font-family: var(--font-display); font-size: 1.0625rem; color: var(--ink); margin-bottom: 1rem; }
+.lookup-start-steps { display: flex; flex-direction: column; gap: 0.75rem; }
+.lookup-start-step { display: flex; gap: 0.75rem; align-items: flex-start; }
+.lookup-start-step .step-num {
+  width: 24px; height: 24px; border-radius: 50%; background: var(--forest); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6875rem; font-weight: 700; flex-shrink: 0;
 }
-.lookup-dim-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.6s ease;
-}
-.lookup-dim-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-.lookup-dim-desc {
-  font-size: 0.8rem;
-  color: #777;
-  margin-top: 0.25rem;
-}
-.lookup-cases-header {
-  font-family: 'Lora', Georgia, serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 1rem;
-}
-.lookup-case-card {
-  background: #f5f0e8;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 0.75rem;
-}
-.lookup-case-title {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #1a1a1a;
-}
-.lookup-case-org {
-  font-size: 0.8rem;
-  color: #888;
-}
-.lookup-case-lesson {
-  font-size: 0.85rem;
-  color: #555;
-  margin-top: 0.35rem;
-  line-height: 1.5;
-}
-.lookup-no-data {
-  text-align: center;
-  color: #999;
-  padding: 2rem;
-  font-size: 0.9rem;
-}
+.lookup-start-step span:last-child { font-size: 0.8125rem; color: var(--ink-light); line-height: 1.6; }
+
+/* ─── CASE STUDIES ─── */
+.lookup-cases-section { margin-top: 1.5rem; }
+.lookup-cases-title { font-family: var(--font-display); font-size: 1.0625rem; color: var(--ink); margin-bottom: 1rem; }
+.lookup-cases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.lookup-case-card { background: var(--cream); border-radius: var(--radius-md); padding: 1.25rem; }
+.lookup-case-title { font-family: var(--font-display); font-size: 0.9375rem; color: var(--ink); margin-bottom: 0.375rem; }
+.lookup-case-lesson { font-size: 0.8125rem; color: var(--ink-muted); line-height: 1.6; font-style: italic; }
+.lookup-no-data { text-align: center; color: var(--ink-muted); padding: 2rem; font-size: 0.875rem; }
 
 @media (max-width: 768px) {
   .quick-eval-section, .cultural-lookup-section { padding: 3rem 0 2rem; }
   .quick-eval-grid { grid-template-columns: 1fr; }
   .lookup-dimensions { grid-template-columns: 1fr; }
+  .lookup-summary { grid-template-columns: 1fr; }
+  .lookup-cases-grid { grid-template-columns: 1fr; }
 }
 
 /* ═══════════════════════════════════════════

@@ -2513,19 +2513,37 @@
   }
 
   // ─── CULTURAL LOOKUP ───
+  const DIM_PRACTICAL = {
+    pdi: {
+      high: { meaning: 'People follow leaders and don\'t challenge authority openly.', advice: 'Partner with a respected community leader — temple, mosque, church, village chief. They open doors you can\'t.', avoid: 'Don\'t go door-to-door yourself. People won\'t trust a stranger.' },
+      low: { meaning: 'People expect equality and question decisions.', advice: 'Build credibility through transparency. Show your work. Let people ask questions.', avoid: 'Don\'t act like an authority figure. People here respond to peers, not bosses.' },
+    },
+    idv: {
+      high: { meaning: 'People make individual choices. "What\'s in it for me?"', advice: 'Frame benefits around personal gain. "This helps YOU." Build a personal brand.', avoid: 'Don\'t rely on community obligation. People here look out for themselves.' },
+      low: { meaning: 'Community and family ties drive decisions. "What\'s good for us?"', advice: 'Build a community coalition first. Word-of-mouth through trusted networks works. Get 5 families to commit together.', avoid: 'Don\'t pitch to individuals. Go through groups — mothers\' groups, cooperatives, village councils.' },
+    },
+    mas: {
+      high: { meaning: 'Achievement and competition are valued. Asking for help = weakness.', advice: 'Frame your service as empowering, not charity. Use private channels. Nobody wants to be seen receiving help.', avoid: 'Don\'t publicly identify beneficiaries. Shame is a real barrier.' },
+      low: { meaning: 'Cooperation and quality of life are prioritized.', advice: 'Community-oriented framing works well. "Together we can" resonates here.', avoid: 'Don\'t use competitive language. "Be the best" doesn\'t work here.' },
+    },
+    uai: {
+      high: { meaning: 'People need institutional trust before trying something new.', advice: 'Get endorsed by a trusted institution — government, NGO, university. Then people will try it.', avoid: 'Don\'t launch without credentials. "Just trust me" fails here.' },
+      low: { meaning: 'People are comfortable with ambiguity and new approaches.', advice: 'You can experiment freely. Low risk of rejection. Try things, iterate fast.', avoid: 'Don\'t over-plan. Start small and learn by doing.' },
+    },
+    lto: {
+      high: { meaning: 'People invest in slow, long-term change.', advice: 'Show a 6-month roadmap. Patience is a strength here. Build trust over time.', avoid: 'Don\'t promise instant results. People here value persistence.' },
+      low: { meaning: 'People want quick wins and immediate results.', advice: 'Start with a 2-week pilot. Show fast impact. "Here\'s what changed this week."', avoid: 'Don\'t talk about 5-year plans. People need to see results now.' },
+    },
+    ivr: {
+      high: { meaning: 'People express needs openly and seek gratification.', advice: 'Direct outreach works. People will engage openly. Ask them what they want.', avoid: 'Don\'t be indirect. People here appreciate straightforward communication.' },
+      low: { meaning: 'People suppress needs and feel shame in asking for help.', advice: 'Use private, discreet channels. Trusted intermediaries. Anonymous options. Shame is a real barrier.', avoid: 'Don\'t ask people to publicly admit they need help. They won\'t.' },
+    },
+  };
+
   async function initCulturalLookup() {
     const select = $('#lookup-country');
     const resultEl = $('#lookup-result');
     if (!select || !resultEl) return;
-
-    const DIM_NAMES = {
-      pdi: { name: 'Power Distance', color: '#E5243B', desc: 'How much inequality is accepted between powerful and powerless people' },
-      idv: { name: 'Individualism', color: '#4C9F38', desc: 'Whether people define themselves as "I" or "we"' },
-      mas: { name: 'Masculinity', color: '#FCC30B', desc: 'Competition and achievement vs. cooperation and caring' },
-      uai: { name: 'Uncertainty Avoidance', color: '#26BDE2', desc: 'How much a culture needs rules and structure to feel safe' },
-      lto: { name: 'Long-Term Orientation', color: '#FD6925', desc: 'Whether culture values persistence and future rewards' },
-      ivr: { name: 'Indulgence', color: '#DD1367', desc: 'How much a culture allows free gratification of desires' },
-    };
 
     // Load country list
     try {
@@ -2539,16 +2557,11 @@
         opt.textContent = c.name;
         select.appendChild(opt);
       }
-    } catch (err) {
-      // Countries list failed to load; select will remain empty
-    }
+    } catch (_) {}
 
     select.addEventListener('change', async () => {
       const code = select.value;
-      if (!code) {
-        resultEl.classList.add('hidden');
-        return;
-      }
+      if (!code) { resultEl.classList.add('hidden'); return; }
 
       try {
         const resp = await fetch(`/api/reference?data=country&code=${encodeURIComponent(code)}`);
@@ -2561,49 +2574,111 @@
         }
 
         const c = data.country;
-        const dimensions = ['pdi', 'idv', 'mas', 'uai', 'lto', 'ivr'];
+        const dims = ['pdi', 'idv', 'mas', 'uai', 'lto', 'ivr'];
+        const dimNames = { pdi: 'Power Distance', idv: 'Individualism', mas: 'Masculinity', uai: 'Uncertainty Avoidance', lto: 'Long-Term Orientation', ivr: 'Indulgence' };
+        const dimColors = { pdi: '#E5243B', idv: '#4C9F38', mas: '#FCC30B', uai: '#26BDE2', lto: '#FD6925', ivr: '#DD1367' };
 
-        const dimsHtml = dimensions.map(d => {
+        // Count barriers
+        const highBarriers = dims.filter(d => (c[d] || 0) > 75);
+        const lowBarriers = dims.filter(d => (c[d] || 0) < 25);
+
+        // Build dimension cards with practical advice
+        const dimsHtml = dims.map(d => {
           const val = c[d];
-          const info = DIM_NAMES[d];
           if (val == null) return '';
+          const isHigh = val > 65;
+          const isLow = val < 35;
+          const level = isHigh ? 'high' : isLow ? 'low' : 'mid';
+          const practical = DIM_PRACTICAL[d]?.[level];
+          const barrierTag = isHigh ? '<span class="lookup-barrier-tag high">HIGH BARRIER</span>' : isLow ? '<span class="lookup-barrier-tag low">CULTURAL STRENGTH</span>' : '';
+
           return `
-            <div class="lookup-dim-card">
-              <div class="lookup-dim-name">${info.name}</div>
-              <div class="lookup-dim-bar-track">
-                <div class="lookup-dim-bar-fill" style="width:${val}%;background:${info.color}"></div>
+            <div class="lookup-dim-card ${isHigh ? 'dim-high' : isLow ? 'dim-low' : ''}">
+              <div class="lookup-dim-top">
+                <div class="lookup-dim-name">${dimNames[d]}</div>
+                <div class="lookup-dim-score" style="color:${dimColors[d]}">${val}</div>
               </div>
-              <div class="lookup-dim-value">${val}/100</div>
-              <div class="lookup-dim-desc">${info.desc}</div>
+              <div class="lookup-dim-bar-track">
+                <div class="lookup-dim-bar-fill" style="width:${val}%;background:${dimColors[d]}"></div>
+              </div>
+              ${barrierTag}
+              ${practical ? `
+                <div class="lookup-dim-meaning">${escHtml(practical.meaning)}</div>
+                <div class="lookup-dim-advice"><strong>Do this:</strong> ${escHtml(practical.advice)}</div>
+                <div class="lookup-dim-avoid"><strong>Avoid:</strong> ${escHtml(practical.avoid)}</div>
+              ` : `<div class="lookup-dim-meaning">This dimension is moderate — neither a barrier nor a strength.</div>`}
             </div>
           `;
         }).join('');
 
+        // What works / What fails
+        const worksItems = [];
+        const failsItems = [];
+        dims.forEach(d => {
+          const val = c[d] || 50;
+          const practical = DIM_PRACTICAL[d]?.[val > 65 ? 'high' : val < 35 ? 'low' : null];
+          if (practical) {
+            if (val < 35) worksItems.push(practical.advice);
+            if (val > 75) failsItems.push(practical.avoid);
+          }
+        });
+
+        let summaryHtml = '';
+        if (worksItems.length || failsItems.length) {
+          summaryHtml = `<div class="lookup-summary">
+            ${worksItems.length ? `<div class="lookup-summary-section works">
+              <div class="lookup-summary-title">&#x2705; What Works in ${escHtml(c.name)}</div>
+              <ul>${worksItems.map(w => `<li>${escHtml(w)}</li>`).join('')}</ul>
+            </div>` : ''}
+            ${failsItems.length ? `<div class="lookup-summary-section fails">
+              <div class="lookup-summary-title">&#x274C; What Fails in ${escHtml(c.name)}</div>
+              <ul>${failsItems.map(f => `<li>${escHtml(f)}</li>`).join('')}</ul>
+            </div>` : ''}
+          </div>`;
+        }
+
+        // How to start here
+        const startHtml = `
+          <div class="lookup-start">
+            <div class="lookup-start-title">&#x1F680; How to Start Here</div>
+            <div class="lookup-start-steps">
+              ${highBarriers.length ? `<div class="lookup-start-step"><span class="step-num">1</span><span>Work WITH the culture, not against it. ${highBarriers.length > 1 ? highBarriers.length + ' dimensions' : '1 dimension'} above 75 means there are real barriers — but also real trust networks to tap into.</span></div>` : ''}
+              <div class="lookup-start-step"><span class="step-num">${highBarriers.length ? '2' : '1'}</span><span>Find the trust layer: ${c.zone?.includes('south_asia') ? 'family, caste, religious community, ASHA/BRAC workers' : c.zone?.includes('east_asia') ? 'institutions, formal associations, PTA' : c.zone?.includes('mena') ? 'family, mosque, tribal leaders' : c.zone?.includes('africa') ? 'family, village, church/mosque, community leaders' : c.zone?.includes('latin') ? 'family, church, neighborhood associations' : 'family, community organizations, local leaders'}</span></div>
+              <div class="lookup-start-step"><span class="step-num">${highBarriers.length ? '3' : '2'}</span><span>Test with 10 people. If 7 say they\'d use your solution — you have something. If fewer — adjust your approach, not your mission.</span></div>
+            </div>
+          </div>
+        `;
+
+        // Case studies
         let casesHtml = '';
         if (data.case_studies?.length) {
           casesHtml = `
-            <div class="lookup-cases-header">Case Studies from ${escHtml(c.name)}</div>
-            ${data.case_studies.map(cs => `
-              <div class="lookup-case-card">
-                <div class="lookup-case-title">${escHtml(cs.title || cs.organization)}</div>
-                ${cs.organization ? `<div class="lookup-case-org">${escHtml(cs.organization)}</div>` : ''}
-                ${cs.key_lesson ? `<div class="lookup-case-lesson">${escHtml(cs.key_lesson)}</div>` : ''}
-              </div>
-            `).join('')}
+            <div class="lookup-cases-section">
+              <div class="lookup-cases-title">&#x1F4DA; Organizations That Work in ${escHtml(c.name)}</div>
+              <div class="lookup-cases-grid">${data.case_studies.map(cs => `
+                <div class="lookup-case-card">
+                  <div class="lookup-case-title">${escHtml(cs.title || cs.organization || '')}</div>
+                  ${cs.key_lesson ? `<div class="lookup-case-lesson">&ldquo;${escHtml(cs.key_lesson)}&rdquo;</div>` : ''}
+                </div>
+              `).join('')}</div>
+            </div>
           `;
         }
 
         resultEl.innerHTML = `
           <div class="lookup-country-header">
             <div class="lookup-country-name">${escHtml(c.name)}</div>
-            <div class="lookup-country-meta">${escHtml(c.region || '')} · ${escHtml(c.zone || '').replace(/_/g, ' ')} · ${escHtml(c.economic_tier || c.income_level || '')}</div>
+            <div class="lookup-country-meta">${escHtml(c.region || '')} &middot; ${escHtml((c.zone || '').replace(/_/g, ' '))} &middot; ${escHtml(c.economic_tier || c.income_level || '')}</div>
           </div>
+          ${summaryHtml}
           <div class="lookup-dimensions">${dimsHtml}</div>
+          ${startHtml}
           ${casesHtml}
         `;
         resultEl.classList.remove('hidden');
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } catch (err) {
-        resultEl.innerHTML = '<div class="lookup-no-data">Failed to load country data. Please try again.</div>';
+        resultEl.innerHTML = '<div class="lookup-no-data">Failed to load country data.</div>';
         resultEl.classList.remove('hidden');
       }
     });
