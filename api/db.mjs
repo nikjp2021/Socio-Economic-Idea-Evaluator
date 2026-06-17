@@ -245,6 +245,148 @@ export async function initDB() {
     )
   `;
 
+  // ─── Phase 2: Projects & Milestones ───
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS projects (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      evaluation_id UUID REFERENCES evaluations(id) ON DELETE SET NULL,
+      title VARCHAR(500) NOT NULL,
+      description TEXT DEFAULT '',
+      case_study_id VARCHAR(200),
+      case_study_title VARCHAR(500),
+      status VARCHAR(50) NOT NULL DEFAULT 'active',
+      intake JSONB DEFAULT '{}',
+      roadmap JSONB DEFAULT '{}',
+      progress_pct INTEGER NOT NULL DEFAULT 0,
+      streak_weeks INTEGER NOT NULL DEFAULT 0,
+      last_checkin TIMESTAMPTZ,
+      is_public BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS milestones (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      phase VARCHAR(100) NOT NULL,
+      label VARCHAR(500) NOT NULL,
+      description TEXT DEFAULT '',
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      status VARCHAR(50) NOT NULL DEFAULT 'pending',
+      completed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS check_ins (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      week_number INTEGER NOT NULL,
+      accomplishments TEXT DEFAULT '',
+      blockers TEXT DEFAULT '',
+      next_steps TEXT DEFAULT '',
+      mood VARCHAR(50) DEFAULT 'ok',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // ─── Phase 2: Tasks (Execute) ───
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS tasks (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      milestone_id UUID REFERENCES milestones(id) ON DELETE SET NULL,
+      user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      title VARCHAR(500) NOT NULL,
+      description TEXT DEFAULT '',
+      due_date DATE,
+      status VARCHAR(50) NOT NULL DEFAULT 'pending',
+      evidence_url VARCHAR(1000) DEFAULT '',
+      evidence_type VARCHAR(50) DEFAULT '',
+      mentor_tip TEXT DEFAULT '',
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      completed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // ─── Phase 2: Impact Metrics (Track) ───
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS impact_metrics (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      metric_name VARCHAR(255) NOT NULL,
+      metric_value NUMERIC NOT NULL DEFAULT 0,
+      metric_unit VARCHAR(100) DEFAULT '',
+      source VARCHAR(50) NOT NULL DEFAULT 'self-reported',
+      notes TEXT DEFAULT '',
+      recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // ─── Phase 3: Funding ───
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS funding_sources (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name VARCHAR(500) NOT NULL,
+      type VARCHAR(100) NOT NULL DEFAULT 'grant',
+      description TEXT DEFAULT '',
+      min_amount INTEGER DEFAULT 0,
+      max_amount INTEGER DEFAULT 0,
+      currency VARCHAR(10) DEFAULT 'USD',
+      countries JSONB DEFAULT '[]',
+      zones JSONB DEFAULT '[]',
+      sdg_focus JSONB DEFAULT '[]',
+      idea_types JSONB DEFAULT '[]',
+      economic_tiers JSONB DEFAULT '[]',
+      url VARCHAR(1000) DEFAULT '',
+      application_process TEXT DEFAULT '',
+      deadline VARCHAR(100) DEFAULT '',
+      status VARCHAR(50) NOT NULL DEFAULT 'active',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS funding_applications (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
+      funding_source_id UUID NOT NULL REFERENCES funding_sources(id) ON DELETE CASCADE,
+      status VARCHAR(50) NOT NULL DEFAULT 'draft',
+      notes TEXT DEFAULT '',
+      submitted_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  // ─── Phase 2: Decisions ───
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS decision_sessions (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      idea_ids JSONB NOT NULL DEFAULT '[]',
+      criteria_weights JSONB DEFAULT '{}',
+      comparison_result JSONB DEFAULT '{}',
+      winner_id UUID,
+      rationale TEXT DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
   // Reference data indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_case_studies_category ON case_studies(category)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_case_studies_country ON case_studies(country)`;
@@ -252,4 +394,14 @@ export async function initDB() {
   await sql`CREATE INDEX IF NOT EXISTS idx_countries_zone ON countries(zone)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_mentor_personas_zone ON mentor_personas(zone)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_idea_templates_category ON idea_templates(category)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_projects_user ON projects(user_id, created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_milestones_project ON milestones(project_id, sort_order)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_checkins_project ON check_ins(project_id, week_number)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_funding_sources_type ON funding_sources(type, status)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_funding_apps_user ON funding_applications(user_id, created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_decision_sessions_user ON decision_sessions(user_id, created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_tasks_project ON tasks(project_id, sort_order)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_tasks_user ON tasks(user_id, status)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_impact_metrics_project ON impact_metrics(project_id, recorded_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_impact_metrics_user ON impact_metrics(user_id, recorded_at DESC)`;
 }
