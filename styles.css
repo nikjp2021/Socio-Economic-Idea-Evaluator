@@ -3054,7 +3054,6 @@ body.gate-active {
   .sdg-layout { grid-template-columns: 1fr; }
   .field-row { grid-template-columns: 1fr; }
   .score-row { grid-template-columns: 1fr; }
-  .nav-links { display: none; }
   .nav-mobile-toggle { display: block; }
   .verdict-score { font-size: 4rem; }
   .r-card-grid { grid-template-columns: 1fr 1fr; }
