@@ -394,49 +394,43 @@
         <h2 class="section-title-mixed">What <span class="title-serif">Worked</span> &amp; What <span class="title-serif">Failed</span></h2>
         <p class="section-subtitle">140 real organizations. Filter by what you're building, where, and whether you want to study successes or failures.</p>
       </div>
-      <div class="explorer-filters" id="explorerFilters">
-        <div class="explorer-filter-group">
-          <div class="explorer-filter-label">Category</div>
-          <div class="explorer-filter-row" id="explorerCatFilters">
-            <button class="explorer-filter active" data-filter="cat" data-val="all">All</button>
-            <button class="explorer-filter" data-filter="cat" data-val="education">Education</button>
-            <button class="explorer-filter" data-filter="cat" data-val="health">Health</button>
-            <button class="explorer-filter" data-filter="cat" data-val="food">Food</button>
-            <button class="explorer-filter" data-filter="cat" data-val="water">Water</button>
-            <button class="explorer-filter" data-filter="cat" data-val="energy">Energy</button>
-            <button class="explorer-filter" data-filter="cat" data-val="financial">Finance</button>
-            <button class="explorer-filter" data-filter="cat" data-val="community">Community</button>
-            <button class="explorer-filter" data-filter="cat" data-val="women">Women</button>
-            <button class="explorer-filter" data-filter="cat" data-val="work">Work</button>
-          </div>
+      <div class="explorer-toolbar" id="explorerFilters">
+        <div class="explorer-search-wrap">
+          <input type="text" class="explorer-search" id="explorerSearch" placeholder="Search organizations…" autocomplete="off">
         </div>
-        <div class="explorer-filter-group">
-          <div class="explorer-filter-label">Region</div>
-          <div class="explorer-filter-row" id="explorerZoneFilters">
-            <button class="explorer-filter active" data-filter="zone" data-val="all">All</button>
-            <button class="explorer-filter" data-filter="zone" data-val="south_asia">South Asia</button>
-            <button class="explorer-filter" data-filter="zone" data-val="east_asia">East Asia</button>
-            <button class="explorer-filter" data-filter="zone" data-val="southeast_asia">SE Asia</button>
-            <button class="explorer-filter" data-filter="zone" data-val="sub_saharan_africa">Africa</button>
-            <button class="explorer-filter" data-filter="zone" data-val="mena">MENA</button>
-            <button class="explorer-filter" data-filter="zone" data-val="latin_america">Latin America</button>
-            <button class="explorer-filter" data-filter="zone" data-val="north_america">Americas</button>
-            <button class="explorer-filter" data-filter="zone" data-val="europe">Europe</button>
-          </div>
-        </div>
-        <div class="explorer-filter-group">
-          <div class="explorer-filter-label">Show</div>
-          <div class="explorer-filter-row" id="explorerStatusFilters">
-            <button class="explorer-filter active" data-filter="status" data-val="all">All</button>
-            <button class="explorer-filter" data-filter="status" data-val="active">&#x2705; Successes</button>
-            <button class="explorer-filter" data-filter="status" data-val="failed">&#x274C; Failures</button>
-          </div>
-        </div>
+        <select class="explorer-select" id="explorerCatSelect" data-filter="cat">
+          <option value="all">All Categories</option>
+          <option value="education">Education</option>
+          <option value="health">Health</option>
+          <option value="food">Food</option>
+          <option value="water">Water</option>
+          <option value="energy">Energy</option>
+          <option value="financial">Finance</option>
+          <option value="community">Community</option>
+          <option value="women">Women</option>
+          <option value="work">Work</option>
+        </select>
+        <select class="explorer-select" id="explorerZoneSelect" data-filter="zone">
+          <option value="all">All Regions</option>
+          <option value="south_asia">South Asia</option>
+          <option value="east_asia">East Asia</option>
+          <option value="southeast_asia">SE Asia</option>
+          <option value="sub_saharan_africa">Africa</option>
+          <option value="mena">MENA</option>
+          <option value="latin_america">Latin America</option>
+          <option value="north_america">Americas</option>
+          <option value="europe">Europe</option>
+        </select>
+        <select class="explorer-select" id="explorerStatusSelect" data-filter="status">
+          <option value="all">All</option>
+          <option value="active">Successes</option>
+          <option value="failed">Failures</option>
+        </select>
+        <span class="explorer-count" id="explorerCount"></span>
       </div>
-      <div class="explorer-grid" id="explorerGrid">
+      <div class="explorer-list" id="explorerGrid">
         <div class="explorer-loading">Loading case studies…</div>
       </div>
-      <div class="explorer-count" id="explorerCount"></div>
     </div>
   </section>
 

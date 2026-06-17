@@ -2593,7 +2593,6 @@
         const json = await resp.json();
         _allCaseStudies = json.data || [];
       } catch (_) {}
-      // Fallback: try local
       if (!_allCaseStudies.length) {
         try {
           const libResp = await fetch('case-studies/library.json');
@@ -2603,62 +2602,103 @@
       }
     }
 
-    function renderGrid() {
+    const PAGE_SIZE = 30;
+    let _searchQuery = '';
+    let _renderedCount = PAGE_SIZE;
+
+    function renderGrid(reset) {
+      if (reset) _renderedCount = PAGE_SIZE;
+
       const filtered = _allCaseStudies.filter(cs => {
         if (_explorerFilters.cat !== 'all' && cs.category !== _explorerFilters.cat) return false;
         if (_explorerFilters.zone !== 'all' && cs.zone !== _explorerFilters.zone) return false;
         if (_explorerFilters.status === 'active' && cs.status === 'failed') return false;
         if (_explorerFilters.status === 'failed' && cs.status !== 'failed') return false;
+        if (_searchQuery) {
+          const q = _searchQuery.toLowerCase();
+          const haystack = ((cs.title || '') + ' ' + (cs.organization || '') + ' ' + (cs.key_lesson || '') + ' ' + (cs.category || '') + ' ' + (cs.country || '')).toLowerCase();
+          if (!haystack.includes(q)) return false;
+        }
         return true;
       });
 
       if (!filtered.length) {
-        grid.innerHTML = '<div class="explorer-empty">No case studies match these filters. Try different options.</div>';
+        grid.innerHTML = '<div class="explorer-empty">No case studies match these filters.</div>';
         if (countEl) countEl.textContent = '';
         return;
       }
 
-      if (countEl) countEl.textContent = `${filtered.length} case ${filtered.length === 1 ? 'study' : 'studies'}`;
+      if (countEl) countEl.textContent = `${filtered.length} of ${_allCaseStudies.length}`;
 
-      grid.innerHTML = filtered.slice(0, 24).map(cs => {
+      const toShow = filtered.slice(0, _renderedCount);
+
+      grid.innerHTML = toShow.map(cs => {
         const isFailed = cs.status === 'failed';
-        const worked = cleanJsonb(cs.what_worked, 100);
-        const failed = cleanJsonb(cs.what_didnt, 100);
-        const impact = cleanJsonb(cs.impact, 80);
-        return `<div class="explorer-card ${isFailed ? 'explorer-failed' : ''}">
-          <div class="explorer-card-header">
-            ${isFailed ? '<span class="explorer-badge failed">&#x274C; Failed</span>' : '<span class="explorer-badge success">&#x2705; Success</span>'}
-            <span class="explorer-cat">${escHtml(cs.category || '')}</span>
-            ${cs.country ? `<span class="explorer-country">${escHtml(cs.country)}</span>` : ''}
+        const worked = cleanJsonb(cs.what_worked, 120);
+        const failed = cleanJsonb(cs.what_didnt, 120);
+        const impact = cleanJsonb(cs.impact, 100);
+        const lesson = cs.key_lesson ? escHtml(cs.key_lesson) : '';
+        return `<div class="explorer-row ${isFailed ? 'explorer-failed-row' : 'explorer-success-row'}" data-id="${cs.id || ''}">
+          <span class="explorer-status-dot ${isFailed ? 'failed' : 'success'}"></span>
+          <div class="explorer-row-main">
+            <div class="explorer-row-title">${escHtml(cs.title || cs.organization || '')}</div>
+            ${lesson ? `<div class="explorer-row-lesson">${lesson}</div>` : ''}
           </div>
-          <div class="explorer-card-title">${escHtml(cs.title || cs.organization || '')}</div>
-          ${cs.key_lesson ? `<div class="explorer-card-lesson">&ldquo;${escHtml(cs.key_lesson)}&rdquo;</div>` : ''}
-          <div class="explorer-card-details">
-            ${worked ? `<div class="explorer-detail worked"><strong>What worked:</strong> ${escHtml(worked)}</div>` : ''}
-            ${failed ? `<div class="explorer-detail failed"><strong>What failed:</strong> ${escHtml(failed)}</div>` : ''}
-            ${impact ? `<div class="explorer-detail impact"><strong>Impact:</strong> ${escHtml(impact)}</div>` : ''}
+          <span class="explorer-row-cat">${escHtml(cs.category || '')}</span>
+          <span class="explorer-row-country">${escHtml(cs.country || '')}</span>
+        </div>
+        <div class="explorer-detail-panel">
+          ${lesson ? `<div class="explorer-detail-lesson">&ldquo;${lesson}&rdquo;</div>` : ''}
+          <div class="explorer-detail-grid">
+            ${worked ? `<div class="explorer-detail-card worked"><strong>What worked</strong>${escHtml(worked)}</div>` : ''}
+            ${failed ? `<div class="explorer-detail-card failed"><strong>What failed</strong>${escHtml(failed)}</div>` : ''}
+            ${impact ? `<div class="explorer-detail-card impact"><strong>Impact</strong>${escHtml(impact)}</div>` : ''}
           </div>
         </div>`;
       }).join('');
+
+      // Load more button
+      if (filtered.length > _renderedCount) {
+        grid.innerHTML += `<div class="explorer-load-more">
+          <button class="explorer-load-more-btn">Show more (${filtered.length - _renderedCount} remaining)</button>
+        </div>`;
+        grid.querySelector('.explorer-load-more-btn').addEventListener('click', () => {
+          _renderedCount += PAGE_SIZE;
+          renderGrid(false);
+        });
+      }
     }
 
-    // Wire filter buttons
-    const filtersEl = $('#explorerFilters');
-    if (filtersEl) {
-      filtersEl.addEventListener('click', (e) => {
-        const btn = e.target.closest('.explorer-filter');
-        if (!btn) return;
-        const filterType = btn.dataset.filter;
-        const val = btn.dataset.val;
-        _explorerFilters[filterType] = val;
-        // Update active state within same filter group
-        btn.closest('.explorer-filter-row').querySelectorAll('.explorer-filter').forEach(f => f.classList.remove('active'));
-        btn.classList.add('active');
-        renderGrid();
+    // Row expand/collapse
+    grid.addEventListener('click', (e) => {
+      const row = e.target.closest('.explorer-row');
+      if (!row) return;
+      row.classList.toggle('expanded');
+    });
+
+    // Select filters
+    const toolbar = $('#explorerFilters');
+    if (toolbar) {
+      toolbar.querySelectorAll('.explorer-select').forEach(sel => {
+        sel.addEventListener('change', () => {
+          _explorerFilters[sel.dataset.filter] = sel.value;
+          renderGrid(true);
+        });
       });
+      const searchInput = $('#explorerSearch');
+      if (searchInput) {
+        let debounce;
+        searchInput.addEventListener('input', () => {
+          clearTimeout(debounce);
+          debounce = setTimeout(() => {
+            _searchQuery = searchInput.value.trim();
+            renderGrid(true);
+          }, 250);
+        });
+      }
     }
 
-    renderGrid();
+    renderGrid(true);
   }
 
   // ─── CULTURAL LOOKUP ───
