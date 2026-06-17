@@ -472,7 +472,7 @@ button { font-family: var(--font-body); }
   font-size: clamp(2.75rem, 5.5vw, 4.75rem);
   color: var(--cream);
   margin-bottom: 1.5rem;
-  line-height: 1.05;
+  line-height: 1.15;
 }
 .hero-title em {
   font-style: italic;
