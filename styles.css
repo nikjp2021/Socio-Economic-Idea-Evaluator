@@ -4016,7 +4016,7 @@ body.gate-active {
 /* ═══════════════════════════════════════════
    USER DASHBOARD
    ═══════════════════════════════════════════ */
-.dashboard-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+.dashboard-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
 .dashboard-panel { background: var(--cream); border-radius: 1.25rem; max-width: 720px; width: 100%; margin: 0 auto; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: calc(100vh - 4rem); display: flex; flex-direction: column; }
 .dashboard-content { flex: 1; overflow-y: auto; padding: 1.5rem 2rem 2rem; }
 .dashboard-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-bottom: 1px solid var(--cream-deeper); }
@@ -4295,7 +4295,7 @@ body.gate-active {
 .task-step.task-done .step-text { text-decoration: line-through; }
 .task-checkbox-wrap { flex-shrink: 0; position: relative; width: 20px; height: 20px; margin-top: 2px; cursor: pointer; }
 .task-checkbox { position: absolute; opacity: 0; width: 0; height: 0; }
-.task-checkmark { position: absolute; top: 0; left: 0; width: 20px; height: 20px; border: 2px solid var(--border, rgba(26,22,18,0.15)); border-radius: var(--radius-xs); background: var(--white); transition: all 0.2s; }
+.task-checkmark { position: absolute; top: 0; left: 0; width: 20px; height: 20px; border: 2px solid var(--ink-faint); border-radius: var(--radius-xs); background: var(--white); transition: all 0.2s; }
 .task-checkbox:checked + .task-checkmark { background: var(--forest); border-color: var(--forest); }
 .task-checkbox:checked + .task-checkmark::after { content: ''; position: absolute; top: 2px; left: 6px; width: 5px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .step-content { flex: 1; }
