@@ -236,25 +236,26 @@ button { font-family: var(--font-body); }
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0.75rem;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid rgba(250,247,242,0.3);
   border-radius: 2rem;
-  background: var(--white);
+  background: transparent;
   font-family: var(--font-body);
   font-size: 0.85rem;
-  color: var(--ink);
+  color: var(--cream);
   cursor: pointer;
   transition: all 0.2s;
 }
-.nav-user-btn:hover { border-color: var(--forest); }
+.nav-user-btn:hover { border-color: var(--cream); background: rgba(255,255,255,0.1); }
 .nav-user-avatar {
   width: 1.5rem; height: 1.5rem;
   border-radius: 50%;
-  background: var(--forest);
-  color: var(--white);
+  background: var(--amber-light);
+  color: var(--ink);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.75rem;
+  font-weight: 700;
 }
 .nav-user-name { font-weight: 500; }
 .nav-user-chevron { font-size: 0.7rem; opacity: 0.5; }
@@ -264,9 +265,9 @@ button { font-family: var(--font-body); }
   right: 0;
   min-width: 10rem;
   background: var(--white);
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--cream-deeper);
   border-radius: 0.75rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   z-index: 100;
   overflow: hidden;
 }
