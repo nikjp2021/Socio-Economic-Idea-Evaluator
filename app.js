@@ -284,6 +284,7 @@
       data._input = { problem, goal, country, budget, constraints };
       renderResult(data);
       renderInnovationPanel(data);
+      showSimilarIdeas(data.idea_type, data.country);
       saveToMarketplace(data);
       tryResults.classList.add('visible');
       hideLoading();
@@ -1877,6 +1878,316 @@
     }
   }
 
+  // ─── COMMUNITY LEADERBOARD + STATS ───
+  let _communityLoaded = false;
+
+  async function initCommunity() {
+    if (_communityLoaded) return;
+    _communityLoaded = true;
+
+    try {
+      const [statsResp, lbResp] = await Promise.all([
+        fetch('/api/reference?data=stats'),
+        fetch('/api/reference?data=leaderboard&limit=12'),
+      ]);
+      const statsJson = await statsResp.json();
+      const lbJson = await lbResp.json();
+      const stats = statsJson.data || {};
+      const listings = lbJson.data || [];
+
+      // Animate stat counters
+      const statMap = { statEvals: stats.total_evaluations, statUsers: stats.total_users, statCases: stats.total_case_studies, statCountries: stats.total_countries };
+      Object.entries(statMap).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el && val) {
+          el.dataset.count = val;
+          const target = parseFloat(val);
+          const duration = 1400;
+          const start = performance.now();
+          function tick(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - progress, 4);
+            el.textContent = Math.round(target * ease).toLocaleString();
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        }
+      });
+
+      // Verdict distribution bar
+      const verdictBar = $('#communityVerdictBar');
+      if (verdictBar && stats.verdict_distribution?.length) {
+        const total = stats.verdict_distribution.reduce((s, v) => s + parseInt(v.count), 0);
+        const colors = { GO: 'var(--forest)', 'GO WITH EDUCATION': 'var(--amber)', PIVOT: 'var(--sky)', SHELVE: 'var(--terracotta)' };
+        const labels = { GO: 'Ready to Test', 'GO WITH EDUCATION': 'Fix One Thing', PIVOT: 'Change Approach', SHELVE: 'High Barriers' };
+        verdictBar.innerHTML = `<div class="verdict-bar-label">Verdict Distribution</div><div class="verdict-bar-track">${stats.verdict_distribution.map(v => {
+          const pct = ((parseInt(v.count) / total) * 100).toFixed(1);
+          return `<div class="verdict-bar-segment" style="width:${pct}%;background:${colors[v.verdict] || 'var(--ink-faint)'}" title="${labels[v.verdict] || v.verdict}: ${pct}%"></div>`;
+        }).join('')}</div><div class="verdict-bar-legend">${stats.verdict_distribution.map(v => {
+          const pct = ((parseInt(v.count) / total) * 100).toFixed(0);
+          return `<span class="verdict-bar-legend-item"><span class="verdict-bar-dot" style="background:${colors[v.verdict] || 'var(--ink-faint)'}"></span>${labels[v.verdict] || v.verdict} ${pct}%</span>`;
+        }).join('')}</div>`;
+      }
+
+      // Leaderboard
+      const lb = $('#communityLeaderboard');
+      if (lb) {
+        if (!listings.length) {
+          // Show placeholder with stats
+          const topTypes = (stats.top_idea_types || []).slice(0, 5);
+          const topCountries = (stats.top_countries || []).slice(0, 5);
+          lb.innerHTML = `<div class="leaderboard-empty"><div class="leaderboard-empty-icon">&#x1F331;</div><p>No ideas on the leaderboard yet. Be the first to <a href="#try">evaluate your idea</a> and claim the top spot.</p>${topTypes.length ? `<div class="leaderboard-top-types"><div class="leaderboard-section-label">Most Popular Idea Types</div>${topTypes.map(t => `<span class="leaderboard-type-tag">${escHtml(t.idea_type)} (${t.count})</span>`).join('')}</div>` : ''}${topCountries.length ? `<div class="leaderboard-top-countries"><div class="leaderboard-section-label">Most Active Countries</div>${topCountries.map(c => `<span class="leaderboard-type-tag">${escHtml(c.country)} (${c.count})</span>`).join('')}</div>` : ''}</div>`;
+        } else {
+          lb.innerHTML = `<div class="leaderboard-grid">${listings.map((item, idx) => {
+            const rank = idx + 1;
+            const rankClass = rank <= 3 ? `rank-${rank}` : '';
+            const score = item.score ? Number(item.score).toFixed(1) : '?';
+            const verdictLabel = item.verdict ? (item.verdict === 'GO' ? 'Ready' : item.verdict === 'GO WITH EDUCATION' ? 'Fix One Thing' : item.verdict === 'PIVOT' ? 'Pivot' : 'Shelve') : '';
+            return `<div class="leaderboard-card ${rankClass}"><div class="leaderboard-rank">${rank <= 3 ? ['&#x1F947;', '&#x1F948;', '&#x1F949;'][rank - 1] : '#' + rank}</div><div class="leaderboard-hook">${escHtml(item.hook || '')}</div><div class="leaderboard-meta"><span class="leaderboard-score">${score}/10</span>${verdictLabel ? `<span class="leaderboard-verdict badge-${item.badge || ''}">${verdictLabel}</span>` : ''}${item.region ? `<span class="leaderboard-region">&#x1F4CD; ${escHtml(item.region)}</span>` : ''}${item.upvotes ? `<span class="leaderboard-upvotes">&#x1F44D; ${item.upvotes}</span>` : ''}</div></div>`;
+          }).join('')}</div>`;
+        }
+      }
+    } catch (_) { /* fail silently */ }
+  }
+
+  // ─── FIGURES GALLERY ───
+  let _allFigures = [];
+
+  async function initFiguresGallery(zone) {
+    const grid = $('#figuresGrid');
+    if (!grid) return;
+
+    if (!_allFigures.length) {
+      try {
+        const resp = await fetch('/api/reference?data=figures&limit=100');
+        const json = await resp.json();
+        _allFigures = json.data || [];
+      } catch (_) {
+        grid.innerHTML = '<div class="figures-empty">Could not load figures.</div>';
+        return;
+      }
+    }
+
+    const filterZone = zone || 'all';
+    const filtered = filterZone === 'all' ? _allFigures : _allFigures.filter(f => f.zone === filterZone);
+
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="figures-empty">No figures found for this region.</div>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => {
+      const initials = (f.name || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const impactShort = (f.impact || '').length > 120 ? (f.impact || '').slice(0, 120) + '…' : (f.impact || '');
+      return `<div class="figure-card"><div class="figure-card-top"><div class="figure-avatar">${escHtml(initials)}</div><div class="figure-info"><h4 class="figure-name">${escHtml(f.name)}</h4><div class="figure-role">${escHtml(f.role || '')}</div>${f.country ? `<div class="figure-country">${escHtml(f.country)}</div>` : ''}</div></div>${impactShort ? `<div class="figure-impact">${escHtml(impactShort)}</div>` : ''}${f.quote ? `<div class="figure-quote">"${escHtml(f.quote)}"</div>` : ''}</div>`;
+    }).join('');
+  }
+
+  // Wire figures filter buttons
+  document.addEventListener('DOMContentLoaded', () => {
+    const figFilters = $('#figuresFilters');
+    if (figFilters) {
+      figFilters.addEventListener('click', (e) => {
+        const btn = e.target.closest('.figures-filter');
+        if (!btn) return;
+        figFilters.querySelectorAll('.figures-filter').forEach(f => f.classList.remove('active'));
+        btn.classList.add('active');
+        initFiguresGallery(btn.dataset.zone);
+      });
+    }
+  });
+
+  // ─── SIMILAR IDEAS PANEL ───
+  async function showSimilarIdeas(ideaType, country) {
+    try {
+      const params = new URLSearchParams();
+      if (ideaType) params.set('idea_type', ideaType);
+      if (country) params.set('country', country);
+      params.set('limit', '5');
+      const resp = await fetch('/api/reference?data=similar&' + params.toString());
+      const json = await resp.json();
+      const similar = json.data || [];
+
+      if (!similar.length) return;
+
+      const container = $('#resultContent');
+      if (!container) return;
+
+      const verdictColors = { GO: 'var(--forest)', 'GO WITH EDUCATION': 'var(--amber)', PIVOT: 'var(--sky)', SHELVE: 'var(--terracotta)' };
+      const verdictLabels = { GO: 'Ready', 'GO WITH EDUCATION': 'Fix One Thing', PIVOT: 'Pivot', SHELVE: 'Shelve' };
+
+      let html = `<div class="similar-section"><div class="similar-header"><span class="r-icon amber">&#x1F517;</span>Ideas Like Yours</div><p style="font-size:0.8125rem;color:var(--ink-muted);margin-bottom:1rem">Other ideas in the same category. See how they scored and what verdict they received.</p><div class="similar-scroll">`;
+
+      similar.forEach(s => {
+        const score = s.score ? Number(s.score).toFixed(1) : '?';
+        const vColor = verdictColors[s.verdict] || 'var(--ink-muted)';
+        const vLabel = verdictLabels[s.verdict] || s.verdict || '';
+        const ideaShort = (s.idea_text || '').length > 100 ? (s.idea_text || '').slice(0, 100) + '…' : (s.idea_text || '');
+        const date = s.created_at ? new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
+        html += `<div class="similar-card"><div class="similar-card-top"><span class="similar-score" style="color:${vColor}">${score}</span>${vLabel ? `<span class="similar-verdict" style="color:${vColor}">${vLabel}</span>` : ''}${date ? `<span class="similar-date">${date}</span>` : ''}</div><div class="similar-idea">${escHtml(ideaShort)}</div>${s.country ? `<div class="similar-country">${escHtml(s.country)}</div>` : ''}</div>`;
+      });
+
+      html += '</div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+    } catch (_) { /* fail silently */ }
+  }
+
+  // ─── SDG EXPLORER ───
+  let _sdgData = [];
+
+  async function initSDGExplorer() {
+    // Make SDG cards clickable
+    $$('.sdg-explore').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => openSDGModal(parseInt(card.dataset.sdg)));
+    });
+
+    // Close modal
+    const closeBtn = $('#sdgModalClose');
+    if (closeBtn) closeBtn.addEventListener('click', () => { $('#sdgModal').style.display = 'none'; });
+    const overlay = $('#sdgModal');
+    if (overlay) overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+  }
+
+  async function openSDGModal(sdgNum) {
+    const modal = $('#sdgModal');
+    const content = $('#sdgModalContent');
+    if (!modal || !content) return;
+
+    // Load SDG data if not cached
+    if (!_sdgData.length) {
+      try {
+        const resp = await fetch('/api/reference?data=sdgs');
+        const json = await resp.json();
+        _sdgData = json.data || [];
+      } catch (_) { /* ignore */ }
+    }
+
+    const sdg = _sdgData.find(s => s.number === sdgNum);
+    if (!sdg) {
+      content.innerHTML = `<div class="sdg-modal-header"><div class="sdg-modal-num" style="background:#888">${sdgNum}</div><h3>SDG ${sdgNum}</h3></div><p style="color:var(--ink-muted)">Data not available.</p>`;
+      modal.style.display = 'flex';
+      return;
+    }
+
+    const sdgColors = { 1: '#E5243B', 2: '#DDA63A', 3: '#4C9F38', 4: '#C5192D', 5: '#FF3A21', 6: '#26BDE2', 7: '#FCC30B', 8: '#A21942', 9: '#FD6925', 10: '#DD1367', 11: '#FD9D24', 12: '#BF8B2E', 13: '#3F7E44', 14: '#0A97D9', 15: '#56C02B', 16: '#00689D', 17: '#19486A' };
+    const color = sdgColors[sdgNum] || '#888';
+
+    // Parse idea_type_mapping
+    let mappings = [];
+    try {
+      const raw = sdg.idea_type_mapping;
+      if (typeof raw === 'string') mappings = JSON.parse(raw);
+      else if (raw && typeof raw === 'object') mappings = raw;
+    } catch (_) { /* ignore */ }
+
+    let html = `<div class="sdg-modal-header"><div class="sdg-modal-num" style="background:${color}">${sdgNum}</div><div><h3 style="color:${color}">${escHtml(sdg.name)}</h3><p style="font-size:0.875rem;color:var(--ink-muted)">${escHtml(sdg.description || '')}</p></div></div>`;
+
+    if (sdg.targets) {
+      html += `<div class="sdg-modal-section"><div class="sdg-modal-section-title">Targets</div><div class="sdg-modal-targets">${escHtml(sdg.targets)}</div></div>`;
+    }
+
+    if (mappings && (Array.isArray(mappings) ? mappings.length : Object.keys(mappings).length)) {
+      html += `<div class="sdg-modal-section"><div class="sdg-modal-section-title">Idea Types That Map to This Goal</div><div class="sdg-modal-mappings">`;
+      const items = Array.isArray(mappings) ? mappings : Object.entries(mappings).map(([k, v]) => ({ type: k, ...v }));
+      items.forEach(m => {
+        const typeName = typeof m === 'string' ? m : (m.type || m.name || m);
+        const desc = typeof m === 'object' ? (m.description || m.target_text || '') : '';
+        html += `<div class="sdg-mapping-item"><span class="sdg-mapping-type">${escHtml(typeName)}</span>${desc ? `<span class="sdg-mapping-desc">${escHtml(desc)}</span>` : ''}</div>`;
+      });
+      html += '</div></div>';
+    }
+
+    html += `<div class="sdg-modal-cta"><a href="#try" class="btn-primary" onclick="document.getElementById('sdgModal').style.display='none'">Evaluate Your Idea &#x2192;</a></div>`;
+
+    content.innerHTML = html;
+    modal.style.display = 'flex';
+  }
+
+  // ─── USER DASHBOARD ───
+  async function showDashboard() {
+    const overlay = $('#dashboardOverlay');
+    const content = $('#dashboardContent');
+    if (!overlay || !content) return;
+
+    const dropdown = $('#navDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    if (!isLoggedIn()) {
+      showAuthModal('login');
+      return;
+    }
+
+    overlay.style.display = 'flex';
+    content.innerHTML = '<div class="dashboard-loading">Loading your data…</div>';
+
+    try {
+      const resp = await fetch('/api/reference?data=dashboard', {
+        headers: { 'Authorization': 'Bearer ' + getAuthToken() },
+      });
+      const json = await resp.json();
+      const data = json.data || {};
+
+      if (data.error) {
+        content.innerHTML = `<div class="dashboard-error">${escHtml(data.error)}</div>`;
+        return;
+      }
+
+      const stats = data.stats || {};
+      const evals = data.evaluations || [];
+      const typeBreakdown = data.type_breakdown || [];
+      const verdictBreakdown = data.verdict_breakdown || [];
+
+      let html = '';
+
+      // Stats cards
+      html += '<div class="dashboard-stats">';
+      html += `<div class="dash-stat-card"><div class="dash-stat-val">${stats.total || 0}</div><div class="dash-stat-label">Total Evaluations</div></div>`;
+      html += `<div class="dash-stat-card"><div class="dash-stat-val">${stats.avg_score || '—'}</div><div class="dash-stat-label">Average Score</div></div>`;
+      html += `<div class="dash-stat-card"><div class="dash-stat-val">${stats.max_score || '—'}</div><div class="dash-stat-label">Best Score</div></div>`;
+      html += '</div>';
+
+      // Verdict breakdown
+      if (verdictBreakdown.length) {
+        const colors = { GO: 'var(--forest)', 'GO WITH EDUCATION': 'var(--amber)', PIVOT: 'var(--sky)', SHELVE: 'var(--terracotta)' };
+        const labels = { GO: 'Ready', 'GO WITH EDUCATION': 'Fix One Thing', PIVOT: 'Pivot', SHELVE: 'Shelve' };
+        html += '<div class="dashboard-section"><div class="dashboard-section-title">Your Verdicts</div><div class="dash-verdict-grid">';
+        verdictBreakdown.forEach(v => {
+          html += `<div class="dash-verdict-item" style="border-left:3px solid ${colors[v.verdict] || 'var(--ink-faint)'}"><span class="dash-verdict-count">${v.count}</span><span class="dash-verdict-label">${labels[v.verdict] || v.verdict}</span></div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Type breakdown
+      if (typeBreakdown.length) {
+        html += '<div class="dashboard-section"><div class="dashboard-section-title">Your Focus Areas</div><div class="dash-type-grid">';
+        typeBreakdown.forEach(t => {
+          html += `<div class="dash-type-item"><span class="dash-type-name">${escHtml(t.idea_type)}</span><span class="dash-type-count">${t.count}</span></div>`;
+        });
+        html += '</div></div>';
+      }
+
+      // Evaluation history
+      if (evals.length) {
+        html += '<div class="dashboard-section"><div class="dashboard-section-title">Recent Evaluations</div><div class="dash-evals-list">';
+        evals.forEach(ev => {
+          const date = new Date(ev.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const score = ev.score ? Number(ev.score).toFixed(1) : '?';
+          const verdictColors = { GO: 'var(--forest)', 'GO WITH EDUCATION': 'var(--amber)', PIVOT: 'var(--sky)', SHELVE: 'var(--terracotta)' };
+          const idea = (ev.idea_text || '').length > 80 ? (ev.idea_text || '').slice(0, 80) + '…' : (ev.idea_text || '');
+          html += `<div class="dash-eval-card"><div class="dash-eval-top"><span class="dash-eval-score" style="color:${verdictColors[ev.verdict] || 'var(--ink)'}">${score}</span><span class="dash-eval-verdict">${escHtml(ev.verdict_label || ev.verdict || '')}</span><span class="dash-eval-date">${date}</span></div><div class="dash-eval-idea">${escHtml(idea)}</div></div>`;
+        });
+        html += '</div></div>';
+      } else {
+        html += '<div class="dashboard-empty">No evaluations yet. <a href="#try" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">Evaluate your first idea</a></div>';
+      }
+
+      content.innerHTML = html;
+    } catch (_) {
+      content.innerHTML = '<div class="dashboard-error">Failed to load dashboard. Please try again.</div>';
+    }
+  }
+
   // ─── INIT ───
   document.addEventListener('DOMContentLoaded', () => {
     initRevealElements();
@@ -1885,6 +2196,9 @@
     // Database-powered features (zero AI calls)
     initQuickEval();
     initCulturalLookup();
+    initCommunity();
+    initFiguresGallery();
+    initSDGExplorer();
 
     // Mentors gallery
     renderMentorsGallery('all');
@@ -1915,6 +2229,14 @@
         renderMarketplaceGallery(btn.dataset.filter);
       });
     }
+
+    // Dashboard button in nav
+    const dashBtn = $('#navMyDashboard');
+    if (dashBtn) dashBtn.addEventListener('click', (e) => { e.preventDefault(); showDashboard(); });
+    const dashClose = $('#dashboardClose');
+    if (dashClose) dashClose.addEventListener('click', () => { $('#dashboardOverlay').style.display = 'none'; });
+    const dashOverlay = $('#dashboardOverlay');
+    if (dashOverlay) dashOverlay.addEventListener('click', (e) => { if (e.target === dashOverlay) dashOverlay.style.display = 'none'; });
   });
 
 })();

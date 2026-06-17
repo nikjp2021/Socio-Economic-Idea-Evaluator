@@ -71,11 +71,11 @@
     <a href="#" class="nav-logo"><span class="leaf">&#x1F33F;</span> SEE</a>
     <ul class="nav-links">
       <li><a href="#how">How It Works</a></li>
-      <li><a href="#sdg">SDGs</a></li>
+      <li><a href="#community">Community</a></li>
       <li><a href="#quick-eval">Quick Eval</a></li>
       <li><a href="#cultural-lookup">Lookup</a></li>
       <li><a href="#try">Try It</a></li>
-      <li><a href="#mentors">Mentors</a></li>
+      <li><a href="#figures">Figures</a></li>
       <li><a href="#marketplace">Marketplace</a></li>
     </ul>
     <div class="nav-right">
@@ -92,6 +92,7 @@
         </button>
         <div class="nav-dropdown" id="navDropdown" style="display:none">
           <a href="#" class="nav-dropdown-item" id="navMyEvals">&#x1F4CB; My Evaluations</a>
+          <a href="#" class="nav-dropdown-item" id="navMyDashboard">&#x1F4CA; Dashboard</a>
           <a href="#" class="nav-dropdown-item" id="navMyFavorites">&#x2B50; Favorites</a>
           <a href="#" class="nav-dropdown-item" id="navMyProfile">&#x1F464; Profile</a>
           <div class="nav-dropdown-divider"></div>
@@ -296,23 +297,23 @@
           <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80" alt="Presentation setup representing global planning and goals" loading="lazy">
         </div>
         <div class="sdg-grid">
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#E5243B">1</div><div><div class="sdg-card-title">No Poverty</div><div class="sdg-card-target">End poverty in all its forms</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#DDA63A">2</div><div><div class="sdg-card-title">Zero Hunger</div><div class="sdg-card-target">End hunger, achieve food security</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#4C9F38">3</div><div><div class="sdg-card-title">Good Health</div><div class="sdg-card-target">Ensure healthy lives and well-being</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#C5192D">4</div><div><div class="sdg-card-title">Quality Education</div><div class="sdg-card-target">Ensure inclusive, equitable education</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#FF3A21">5</div><div><div class="sdg-card-title">Gender Equality</div><div class="sdg-card-target">Achieve gender equality and empower women</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#26BDE2">6</div><div><div class="sdg-card-title">Clean Water</div><div class="sdg-card-target">Ensure availability of water and sanitation</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#FCC30B">7</div><div><div class="sdg-card-title">Clean Energy</div><div class="sdg-card-target">Ensure access to affordable energy</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#A21942">8</div><div><div class="sdg-card-title">Decent Work</div><div class="sdg-card-target">Promote sustained, inclusive economic growth</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#FD6925">9</div><div><div class="sdg-card-title">Industry &amp; Innovation</div><div class="sdg-card-target">Build resilient infrastructure, foster innovation</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#DD1367">10</div><div><div class="sdg-card-title">Reduced Inequalities</div><div class="sdg-card-target">Reduce inequality within and among countries</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#FD9D24">11</div><div><div class="sdg-card-title">Sustainable Cities</div><div class="sdg-card-target">Make cities inclusive, safe, and sustainable</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#BF8B2E">12</div><div><div class="sdg-card-title">Responsible Consumption</div><div class="sdg-card-target">Ensure sustainable consumption and production</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#3F7E44">13</div><div><div class="sdg-card-title">Climate Action</div><div class="sdg-card-target">Take urgent action to combat climate change</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#0A97D9">14</div><div><div class="sdg-card-title">Life Below Water</div><div class="sdg-card-target">Conserve and sustainably use oceans and seas</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#56C02B">15</div><div><div class="sdg-card-title">Life on Land</div><div class="sdg-card-target">Protect and restore terrestrial ecosystems</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#00689D">16</div><div><div class="sdg-card-title">Peace &amp; Justice</div><div class="sdg-card-target">Promote peaceful and inclusive societies</div></div></div>
-          <div class="sdg-card"><div class="sdg-card-num" style="background:#19486A">17</div><div><div class="sdg-card-title">Partnerships</div><div class="sdg-card-target">Strengthen means of implementation</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="1"><div class="sdg-card-num" style="background:#E5243B">1</div><div><div class="sdg-card-title">No Poverty</div><div class="sdg-card-target">End poverty in all its forms</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="2"><div class="sdg-card-num" style="background:#DDA63A">2</div><div><div class="sdg-card-title">Zero Hunger</div><div class="sdg-card-target">End hunger, achieve food security</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="3"><div class="sdg-card-num" style="background:#4C9F38">3</div><div><div class="sdg-card-title">Good Health</div><div class="sdg-card-target">Ensure healthy lives and well-being</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="4"><div class="sdg-card-num" style="background:#C5192D">4</div><div><div class="sdg-card-title">Quality Education</div><div class="sdg-card-target">Ensure inclusive, equitable education</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="5"><div class="sdg-card-num" style="background:#FF3A21">5</div><div><div class="sdg-card-title">Gender Equality</div><div class="sdg-card-target">Achieve gender equality and empower women</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="6"><div class="sdg-card-num" style="background:#26BDE2">6</div><div><div class="sdg-card-title">Clean Water</div><div class="sdg-card-target">Ensure availability of water and sanitation</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="7"><div class="sdg-card-num" style="background:#FCC30B">7</div><div><div class="sdg-card-title">Clean Energy</div><div class="sdg-card-target">Ensure access to affordable energy</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="8"><div class="sdg-card-num" style="background:#A21942">8</div><div><div class="sdg-card-title">Decent Work</div><div class="sdg-card-target">Promote sustained, inclusive economic growth</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="9"><div class="sdg-card-num" style="background:#FD6925">9</div><div><div class="sdg-card-title">Industry &amp; Innovation</div><div class="sdg-card-target">Build resilient infrastructure, foster innovation</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="10"><div class="sdg-card-num" style="background:#DD1367">10</div><div><div class="sdg-card-title">Reduced Inequalities</div><div class="sdg-card-target">Reduce inequality within and among countries</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="11"><div class="sdg-card-num" style="background:#FD9D24">11</div><div><div class="sdg-card-title">Sustainable Cities</div><div class="sdg-card-target">Make cities inclusive, safe, and sustainable</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="12"><div class="sdg-card-num" style="background:#BF8B2E">12</div><div><div class="sdg-card-title">Responsible Consumption</div><div class="sdg-card-target">Ensure sustainable consumption and production</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="13"><div class="sdg-card-num" style="background:#3F7E44">13</div><div><div class="sdg-card-title">Climate Action</div><div class="sdg-card-target">Take urgent action to combat climate change</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="14"><div class="sdg-card-num" style="background:#0A97D9">14</div><div><div class="sdg-card-title">Life Below Water</div><div class="sdg-card-target">Conserve and sustainably use oceans and seas</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="15"><div class="sdg-card-num" style="background:#56C02B">15</div><div><div class="sdg-card-title">Life on Land</div><div class="sdg-card-target">Protect and restore terrestrial ecosystems</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="16"><div class="sdg-card-num" style="background:#00689D">16</div><div><div class="sdg-card-title">Peace &amp; Justice</div><div class="sdg-card-target">Promote peaceful and inclusive societies</div></div></div>
+          <div class="sdg-card sdg-explore" data-sdg="17"><div class="sdg-card-num" style="background:#19486A">17</div><div><div class="sdg-card-title">Partnerships</div><div class="sdg-card-target">Strengthen means of implementation</div></div></div>
         </div>
       </div>
     </div>
@@ -471,6 +472,72 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
+       COMMUNITY — Leaderboard + Stats
+       ═══════════════════════════════════════════ -->
+  <section class="community-section" id="community">
+    <div class="wrap">
+      <div class="community-header reveal">
+        <div class="section-label">Community</div>
+        <h2 class="section-title">The Ideas Being Tested Right Now</h2>
+        <p class="section-sub">Real ideas from real people. See what the community is building — and how your idea compares.</p>
+      </div>
+      <div class="community-stats reveal" id="communityStats">
+        <div class="community-stat-card">
+          <div class="community-stat-icon">&#x1F4CB;</div>
+          <div class="community-stat-val" id="statEvals" data-count="0">0</div>
+          <div class="community-stat-label">Ideas Evaluated</div>
+        </div>
+        <div class="community-stat-card">
+          <div class="community-stat-icon">&#x1F465;</div>
+          <div class="community-stat-val" id="statUsers" data-count="0">0</div>
+          <div class="community-stat-label">Members</div>
+        </div>
+        <div class="community-stat-card">
+          <div class="community-stat-icon">&#x1F4DA;</div>
+          <div class="community-stat-val" id="statCases" data-count="0">0</div>
+          <div class="community-stat-label">Case Studies</div>
+        </div>
+        <div class="community-stat-card">
+          <div class="community-stat-icon">&#x1F30D;</div>
+          <div class="community-stat-val" id="statCountries" data-count="0">0</div>
+          <div class="community-stat-label">Countries</div>
+        </div>
+      </div>
+      <div class="community-verdict-bar reveal" id="communityVerdictBar"></div>
+      <div class="community-leaderboard reveal" id="communityLeaderboard">
+        <div class="community-loading">Loading community data…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       FIGURES — Influential People Gallery
+       ═══════════════════════════════════════════ -->
+  <section class="figures-section" id="figures">
+    <div class="wrap">
+      <div class="figures-header reveal">
+        <div class="section-label">Influential Figures</div>
+        <h2 class="section-title">The People Who Showed It Can Be Done</h2>
+        <p class="section-sub">70+ leaders who proved that solving small problems can change countries. Their patterns shape how we score your idea.</p>
+      </div>
+      <div class="figures-filters reveal" id="figuresFilters">
+        <button class="figures-filter active" data-zone="all">All Zones</button>
+        <button class="figures-filter" data-zone="south_asia">South Asia</button>
+        <button class="figures-filter" data-zone="east_asia">East Asia</button>
+        <button class="figures-filter" data-zone="southeast_asia">SE Asia</button>
+        <button class="figures-filter" data-zone="sub_saharan_africa">Africa</button>
+        <button class="figures-filter" data-zone="mena">MENA</button>
+        <button class="figures-filter" data-zone="latin_america">Latin America</button>
+        <button class="figures-filter" data-zone="north_america">Americas</button>
+        <button class="figures-filter" data-zone="europe">Europe</button>
+      </div>
+      <div class="figures-grid reveal" id="figuresGrid">
+        <div class="figures-loading">Loading figures…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
        MARKETPLACE — Social Impact Ideas Gallery
        ═══════════════════════════════════════════ -->
   <section class="marketplace-section" id="marketplace">
@@ -537,11 +604,11 @@
         </div>
         <div class="footer-links">
           <a href="#how">How It Works</a>
-          <a href="#sdg">SDGs</a>
+          <a href="#community">Community</a>
           <a href="#quick-eval">Quick Eval</a>
           <a href="#cultural-lookup">Lookup</a>
           <a href="#try">Try It</a>
-          <a href="#mentors">Mentors</a>
+          <a href="#figures">Figures</a>
           <a href="#marketplace">Marketplace</a>
         </div>
       </div>
@@ -552,6 +619,27 @@
   </footer>
 
   <!-- Toast (created dynamically by JS) -->
+
+  <!-- SDG Explorer Modal -->
+  <div class="sdg-modal-overlay" id="sdgModal" style="display:none">
+    <div class="sdg-modal">
+      <button class="sdg-modal-close" id="sdgModalClose">&times;</button>
+      <div class="sdg-modal-content" id="sdgModalContent"></div>
+    </div>
+  </div>
+
+  <!-- User Dashboard Panel -->
+  <div class="dashboard-overlay" id="dashboardOverlay" style="display:none">
+    <div class="dashboard-panel">
+      <div class="dashboard-header">
+        <h3>Your Dashboard</h3>
+        <button class="dashboard-close" id="dashboardClose">&times;</button>
+      </div>
+      <div class="dashboard-content" id="dashboardContent">
+        <div class="dashboard-loading">Loading your data…</div>
+      </div>
+    </div>
+  </div>
 
   <!-- App JavaScript -->
   <script src="app.js" defer></script>
