@@ -69,12 +69,12 @@
 
   // ─── PAGE ROUTER ───
   function showPage(pageName) {
-    // Hide all sections
-    document.querySelectorAll('[data-page]').forEach(el => {
+    // Hide all page sections (not nav links)
+    document.querySelectorAll('section[data-page], div[data-page]').forEach(el => {
       el.classList.remove('page-visible');
     });
     // Show sections for this page
-    document.querySelectorAll(`[data-page="${pageName}"]`).forEach(el => {
+    document.querySelectorAll(`section[data-page="${pageName}"], div[data-page="${pageName}"]`).forEach(el => {
       el.classList.add('page-visible');
     });
     // Update nav active state

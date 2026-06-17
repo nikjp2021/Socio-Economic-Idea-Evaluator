@@ -200,16 +200,14 @@ button { font-family: var(--font-body); }
 .nav-links a.active { color: var(--cream); }
 .nav-links a.active::after { transform: scaleX(1); background: var(--amber-light); }
 
-/* Page routing — hide sections not on current page */
-[data-page] { display: none; }
-[data-page].page-visible { display: block; }
-div[data-page].page-visible { display: block; }
+/* Page routing — hide page sections only (not nav links) */
+section[data-page], div[data-page] { display: none; }
+section[data-page].page-visible, div[data-page].page-visible { display: block; }
 /* Show home sections by default (before JS loads) */
-[data-page="home"] { display: block; }
+section[data-page="home"], div[data-page="home"] { display: block; }
 /* JS takes over: hide all, then show active page */
-.js-routed [data-page] { display: none; }
-.js-routed [data-page].page-visible { display: block; }
-div.js-routed [data-page].page-visible { display: block; }
+.js-routed section[data-page], .js-routed div[data-page] { display: none; }
+.js-routed section[data-page].page-visible, .js-routed div[data-page].page-visible { display: block; }
 
 /* Collapsible sections */
 [data-collapsible="true"] .section-body {
