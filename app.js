@@ -258,7 +258,7 @@
     /make\s*me\s*rich|get\s*rich\s*quick/i,
     /dating\s*app|tinder|hookup/i,
     /nft|crypto\s*pump|memecoin/i,
-    /kill|harm|hurt|attack|bomb|weapon/i,
+    /\bkill\b|\bharm\b(?!\s*reduction)|\battack\b|\bbomb\b|\bweapon\b/i,
     /drug\s*deal|sell\s*drug/i,
     /onlyfans|porn|adult\s*content/i,
     /prank|joke|meme\s*project/i,
@@ -424,6 +424,7 @@
     if (!validation.valid) {
       tryError.textContent = validation.message;
       tryError.classList.add('visible');
+      tryError.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -442,7 +443,10 @@
     try {
       const headers = {};
       if (getAuthToken()) headers['Authorization'] = 'Bearer ' + getAuthToken();
-      const resp = await fetch('/api/eval?idea=' + encodeURIComponent(ideaText), { headers });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000);
+      const resp = await fetch('/api/eval?idea=' + encodeURIComponent(ideaText), { headers, signal: controller.signal });
+      clearTimeout(timeout);
       const data = await resp.json();
 
       if (data.error) {
@@ -452,13 +456,14 @@
         else if (msg.includes('invalid JSON'))
           msg = 'We had trouble processing this. Try rephrasing your idea with more detail.';
         else if (msg.includes('API key') || msg.includes('not configured'))
-          msg = 'Service temporarily unavailable. Please try again in a moment.';
+          msg = 'The evaluation service is not configured. Please contact support.';
         else if (msg.includes('429') || msg.includes('quota') || msg.includes('rate') || msg.includes('busy'))
-          msg = 'Our evaluation service is busy right now. Please try again in a few minutes.';
+          msg = 'Too many requests right now. Please wait a minute and try again.';
         else if (msg.includes('limit'))
-          msg = 'Something went wrong on our end. Please try again in a moment.';
+          msg = 'Something went wrong. Please try again in a moment.';
         tryError.innerHTML = esc(msg) + ' <button class="retry-btn" onclick="document.getElementById(\'evalBtn\').click()">Try Again</button>';
         tryError.classList.add('visible');
+        tryError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
@@ -476,8 +481,12 @@
       }, 100);
     } catch (e) {
       hideLoading();
-      tryError.innerHTML = 'Connection issue. Check your internet and try again. <button class="retry-btn" onclick="document.getElementById(\'evalBtn\').click()">Try Again</button>';
+      let errMsg = 'Something went wrong. Please try again.';
+      if (e.name === 'AbortError') errMsg = 'The evaluation took too long (over 60 seconds). Try a shorter description.';
+      else if (e.message && e.message.includes('Failed to fetch')) errMsg = 'Cannot reach the evaluation service. Check your internet connection.';
+      tryError.innerHTML = esc(errMsg) + ' <button class="retry-btn" onclick="document.getElementById(\'evalBtn\').click()">Try Again</button>';
       tryError.classList.add('visible');
+      tryError.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } finally {
       evalBtn.disabled = false;
       evalBtn.innerHTML = 'Can This Work?';
