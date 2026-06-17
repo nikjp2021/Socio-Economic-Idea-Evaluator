@@ -2339,6 +2339,11 @@
   }
 
   // ─── QUICK EVALUATE ───
+  const SDG_COLORS = { 1:'#E5243B',2:'#DDA63A',3:'#4C9F38',4:'#C5192D',5:'#FF3A21',6:'#26BDE2',7:'#FCC30B',8:'#A21942',9:'#FD6925',10:'#DD1367',11:'#FD9D24',12:'#BF8B2E',13:'#3F7E44',14:'#0A97D9',15:'#56C02B',16:'#00689D',17:'#19486A' };
+  const SDG_ICONS = { 1:'&#x1F4B0;',2:'&#x1F33E;',3:'&#x1FA7A;',4:'&#x1F4DA;',5:'&#x2640;',6:'&#x1F4A7;',7:'&#x2600;',8:'&#x1F4BC;',9:'&#x1F527;',10:'&#x2696;',11:'&#x1F3D8;',12:'&#x267B;',13:'&#x1F30D;',14:'&#x1F41F;',15:'&#x1F333;',16:'&#x262E;',17:'&#x1F91D;' };
+  const typeToSDG = { women:5, safety:16, elderly:3, mental_health:3, disaster:13, health:3, food:2, water:6, financial:8, work:8, education:4, community:11, environment:13, energy:7, technology:9 };
+  const countryEmojis = { IN:'&#x1F1EE;&#x1F1F3;', BD:'&#x1F1E7;&#x1F1E9;', KE:'&#x1F1F0;&#x1F1EA;', JP:'&#x1F1EF;&#x1F1F5;', UG:'&#x1F1FA;&#x1F1EC;', JO:'&#x1F1EF;&#x1F1F4;', NG:'&#x1F1F3;&#x1F1EC;', PH:'&#x1F1F5;&#x1F1ED;', CO:'&#x1F1E8;&#x1F1F4;', MX:'&#x1F1F2;&#x1F1FD;', US:'&#x1F1FA;&#x1F1F8;', GB:'&#x1F1EC;&#x1F1E7;', BR:'&#x1F1E7;&#x1F1F7', ET:'&#x1F1EA;&#x1F1F9', RW:'&#x1F1F7;&#x1F1FC' };
+
   async function initQuickEval() {
     const grid = $('#quick-eval-grid');
     const resultEl = $('#quick-eval-result');
@@ -2355,56 +2360,150 @@
       }
 
       grid.innerHTML = templates.map(t => {
+        const score = parseFloat(t.score) || 7;
         const verdictClass = t.verdict?.includes('PIVOT') ? 'pivot' : t.verdict?.includes('EDUCATION') ? 'go-edu' : 'go';
+        const sdgNum = typeToSDG[t.category] || 8;
+        const sdgColor = SDG_COLORS[sdgNum] || '#888';
+        const emoji = countryEmojis[t.country] || '&#x1F30D;';
+        const problem = t.problem || t.label || '';
         return `
-          <div class="quick-eval-card" data-template-id="${t.id}">
-            <div class="quick-eval-card-label">${escHtml(t.label)}</div>
-            <div class="quick-eval-card-meta">
-              <span class="quick-eval-tag category">${escHtml(t.category)}</span>
-              <span class="quick-eval-tag zone">${escHtml((t.zone || '').replace(/_/g, ' '))}</span>
-              <span class="quick-eval-tag score">${t.score}/10</span>
+          <div class="qe-card" data-template-id="${t.id}">
+            <div class="qe-card-top">
+              <div class="qe-card-score-ring" style="--ring-color:${score >= 7.5 ? 'var(--forest)' : score >= 6 ? 'var(--amber)' : 'var(--terracotta)'}">
+                <span>${score}</span>
+              </div>
+              <div class="qe-card-badges">
+                <span class="qe-badge qe-badge-verdict ${verdictClass}">${escHtml(t.verdict || 'GO')}</span>
+              </div>
             </div>
-            <div class="quick-eval-card-verdict ${verdictClass}">${escHtml(t.verdict)}</div>
+            <div class="qe-card-title">${escHtml(t.label)}</div>
+            <div class="qe-card-problem">${escHtml(problem.length > 90 ? problem.slice(0, 87) + '...' : problem)}</div>
+            <div class="qe-card-footer">
+              <span class="qe-tag qe-country">${emoji} ${escHtml(t.country || '')}</span>
+              <span class="qe-tag qe-category">${escHtml(t.category || '')}</span>
+              <span class="qe-tag qe-sdg" style="background:${sdgColor}">SDG ${sdgNum}</span>
+            </div>
           </div>
         `;
       }).join('');
 
       grid.addEventListener('click', async (e) => {
-        const card = e.target.closest('.quick-eval-card');
+        const card = e.target.closest('.qe-card');
         if (!card) return;
         const id = card.dataset.templateId;
 
-        grid.querySelectorAll('.quick-eval-card').forEach(c => c.classList.remove('active'));
+        grid.querySelectorAll('.qe-card').forEach(c => c.classList.remove('active'));
         card.classList.add('active');
 
         try {
           const r2 = await fetch(`/api/reference?data=template&id=${encodeURIComponent(id)}`);
           const j2 = await r2.json();
           const tpl = j2.data;
-          if (!tpl?.sample_result) {
-            resultEl.innerHTML = '<div class="quick-eval-result-detail">No result data available.</div>';
+          const res = tpl?.sample_result;
+          if (!res) {
+            resultEl.innerHTML = '<div class="qe-result-empty">No result data available.</div>';
             resultEl.classList.remove('hidden');
             return;
           }
-          const res = tpl.sample_result;
+
           const v = res.verdict || {};
+          const sdg = res.sdgs || {};
+          const primary = sdg.primary || {};
+          const cultural = res.cultural || {};
+          const caseStudy = res.case_study || {};
+          const bootstrapper = res.bootstrapper || {};
+          const pow = v.proof_of_work || {};
+          const sdgNum = primary.number || typeToSDG[res.idea_type] || 8;
+          const sdgColor = SDG_COLORS[sdgNum] || '#888';
+          const emoji = countryEmojis[res.country] || '&#x1F30D;';
+          const score = v.total_score || tpl.score || 7;
+          const verdictLabel = { GO: 'READY TO TEST', 'GO WITH EDUCATION': 'GOOD, BUT FIX ONE THING FIRST', PIVOT: 'CHANGE YOUR APPROACH', SHELVE: 'HIGH BARRIERS RIGHT NOW' };
+          const cls = score >= 8 ? 'go' : score >= 6 ? 'edu' : score >= 4 ? 'pivot' : 'shelve';
+
           resultEl.innerHTML = `
-            <div class="quick-eval-result-header">
-              <div class="quick-eval-result-score">${v.total_score || tpl.score}/10</div>
-              <div>
-                <div class="quick-eval-result-verdict">${escHtml(v.verdict || tpl.verdict)}</div>
-                <div style="font-size:0.8rem;color:#888">${escHtml(tpl.label)} · ${escHtml(tpl.country)}</div>
+            <button class="qe-result-close" onclick="this.parentElement.classList.add('hidden')">&times;</button>
+
+            <!-- Header -->
+            <div class="qe-result-header qe-${cls}">
+              <div class="qe-result-score-circle">${score}</div>
+              <div class="qe-result-header-text">
+                <div class="qe-result-verdict-label">${verdictLabel[v.verdict] || v.verdict || 'EVALUATED'}</div>
+                <div class="qe-result-idea">${escHtml(res.idea || tpl.label)}</div>
+                <div class="qe-result-location">${emoji} ${escHtml(res.country_name || res.country || '')} &middot; ${escHtml(res.idea_type || tpl.category || '')}</div>
               </div>
             </div>
-            ${v.detail ? `<div class="quick-eval-result-detail">${escHtml(v.detail)}</div>` : ''}
-            ${v.elevator_pitch ? `<div class="quick-eval-result-pitch">${escHtml(v.elevator_pitch)}</div>` : ''}
-            ${v.first_step ? `<div class="quick-eval-result-step"><strong>Your first step:</strong> ${escHtml(v.first_step)}</div>` : ''}
-            <button class="quick-eval-result-close" onclick="this.parentElement.classList.add('hidden')">Close</button>
+
+            <!-- SDG + Impact row -->
+            <div class="qe-result-row">
+              <div class="qe-result-sdg-badge" style="background:${sdgColor}">
+                <span class="qe-sdg-icon">${SDG_ICONS[sdgNum] || '&#x1F30D;'}</span>
+                <div>
+                  <div class="qe-sdg-num">SDG ${sdgNum}</div>
+                  <div class="qe-sdg-name">${escHtml(primary.name || '')}</div>
+                </div>
+              </div>
+              ${res.impact ? `<div class="qe-result-impact">
+                <div class="qe-impact-score">${res.impact.score || '—'}<span>/100</span></div>
+                <div class="qe-impact-label">Impact Score</div>
+              </div>` : ''}
+            </div>
+
+            <!-- What it does -->
+            ${v.elevator_pitch ? `<div class="qe-result-section">
+              <div class="qe-section-label">&#x1F4AC; The Pitch</div>
+              <div class="qe-section-body qe-pitch">${escHtml(v.elevator_pitch)}</div>
+            </div>` : ''}
+
+            <!-- Cultural context -->
+            ${cultural.context_summary ? `<div class="qe-result-section">
+              <div class="qe-section-label">&#x1F30D; Cultural Context</div>
+              <div class="qe-section-body">${escHtml(cultural.context_summary)}</div>
+            </div>` : ''}
+
+            <!-- Case study -->
+            ${caseStudy.title ? `<div class="qe-result-section">
+              <div class="qe-section-label">&#x1F4DA; Who Did Something Similar</div>
+              <div class="qe-case-title">${escHtml(caseStudy.title)}</div>
+              ${caseStudy.narrative ? `<div class="qe-section-body">${escHtml(caseStudy.narrative.length > 200 ? caseStudy.narrative.slice(0, 197) + '...' : caseStudy.narrative)}</div>` : ''}
+              ${caseStudy.expert ? `<div class="qe-case-quote">&ldquo;${escHtml(caseStudy.expert)}&rdquo;${caseStudy.expert_name ? ` — ${escHtml(caseStudy.expert_name)}` : ''}</div>` : ''}
+            </div>` : ''}
+
+            <!-- Bootstrapper -->
+            ${bootstrapper.take ? `<div class="qe-result-section">
+              <div class="qe-section-label">&#x1F680; Can You Start With Nothing?</div>
+              <div class="qe-section-body">${escHtml(bootstrapper.take)}</div>
+              <div class="qe-bootstrapper-scores">
+                <span>Easy: ${bootstrapper.easy || '—'}/10</span>
+                <span>Feasible: ${bootstrapper.feasible || '—'}/10</span>
+                <span>Efforts: ${bootstrapper.efforts || '—'}/10</span>
+              </div>
+            </div>` : ''}
+
+            <!-- 14-Day Plan -->
+            ${pow.week_1 ? `<div class="qe-result-section">
+              <div class="qe-section-label">&#x1F4C5; Your First 14 Days</div>
+              <div class="qe-plan-grid">
+                ${pow.week_1.day_1_2 ? `<div class="qe-plan-item"><div class="qe-plan-day">Day 1–2</div><div class="qe-plan-text">${escHtml(pow.week_1.day_1_2)}</div></div>` : ''}
+                ${pow.week_1.day_3_4 ? `<div class="qe-plan-item"><div class="qe-plan-day">Day 3–4</div><div class="qe-plan-text">${escHtml(pow.week_1.day_3_4)}</div></div>` : ''}
+                ${pow.week_1.day_5_7 ? `<div class="qe-plan-item"><div class="qe-plan-day">Day 5–7</div><div class="qe-plan-text">${escHtml(pow.week_1.day_5_7)}</div></div>` : ''}
+                ${pow.week_2?.day_8_10 ? `<div class="qe-plan-item"><div class="qe-plan-day">Day 8–10</div><div class="qe-plan-text">${escHtml(pow.week_2.day_8_10)}</div></div>` : ''}
+                ${pow.week_2?.day_11_12 ? `<div class="qe-plan-item"><div class="qe-plan-day">Day 11–12</div><div class="qe-plan-text">${escHtml(pow.week_2.day_11_12)}</div></div>` : ''}
+                ${pow.week_2?.day_13_14 ? `<div class="qe-plan-item"><div class="qe-plan-day">Day 13–14</div><div class="qe-plan-text">${escHtml(pow.week_2.day_13_14)}</div></div>` : ''}
+              </div>
+              ${pow.success_criteria ? `<div class="qe-success-criteria"><strong>Success:</strong> ${escHtml(pow.success_criteria)}</div>` : ''}
+            </div>` : ''}
+
+            <!-- First Step CTA -->
+            ${v.first_step ? `<div class="qe-result-cta">
+              <div class="qe-cta-label">&#x1F680; Do This Today</div>
+              <div class="qe-cta-text">${escHtml(v.first_step)}</div>
+              <a href="#try" class="qe-cta-btn" onclick="this.closest('.quick-eval-result').classList.add('hidden')">Evaluate Your Own Idea &#x2192;</a>
+            </div>` : ''}
           `;
           resultEl.classList.remove('hidden');
           resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } catch (err) {
-          resultEl.innerHTML = '<div class="quick-eval-result-detail">Failed to load result. Please try again.</div>';
+          resultEl.innerHTML = '<div class="qe-result-empty">Failed to load result. Please try again.</div>';
           resultEl.classList.remove('hidden');
         }
       });
