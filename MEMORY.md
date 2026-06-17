@@ -109,6 +109,8 @@ See EVENT-LOG.md for detailed entries. Key work: MVP, personalized pitch, Vercel
   4. **Post-Eval Account Prompt** — save banner for non-authenticated users
   5. **Interactive 14-Day Progress Tracker** — checkboxes with localStorage persistence + progress bar
   6. **What-If Mode** — country selector showing score deltas across Hofstede dimensions
+- Fixed SDG Explorer modal: added local fallback data for all 17 SDGs (was showing "Data not available" when API unavailable)
+- Added SDG Stories Carousel: auto-rotating carousel of real case studies mapped to SDGs, with fallback to local library data
 
 ## Architecture Decisions
 

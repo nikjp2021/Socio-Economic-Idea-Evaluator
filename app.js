@@ -2647,8 +2647,135 @@
     } catch (_) { /* fail silently */ }
   }
 
+  // ─── SDG STORIES CAROUSEL ───
+  async function initSDGStoriesCarousel() {
+    const track = $('#sdgCarouselTrack');
+    const dotsEl = $('#sdgCarouselDots');
+    const prevBtn = $('#sdgCarouselPrev');
+    const nextBtn = $('#sdgCarouselNext');
+    if (!track) return;
+
+    // SDG color map
+    const sdgColors = { 1: '#E5243B', 2: '#DDA63A', 3: '#4C9F38', 4: '#C5192D', 5: '#FF3A21', 6: '#26BDE2', 7: '#FCC30B', 8: '#A21942', 9: '#FD6925', 10: '#DD1367', 11: '#FD9D24', 12: '#BF8B2E', 13: '#3F7E44', 14: '#0A97D9', 15: '#56C02B', 16: '#00689D', 17: '#19486A' };
+
+    // Idea type to SDG mapping
+    const typeToSDG = { women: 5, safety: 16, elderly: 3, mental_health: 3, disaster: 13, health: 3, food: 2, water: 6, financial: 8, work: 8, education: 4, community: 11 };
+
+    // Try API first, fallback to local
+    let stories = [];
+    try {
+      const resp = await fetch('/api/reference?data=sdg-stories');
+      const json = await resp.json();
+      stories = json.data || [];
+    } catch (_) {}
+
+    // Fallback: load from local case studies
+    if (!stories.length) {
+      try {
+        const [libResp, zonesResp] = await Promise.all([
+          fetch('case-studies/library.json').catch(() => null),
+          fetch('case-studies/zones-library.json').catch(() => null),
+        ]);
+        const lib = libResp ? await libResp.json() : {};
+        const zones = zonesResp ? await zonesResp.json() : {};
+        const caseStudies = lib.case_studies || [];
+        // Flatten zone case studies
+        Object.values(zones).forEach(zone => {
+          if (zone && Array.isArray(zone.case_studies)) {
+            caseStudies.push(...zone.case_studies);
+          }
+        });
+        // Map to stories with SDG tags
+        stories = caseStudies.slice(0, 20).map(cs => {
+          const cat = (cs.category || '').toLowerCase();
+          const sdgNum = typeToSDG[cat] || 8;
+          return {
+            title: cs.title || cs.organization || 'Social Enterprise',
+            organization: cs.organization || cs.title || '',
+            country: cs.country || '',
+            category: cs.category || '',
+            sdg_number: sdgNum,
+            sdg_name: SDG_FALLBACK.find(s => s.number === sdgNum)?.name || 'Decent Work',
+            excerpt: cs.key_lesson || cs.problem_statement || cs.the_model || '',
+            impact: cs.impact_numbers || cs.impact || '',
+            what_worked: Array.isArray(cs.what_worked) ? cs.what_worked[0] : (cs.what_worked || ''),
+          };
+        });
+      } catch (_) {}
+    }
+
+    if (!stories.length) {
+      track.innerHTML = '<p style="color:var(--ink-muted);text-align:center;padding:2rem">Stories loading&hellip;</p>';
+      return;
+    }
+
+    // Shuffle stories for variety
+    stories.sort(() => Math.random() - 0.5);
+
+    let current = 0;
+    const perView = window.innerWidth < 600 ? 1 : window.innerWidth < 900 ? 2 : 3;
+    const totalSlides = Math.ceil(stories.length / perView);
+
+    function renderSlide(s) {
+      const color = sdgColors[s.sdg_number] || '#888';
+      const excerpt = s.excerpt ? (s.excerpt.length > 120 ? s.excerpt.slice(0, 117) + '...' : s.excerpt) : '';
+      const impact = s.impact ? (typeof s.impact === 'string' ? s.impact : JSON.stringify(s.impact)) : '';
+      const impactShort = impact.length > 80 ? impact.slice(0, 77) + '...' : impact;
+      return `<div class="sdg-story-card">
+        <div class="sdg-story-badge" style="background:${color}">SDG ${s.sdg_number}</div>
+        <div class="sdg-story-title">${escHtml(s.title || s.organization || '')}</div>
+        <div class="sdg-story-meta">${escHtml(s.organization || '')}${s.country ? ' · ' + escHtml(s.country) : ''}${s.category ? ' · ' + escHtml(s.category) : ''}</div>
+        ${excerpt ? `<div class="sdg-story-excerpt">${escHtml(excerpt)}</div>` : ''}
+        ${impactShort ? `<div class="sdg-story-impact">&#x1F4CA; ${escHtml(impactShort)}</div>` : ''}
+        ${s.what_worked ? `<div class="sdg-story-worked">&#x2705; ${escHtml(typeof s.what_worked === 'string' ? s.what_worked : '')}</div>` : ''}
+      </div>`;
+    }
+
+    function render() {
+      const start = current * perView;
+      const slice = stories.slice(start, start + perView);
+      track.innerHTML = `<div class="sdg-carousel-slide">${slice.map(renderSlide).join('')}</div>`;
+      // Dots
+      if (dotsEl) {
+        dotsEl.innerHTML = Array.from({ length: totalSlides }, (_, i) =>
+          `<button class="sdg-carousel-dot${i === current ? ' active' : ''}" data-idx="${i}"></button>`
+        ).join('');
+        dotsEl.querySelectorAll('.sdg-carousel-dot').forEach(dot => {
+          dot.addEventListener('click', () => { current = parseInt(dot.dataset.idx); render(); });
+        });
+      }
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', () => { current = (current - 1 + totalSlides) % totalSlides; render(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { current = (current + 1) % totalSlides; render(); });
+
+    render();
+
+    // Auto-rotate every 6 seconds
+    setInterval(() => { current = (current + 1) % totalSlides; render(); }, 6000);
+  }
+
   // ─── SDG EXPLORER ───
   let _sdgData = [];
+  const SDG_FALLBACK = [
+    { number: 1, name: 'No Poverty', description: 'End poverty in all its forms everywhere.', targets: '1.1 Eradicate extreme poverty · 1.2 Reduce poverty by at least 50% · 1.3 Social protection systems · 1.4 Equal rights to resources · 1.5 Build resilience of the poor' },
+    { number: 2, name: 'Zero Hunger', description: 'End hunger, achieve food security and improved nutrition.', targets: '2.1 Universal access to safe food · 2.2 End malnutrition · 2.3 Double agricultural productivity · 2.4 Sustainable food production · 2.5 Maintain genetic diversity' },
+    { number: 3, name: 'Good Health and Well-Being', description: 'Ensure healthy lives and promote well-being for all.', targets: '3.1 Reduce maternal mortality · 3.2 End preventable deaths of children · 3.3 Fight communicable diseases · 3.4 Reduce non-communicable diseases · 3.5 Substance abuse · 3.7 Universal access to reproductive health · 3.8 Universal health coverage' },
+    { number: 4, name: 'Quality Education', description: 'Ensure inclusive and equitable quality education for all.', targets: '4.1 Free primary and secondary education · 4.2 Equal access to early childhood development · 4.3 Equal access to technical and vocational education · 4.4 Increase youth and adult skills · 4.5 Eliminate gender disparities · 4.6 Universal literacy' },
+    { number: 5, name: 'Gender Equality', description: 'Achieve gender equality and empower all women and girls.', targets: '5.1 End discrimination against women · 5.2 Eliminate violence against women · 5.3 Eliminate harmful practices · 5.4 Value unpaid care · 5.5 Women leadership and participation · 5.6 Universal access to reproductive rights' },
+    { number: 6, name: 'Clean Water and Sanitation', description: 'Ensure availability and sustainable management of water for all.', targets: '6.1 Safe and affordable drinking water · 6.2 Access to sanitation and hygiene · 6.3 Improve water quality · 6.4 Increase water-use efficiency · 6.5 Integrated water resources management · 6.6 Protect water-related ecosystems' },
+    { number: 7, name: 'Affordable and Clean Energy', description: 'Ensure access to affordable, reliable, sustainable energy for all.', targets: '7.1 Universal access to modern energy · 7.2 Increase share of renewable energy · 7.3 Double the rate of energy efficiency improvement' },
+    { number: 8, name: 'Decent Work and Economic Growth', description: 'Promote sustained, inclusive economic growth and decent work for all.', targets: '8.1 Sustained economic growth · 8.2 Diversify and upgrade technology · 8.3 Development-oriented policies · 8.4 Improve resource efficiency · 8.5 Full and productive employment · 8.6 Reduce youth unemployment' },
+    { number: 9, name: 'Industry, Innovation and Infrastructure', description: 'Build resilient infrastructure, promote inclusive industrialization.', targets: '9.1 Develop quality infrastructure · 9.2 Promote inclusive industrialization · 9.3 Increase access to financial services · 9.4 Upgrade infrastructure for sustainability · 9.5 Enhance scientific research' },
+    { number: 10, name: 'Reduced Inequalities', description: 'Reduce inequality within and among countries.', targets: '10.1 Income growth of bottom 40% · 10.2 Social, economic, political inclusion · 10.3 Ensure equal opportunity · 10.4 Adopt fiscal and wage policies · 10.5 Regulation of financial markets · 10.6 Enhanced representation in governance' },
+    { number: 11, name: 'Sustainable Cities and Communities', description: 'Make cities and human settlements inclusive, safe, resilient.', targets: '11.1 Safe and affordable housing · 11.2 Affordable and sustainable transport · 11.3 Inclusive urbanization · 11.4 Protect cultural and natural heritage · 11.5 Reduce impact of disasters · 11.6 Environmental impact of cities' },
+    { number: 12, name: 'Responsible Consumption and Production', description: 'Ensure sustainable consumption and production patterns.', targets: '12.1 Sustainable consumption plan · 12.2 Sustainable management of natural resources · 12.3 Halve food waste · 12.4 Environmentally sound management of chemicals · 12.5 Substantially reduce waste · 12.6 Encourage companies to adopt sustainable practices' },
+    { number: 13, name: 'Climate Action', description: 'Take urgent action to combat climate change and its impacts.', targets: '13.1 Strengthen resilience to climate hazards · 13.2 Integrate climate measures into policies · 13.3 Improve education and awareness on climate change' },
+    { number: 14, name: 'Life Below Water', description: 'Conserve and sustainably use the oceans, seas and marine resources.', targets: '14.1 Reduce marine pollution · 14.2 Protect marine ecosystems · 14.3 Minimize ocean acidification · 14.4 Regulate fishing · 14.5 Conserve coastal areas' },
+    { number: 15, name: 'Life on Land', description: 'Protect, restore and promote sustainable use of terrestrial ecosystems.', targets: '15.1 Conserve terrestrial ecosystems · 15.2 Sustainable management of forests · 15.3 Combat desertification · 15.4 Ensure conservation of mountain ecosystems · 15.5 Reduce degradation of natural habitats · 15.6 Fair sharing of genetic resources' },
+    { number: 16, name: 'Peace, Justice and Strong Institutions', description: 'Promote peaceful and inclusive societies for sustainable development.', targets: '16.1 Reduce violence everywhere · 16.2 End abuse and exploitation of children · 16.3 Promote rule of law · 16.4 Reduce illicit financial flows · 16.5 Substantially reduce corruption · 16.6 Develop effective institutions · 16.7 Inclusive decision-making' },
+    { number: 17, name: 'Partnerships for the Goals', description: 'Strengthen the means of implementation and revitalize partnerships.', targets: '17.1 Mobilize domestic resources · 17.2 Developed countries commit to ODA · 17.3 Mobilize financial resources · 17.4 Debt sustainability · 17.5 Investment promotion · 17.6 Enhance North-South and South-South cooperation · 17.7 Promote green technology · 17.9 Enhanced capacity-building · 17.16 Multi-stakeholder partnerships' },
+  ];
 
   async function initSDGExplorer() {
     // Make SDG cards clickable
@@ -2669,13 +2796,14 @@
     const content = $('#sdgModalContent');
     if (!modal || !content) return;
 
-    // Load SDG data if not cached
+    // Load SDG data if not cached (API first, fallback to local)
     if (!_sdgData.length) {
       try {
         const resp = await fetch('/api/reference?data=sdgs');
         const json = await resp.json();
         _sdgData = json.data || [];
       } catch (_) { /* ignore */ }
+      if (!_sdgData.length) _sdgData = SDG_FALLBACK;
     }
 
     const sdg = _sdgData.find(s => s.number === sdgNum);
@@ -2814,6 +2942,7 @@
     initCommunity();
     initFiguresGallery();
     initSDGExplorer();
+    initSDGStoriesCarousel();
 
     // Restore last evaluation if returning user
     const lastEval = loadLastEvaluation();
