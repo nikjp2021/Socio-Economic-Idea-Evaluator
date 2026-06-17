@@ -276,7 +276,7 @@
           msg = 'Our evaluation service is busy right now. Please try again in a few minutes.';
         else if (msg.includes('limit'))
           msg = 'Something went wrong on our end. Please try again in a moment.';
-        tryError.textContent = msg;
+        tryError.innerHTML = esc(msg) + ' <button class="retry-btn" onclick="document.getElementById(\'evalBtn\').click()">Try Again</button>';
         tryError.classList.add('visible');
         return;
       }
@@ -295,7 +295,7 @@
       }, 100);
     } catch (e) {
       hideLoading();
-      tryError.textContent = 'Connection issue. Check your internet and try again.';
+      tryError.innerHTML = 'Connection issue. Check your internet and try again. <button class="retry-btn" onclick="document.getElementById(\'evalBtn\').click()">Try Again</button>';
       tryError.classList.add('visible');
     } finally {
       evalBtn.disabled = false;
@@ -427,11 +427,11 @@
     // ─── SECTION BUILDER HELPER ───
     function addSection(id, icon, iconClass, title, bodyHtml, collapsed) {
       c.innerHTML += `<div class="r-section${collapsed ? ' collapsed' : ''}" id="${id}">
-        <div class="r-section-title" onclick="window.__toggleSection(this)">
+        <div class="r-section-title" onclick="window.__toggleSection(this)" role="button" tabindex="0" aria-expanded="${!collapsed}" aria-controls="${id}-body">
           <span class="r-icon ${iconClass}">${icon}</span>${title}
           <span class="r-chevron">&#x25BC;</span>
         </div>
-        <div class="r-section-body">${bodyHtml}</div>
+        <div class="r-section-body" id="${id}-body">${bodyHtml}</div>
       </div>`;
     }
 
@@ -440,11 +440,11 @@
       const inp = d._input;
       let h = '<div style="display:flex;flex-direction:column;gap:0.75rem">';
       if (inp.problem)
-        h += `<div class="r-card"><div class="r-label">The Problem</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${esc(
+        h += `<div class="r-card"><div class="r-label">The Problem</div><div class="text-body-sm">${esc(
           inp.problem
         )}</div></div>`;
       if (inp.goal)
-        h += `<div class="r-card"><div class="r-label">Your Goal</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${esc(
+        h += `<div class="r-card"><div class="r-label">Your Goal</div><div class="text-body-sm">${esc(
           inp.goal
         )}</div></div>`;
       const details = [];
@@ -454,7 +454,7 @@
       if (details.length) {
         h += '<div class="r-card-grid">';
         details.forEach(([l, v]) => {
-          h += `<div class="r-card"><div class="r-label">${l}</div><div style="font-size:0.875rem;color:var(--ink-muted)">${esc(
+          h += `<div class="r-card"><div class="r-label">${l}</div><div class="text-body-sm">${esc(
             v
           )}</div></div>`;
         });
@@ -472,21 +472,21 @@
       const sdgPrimary = (sdgs.primary && sdgs.primary.number) ? sdgs.primary : fb.primary;
       const sdgSecondary = (sdgs.secondary && sdgs.secondary.number) ? sdgs.secondary : fb.secondary;
 
-      let h = `<div style="font-size:0.8125rem;color:var(--ink-muted);line-height:1.65;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(37,99,168,0.03);border-radius:var(--radius-sm)">The <strong style="color:var(--ink)">United Nations</strong> has <strong style="color:var(--ink)">17 Global Goals</strong> to make the world better by 2030. Your idea connects to these goals.</div>`;
+      let h = `<div style="font-size:0.8125rem;color:var(--ink-muted);line-height:1.65;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(37,99,168,0.03);border-radius:var(--radius-sm)">The <strong class="text-ink">United Nations</strong> has <strong class="text-ink">17 Global Goals</strong> to make the world better by 2030. Your idea connects to these goals.</div>`;
       const plainExp = esc(
         sdgPrimary.plain_explanation || sdgs.alignment_text || ''
       );
-      h += `<div class="r-card" style="margin-bottom:0.75rem">
+      h += `<div class="r-card" class="mb-3">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
           <div class="sdg-number">${sdgPrimary.number || '?'}</div>
           <div><div class="r-value">Goal ${sdgPrimary.number || '?'}: ${esc(
         sdgPrimary.name || 'Social Impact'
       )}</div><div class="r-detail">${esc(sdgPrimary.target_text || '')}</div></div>
         </div>
-        <div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${plainExp || 'Your idea contributes to this UN Sustainable Development Goal.'}</div>
+        <div class="text-body-sm">${plainExp || 'Your idea contributes to this UN Sustainable Development Goal.'}</div>
       </div>`;
       if (sdgSecondary && sdgSecondary.number) {
-        h += `<div class="r-card" style="margin-bottom:0.75rem">
+        h += `<div class="r-card" class="mb-3">
           <div style="display:flex;align-items:center;gap:0.75rem">
             <div class="sdg-number" style="font-size:0.875rem">${sdgSecondary.number}</div>
             <div><div class="r-value">Also impacts: Goal ${sdgSecondary.number}: ${esc(sdgSecondary.name || '')}</div></div>
@@ -495,7 +495,7 @@
       }
       const whatMeans = esc(sdgs.what_this_means || '');
       if (whatMeans) {
-        h += `<div class="r-card" style="margin-bottom:0.75rem"><div class="r-label">What This Means For You</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${whatMeans}</div></div>`;
+        h += `<div class="r-card" class="mb-3"><div class="r-label">What This Means For You</div><div class="text-body-sm">${whatMeans}</div></div>`;
       }
       if (d.impact) {
         const icVar =
@@ -538,7 +538,7 @@
           : f.level === 'MEDIUM'
           ? 'REAL, BUT WATCH THE TREND'
           : 'COULD BE A TREND';
-      const h = `<div class="r-card" style="margin-bottom:0.75rem">
+      const h = `<div class="r-card" class="mb-3">
         <div style="margin-bottom:0.5rem">
           <span style="font-size:0.5625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;padding:0.25rem 0.75rem;border-radius:var(--radius-pill);background:${
             f.level === 'LOW'
@@ -555,7 +555,7 @@
       </div>
       <div class="r-card">
         <div class="r-label">What This Means For You</div>
-        <div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">If this problem will still exist in 5 years, your work will still matter. You are not building something that will disappear when the news stops covering it.</div>
+        <div class="text-body-sm">If this problem will still exist in 5 years, your work will still matter. You are not building something that will disappear when the news stops covering it.</div>
       </div>`;
       addSection(
         'sec-problem',
@@ -640,12 +640,12 @@
         });
 
       if (holdbacks.length) {
-        let h = '<p style="font-size:0.875rem;color:var(--ink-muted);margin-bottom:1rem;line-height:1.65">These are the specific barriers. Each one has a practical workaround.</p>';
+        let h = '<p class="text-body-sm mb-4">These are the specific barriers. Each one has a practical workaround.</p>';
         holdbacks.forEach((b) => {
           h += `<div class="r-item warning"><div><div class="r-item-issue">${b.issue}</div><div class="r-item-fix">${b.fix}</div></div></div>`;
         });
         const gap = (8 - score).toFixed(1);
-        h += `<div class="r-card" style="text-align:center;margin-top:1rem"><div style="font-size:0.875rem;color:var(--ink-muted)">You\'re <strong style="color:var(--ink)">${gap} points</strong> from "ready to launch." Address the barriers above and re-evaluate.</div></div>`;
+        h += `<div class="r-card" style="text-align:center;margin-top:1rem"><div class="text-body-sm">You\'re <strong class="text-ink">${gap} points</strong> from "ready to launch." Address the barriers above and re-evaluate.</div></div>`;
         addSection(
           'sec-barriers',
           '&#x26A0;',
@@ -664,7 +664,7 @@
       <div class="score-card"><div class="score-num">${bs.feasible}</div><div class="score-label">Feasible</div><div class="score-desc">How practical</div></div>
       <div class="score-card"><div class="score-num">${bs.efforts}</div><div class="score-label">Effort</div><div class="score-desc">Ongoing work</div></div>
     </div>
-    <div class="r-card"><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${esc(
+    <div class="r-card"><div class="text-body-sm">${esc(
       bs.take
     )}</div></div>`;
     addSection(
@@ -727,7 +727,7 @@
       // Load saved progress
       const planKey = 'see_plan_' + (d.country || 'x') + '_' + (d.idea_type || 'x');
       let savedProgress = {};
-      try { savedProgress = JSON.parse(localStorage.getItem(planKey) || '{}'); } catch(e) {}
+      try { savedProgress = JSON.parse(localStorage.getItem(planKey) || '{}'); } catch(e) { console.warn("[SEE]", e); }
 
       const completedCount = planSteps.filter(s => savedProgress[s.id]).length;
       const progressPct = Math.round((completedCount / planSteps.length) * 100);
@@ -738,7 +738,7 @@
         </div>
         <div class="progress-label">${completedCount}/${planSteps.length} phases complete &mdash; ${progressPct}%</div>
       </div>`;
-      h += '<p style="font-size:0.875rem;color:var(--ink-muted);margin-bottom:1rem;line-height:1.65">Start with $0. No permission needed. Check off each phase as you complete it.</p>';
+      h += '<p class="text-body-sm mb-4">Start with $0. No permission needed. Check off each phase as you complete it.</p>';
 
       planSteps.forEach((s) => {
         const checked = savedProgress[s.id] ? 'checked' : '';
@@ -753,7 +753,7 @@
           </div>
         </div>`;
       });
-      h += `<div class="r-card" style="margin-top:1rem"><div class="r-label" style="color:var(--forest)">How Do You Know If It Is Working?</div><div style="font-size:0.875rem;color:var(--ink-muted);line-height:1.65">${esc(
+      h += `<div class="r-card" style="margin-top:1rem"><div class="r-label" class="text-forest">How Do You Know If It Is Working?</div><div class="text-body-sm">${esc(
         p.success_criteria
       )}</div></div>`;
       addSection('sec-plan', '&#x1F4C5;', 'forest', 'Your First 14 Days', h);
@@ -765,7 +765,7 @@
             const key = cb.dataset.planKey;
             const taskId = cb.dataset.taskId;
             let progress = {};
-            try { progress = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+            try { progress = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { console.warn("[SEE]", e); }
             if (cb.checked) { progress[taskId] = true; } else { delete progress[taskId]; }
             localStorage.setItem(key, JSON.stringify(progress));
             // Update step styling
@@ -869,7 +869,7 @@
             }));
           }
           window.__hofstedeData = hofData;
-        } catch (_) {}
+        } catch (e) { console.warn("[SEE]", e); }
       }
 
       if (!hofData.length) {
@@ -1054,7 +1054,7 @@
     const text = `My social impact idea scored ${score}/10 on SEE \u2014 "${headline}" \u2014 Try it: ${baseUrl}?utm_source=share&utm_medium=native&utm_campaign=eval_results`;
 
     if (navigator.share) {
-      navigator.share({ title: 'My SEE Evaluation', text, url: window.location.origin }).catch(() => {});
+      navigator.share({ title: 'My SEE Evaluation', text, url: window.location.origin }).catch(e => console.warn('[SEE]', e));
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         showToast('Copied to clipboard!');
@@ -1233,7 +1233,7 @@
           }));
         }
       })
-      .catch(() => {});
+      .catch(e => console.warn('[SEE]', e));
   })();
 
   // ─── INNOVATION PANEL ───
@@ -1270,8 +1270,8 @@
       <p class="section-sub">Advanced analysis powered by 136 countries, 182+ case studies, and the Shizuoka Method.</p>
     </div>`;
 
-    html += `<div class="innovation-tabs">${innovTabs.map((t, i) =>
-      `<button class="innovation-tab${i === 0 ? ' active' : ''}" data-innov="${t.id}">${t.icon} ${t.label}</button>`
+    html += `<div class="innovation-tabs" role="tablist">${innovTabs.map((t, i) =>
+      `<button class="innovation-tab${i === 0 ? ' active' : ''}" data-innov="${t.id}" role="tab" aria-selected="${i === 0}" aria-controls="inn-${t.id}">${t.icon} ${t.label}</button>`
     ).join('')}</div>`;
 
     html += '<div class="innovation-content">';
@@ -1291,9 +1291,10 @@
     // Tab click handlers
     panel.querySelectorAll('.innovation-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
-        panel.querySelectorAll('.innovation-tab').forEach((t) => t.classList.remove('active'));
+        panel.querySelectorAll('.innovation-tab').forEach((t) => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
         panel.querySelectorAll('.innovation-content > div').forEach((c) => c.classList.remove('active'));
         tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
         const target = panel.querySelector('#' + tab.dataset.innov);
         if (target) target.classList.add('active');
       });
@@ -1552,7 +1553,7 @@
             </div>
             <div class="cert-score-divider"></div>
             <div class="cert-score-item">
-              <div class="cert-score-num" style="color:var(--forest)">${fitScore}</div>
+              <div class="cert-score-num" class="text-forest">${fitScore}</div>
               <div class="cert-score-label">Cultural Fit</div>
             </div>
           </div>
@@ -1579,7 +1580,7 @@
 
   // ─── LEAN CANVAS RENDERER ───
   function renderLeanCanvas(canvas) {
-    if (!canvas) return '<p style="color:var(--ink-muted)">Lean Canvas data not available.</p>';
+    if (!canvas) return '<p class="text-muted">Lean Canvas data not available.</p>';
 
     function listOrText(val) {
       if (Array.isArray(val)) {
@@ -1640,7 +1641,7 @@
 
   // ─── COMPETITIVE POSITIONING RENDERER ───
   function renderCompetitivePositioning(pos) {
-    if (!pos) return '<p style="color:var(--ink-muted)">Positioning data not available.</p>';
+    if (!pos) return '<p class="text-muted">Positioning data not available.</p>';
 
     let html = '<div class="positioning-layout">';
 
@@ -1685,16 +1686,16 @@
     if ((pos.success_patterns && pos.success_patterns.length) || (pos.failure_patterns && pos.failure_patterns.length)) {
       html += '<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem">';
       if (pos.success_patterns && pos.success_patterns.length) {
-        html += '<div class="r-card"><div class="r-label" style="color:var(--forest)">&#x2713; What Works</div>';
+        html += '<div class="r-card"><div class="r-label" class="text-forest">&#x2713; What Works</div>';
         pos.success_patterns.forEach((p) => {
-          html += `<div style="font-size:0.8125rem;color:var(--ink-muted);line-height:1.6;padding:0.375rem 0">${esc(p.pattern)}</div>`;
+          html += `<div class="text-body-sm-tight">${esc(p.pattern)}</div>`;
         });
         html += '</div>';
       }
       if (pos.failure_patterns && pos.failure_patterns.length) {
         html += '<div class="r-card"><div class="r-label" style="color:var(--amber)">&#x26A0; What to Avoid</div>';
         pos.failure_patterns.forEach((p) => {
-          html += `<div style="font-size:0.8125rem;color:var(--ink-muted);line-height:1.6;padding:0.375rem 0">${esc(p.pattern)}</div>`;
+          html += `<div class="text-body-sm-tight">${esc(p.pattern)}</div>`;
         });
         html += '</div>';
       }
@@ -1765,7 +1766,7 @@
   function renderGlobalHeatmap(d) {
     const hm = d.global_heatmap;
     if (!hm) {
-      return '<p style="color:var(--ink-muted)">Global heatmap data not available.</p>';
+      return '<p class="text-muted">Global heatmap data not available.</p>';
     }
 
     const top5 = hm.top_5 || [];
@@ -1850,7 +1851,7 @@
   // ─── MENTOR COUNCIL RENDERER ───
   function renderMentorCouncil(mentors, verdict) {
     if (!Array.isArray(mentors) || mentors.length === 0) {
-      return '<p style="color:var(--ink-muted)">No mentor matches found for this idea.</p>';
+      return '<p class="text-muted">No mentor matches found for this idea.</p>';
     }
 
     const zoneLabels = {
@@ -1939,12 +1940,13 @@
       const json = await resp.json();
       _mentorPersonas = json.data || [];
       return _mentorPersonas;
-    } catch (_) { return []; }
+    } catch (e) { console.warn("[SEE]", e); return []; }
   }
 
   async function renderMentorsGallery(zone) {
     const grid = $('#mentorsGrid');
     if (!grid) return;
+    grid.innerHTML = '<div class="mentors-empty" style="text-align:center;padding:2rem;color:var(--ink-muted)">Loading mentors…</div>';
     const personas = await loadMentorPersonas();
     if (!personas.length) {
       grid.innerHTML = '<div class="mentors-empty">No mentor personas available. Run an evaluation to populate the mentor council.</div>';
@@ -1985,7 +1987,7 @@
 
   // ─── MARKETPLACE CARD RENDERER ───
   function renderMarketplaceCard(listing) {
-    if (!listing) return '<p style="color:var(--ink-muted)">Marketplace listing not available.</p>';
+    if (!listing) return '<p class="text-muted">Marketplace listing not available.</p>';
 
     const sdgColors = { 1: '#E5243B', 2: '#DDA63A', 3: '#4C9F38', 4: '#C5192D', 5: '#FF3A21', 6: '#26BDE2', 7: '#FCC30B', 8: '#A21942', 9: '#FD6925', 10: '#DD1367', 11: '#FD9D24', 12: '#BF8B2E', 13: '#3F7E44', 14: '#0A97D9', 15: '#56C02B', 16: '#00689D', 17: '#19486A' };
 
@@ -2005,6 +2007,7 @@
   async function renderMarketplaceGallery(filter) {
     const grid = $('#marketplaceGrid');
     if (!grid) return;
+    grid.innerHTML = '<div class="marketplace-empty" style="text-align:center;padding:2rem;color:var(--ink-muted)">Loading marketplace…</div>';
 
     // Fetch from database if not cached
     if (!_marketplaceData) {
@@ -2015,12 +2018,12 @@
 
         // Also merge localStorage user ideas
         let localItems = [];
-        try { localItems = JSON.parse(localStorage.getItem('see_marketplace') || '[]'); } catch (_) {}
+        try { localItems = JSON.parse(localStorage.getItem('see_marketplace') || '[]'); } catch (e) { console.warn("[SEE]", e); }
 
         _marketplaceData = [...localItems, ...listings];
-      } catch (_) {
-        // Fallback to localStorage only
-        try { _marketplaceData = JSON.parse(localStorage.getItem('see_marketplace') || '[]'); } catch (_) { _marketplaceData = []; }
+      } catch (e) {
+        console.warn("[SEE] Marketplace API failed, using localStorage:", e);
+        try { _marketplaceData = JSON.parse(localStorage.getItem('see_marketplace') || '[]'); } catch (e) { console.warn("[SEE]", e); _marketplaceData = []; }
       }
     }
 
@@ -2075,7 +2078,7 @@
         history.unshift(entry);
         localStorage.setItem('see_eval_history', JSON.stringify(history.slice(0, 10)));
       }
-    } catch (_) { /* quota exceeded or private mode */ }
+    } catch (e) { console.warn("[SEE] localStorage quota:", e); }
   }
 
   function loadLastEvaluation() {
@@ -2090,7 +2093,7 @@
         return null;
       }
       return JSON.parse(raw);
-    } catch (_) { return null; }
+    } catch (e) { console.warn("[SEE]", e); return null; }
   }
 
   // ─── SAVE EVALUATION TO MARKETPLACE ───
@@ -2114,7 +2117,7 @@
         _marketplaceData = null; // invalidate cache
         renderMarketplaceGallery('all');
       }
-    } catch (_) { /* ignore */ }
+    } catch (e) { console.warn("[SEE]", e); }
   }
 
   // ─── SAVE EVALUATION TO DATABASE ───
@@ -2146,7 +2149,7 @@
 
   function getAuthToken() { return localStorage.getItem(AUTH_TOKEN_KEY); }
   function getAuthUser() {
-    try { return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || 'null'); } catch (_) { return null; }
+    try { return JSON.parse(localStorage.getItem(AUTH_USER_KEY) || 'null'); } catch (e) { console.warn("[SEE]", e); return null; }
   }
   function isLoggedIn() { return !!getAuthToken(); }
 
@@ -2303,7 +2306,7 @@
       try {
         const data = await apiEvaluationsGet('list');
         if (data.evaluations) evals = data.evaluations;
-      } catch (_) {}
+      } catch (e) { console.warn("[SEE]", e); }
     }
 
     // Fallback: load from localStorage history
@@ -2313,7 +2316,7 @@
         if (history.length) {
           evals = history;
         }
-      } catch (_) {}
+      } catch (e) { console.warn("[SEE]", e); }
     }
 
     // Last resort: single evaluation
@@ -2378,6 +2381,777 @@
       overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
     } catch (err) {
       showToast('Failed to load evaluations.', 'error');
+    }
+  }
+
+  // ─── ROADMAP GENERATOR (Phase 1) ───
+
+  function generateRoadmap(caseStudy, userContext) {
+    const country = userContext.country || caseStudy.country || 'IN';
+    const scale = userContext.scale || 'solo';
+    const resources = userContext.resources || [];
+
+    const hasBudget = resources.includes('funding');
+    const hasPhone = resources.includes('phone') || resources.includes('funding');
+    const hasCommunity = resources.includes('community');
+
+    const reach = scale === 'ngo' ? '50 people' : scale === 'org' ? '20 people' : scale === 'team' ? '10 people' : '3 people';
+    const reachWeek2 = scale === 'ngo' ? '200 people' : scale === 'org' ? '50 people' : scale === 'team' ? '25 people' : '10 people';
+    const teamWord = scale === 'ngo' ? 'your team' : scale === 'org' ? 'your colleagues' : scale === 'team' ? 'your partners' : 'you';
+
+    const worked = Array.isArray(caseStudy.what_worked) ? caseStudy.what_worked : [];
+    const failed = Array.isArray(caseStudy.what_didnt) ? caseStudy.what_didnt : [];
+    const copyFrom = worked.length > 0 ? worked[0] : caseStudy.key_lesson || 'Start small, learn fast';
+    const avoidFrom = failed.length > 0 ? failed[0] : 'Don\'t try to scale before you have proof';
+
+    const category = caseStudy.category || 'community';
+    const firstStepMap = {
+      food: `Find ${reach} who are hungry. Ask: "Where do you get your food? What do you wish you could eat?"`,
+      education: `Find ${reach} who want to learn. Ask: "What do you wish you could learn? What stops you?"`,
+      health: `Find ${reach} with a health problem. Ask: "What health issue affects you most? What do you do about it?"`,
+      water: `Find ${reach} without clean water. Ask: "Where do you get your water? How far do you walk?"`,
+      women: `Find ${reach} women who face a specific challenge. Ask: "What would make your daily life safer?"`,
+      elderly: `Find ${reach} elderly people living alone. Ask: "When was the last time someone checked on you?"`,
+      environment: `Find ${reach} affected by pollution. Ask: "What environmental problem bothers you most?"`,
+      financial: `Find ${reach} who are unbanked. Ask: "How do you save money? How do you send money to family?"`,
+      community: `Find ${reach} in your neighborhood. Ask: "What problem do you all share that nobody is solving?"`,
+    };
+    const firstStep = firstStepMap[category] || firstStepMap.community;
+
+    const tech = hasPhone ? 'Use WhatsApp to document everything.' : 'Write it down by hand. Take photos if you have a phone.';
+
+    const title = caseStudy.title || caseStudy.organization || 'Social Impact Project';
+
+    return {
+      title: `Your version of ${title}`,
+      adapted_from: title,
+      case_study_id: caseStudy.id || null,
+      country,
+      scale,
+      resources,
+      week_1: {
+        day_1_2: firstStep,
+        day_3_4: `Ask 10 people the same question. Write down every answer. Look for patterns. ${copyFrom ? 'What worked for ' + title + ': ' + copyFrom : ''}`,
+        day_5_7: `${tech} Serve ${reach} this week. Document: what happened, what they said, what you learned. ${avoidFrom ? 'Watch out: ' + avoidFrom : ''}`,
+      },
+      week_2: {
+        day_8_10: `Serve ${reachWeek2} total. Track: how many showed up, how many came back, how many told a friend.`,
+        day_11_12: `Ask every person: "Would you recommend this to a friend?" If yes, ask: "Why?" ${hasCommunity ? 'Ask your community partners to spread the word.' : ''}`,
+        day_13_14: `Write 1 page: how many you served, what they said, what you'd change. This is your proof-of-work.`,
+      },
+      success_criteria: `If 7 out of 10 people say "I would recommend this to a friend" — you have proof. That's your green light.`,
+      lessons_from: {
+        what_worked: worked.slice(0, 3),
+        what_to_avoid: failed.slice(0, 3),
+      },
+      sdg_alignment: category,
+      milestones: [
+        { phase: 'research', label: 'Find your first people', description: firstStep },
+        { phase: 'research', label: 'Ask 10 people the same question', description: 'Look for patterns in their answers' },
+        { phase: 'pilot', label: `Serve ${reach}`, description: 'Your first real-world test' },
+        { phase: 'pilot', label: 'Document what you learned', description: tech },
+        { phase: 'proof', label: `Scale to ${reachWeek2}`, description: 'Track who came back' },
+        { phase: 'proof', label: 'Write your proof-of-work', description: '1 page: results, feedback, next steps' },
+      ],
+    };
+  }
+
+  // ─── INTAKE MODAL (Phase 1) ───
+
+  function showIntakeModal(caseStudy) {
+    return new Promise((resolve) => {
+      const existing = document.getElementById('intakeModal');
+      if (existing) existing.remove();
+
+      const modal = document.createElement('div');
+      modal.id = 'intakeModal';
+      modal.className = 'intake-overlay';
+      modal.innerHTML = `
+        <div class="intake-panel">
+          <button class="intake-close" id="intakeClose">&times;</button>
+          <div class="intake-header">
+            <div class="intake-icon">&#x1F680;</div>
+            <h3 class="intake-title">Start Your Version of ${escHtml(caseStudy.title || caseStudy.organization || 'This Project')}</h3>
+            <p class="intake-sub">Tell us about your situation and we'll personalize your 14-day roadmap.</p>
+          </div>
+          <form id="intakeForm" class="intake-form">
+            <div class="intake-field">
+              <label class="intake-label">Where are you?</label>
+              <select id="intakeCountry" class="intake-select">
+                <option value="">Select your country…</option>
+              </select>
+            </div>
+            <div class="intake-field">
+              <label class="intake-label">What's your scale?</label>
+              <div class="intake-radio-group">
+                <label class="intake-radio"><input type="radio" name="intakeScale" value="solo" checked><span class="intake-radio-label">Solo — just me</span></label>
+                <label class="intake-radio"><input type="radio" name="intakeScale" value="team"><span class="intake-radio-label">Team — 2-5 people</span></label>
+                <label class="intake-radio"><input type="radio" name="intakeScale" value="org"><span class="intake-radio-label">Small org</span></label>
+                <label class="intake-radio"><input type="radio" name="intakeScale" value="ngo"><span class="intake-radio-label">NGO / registered</span></label>
+              </div>
+            </div>
+            <div class="intake-field">
+              <label class="intake-label">What resources do you have?</label>
+              <div class="intake-check-group">
+                <label class="intake-check"><input type="checkbox" name="intakeResources" value="budget" checked><span>$0 budget</span></label>
+                <label class="intake-check"><input type="checkbox" name="intakeResources" value="phone"><span>Phone + internet</span></label>
+                <label class="intake-check"><input type="checkbox" name="intakeResources" value="community"><span>Community connections</span></label>
+                <label class="intake-check"><input type="checkbox" name="intakeResources" value="funding"><span>Some funding available</span></label>
+              </div>
+            </div>
+            <button type="submit" class="intake-submit">Generate My Roadmap &#x2192;</button>
+          </form>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+      requestAnimationFrame(() => modal.classList.add('visible'));
+
+      // Populate country select
+      const sel = modal.querySelector('#intakeCountry');
+      const countries = Object.entries(COUNTRY_NAMES || {}).sort((a, b) => a[1].localeCompare(b[1]));
+      countries.forEach(([code, name]) => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = name;
+        if (code === caseStudy.country) opt.selected = true;
+        sel.appendChild(opt);
+      });
+
+      // Close handlers
+      const close = () => { modal.classList.remove('visible'); setTimeout(() => modal.remove(), 300); resolve(null); };
+      modal.querySelector('#intakeClose').onclick = close;
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
+      // Submit
+      modal.querySelector('#intakeForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const country = sel.value || caseStudy.country || 'IN';
+        const scale = (modal.querySelector('input[name="intakeScale"]:checked') || {}).value || 'solo';
+        const resources = [...modal.querySelectorAll('input[name="intakeResources"]:checked')].map(cb => cb.value);
+        modal.classList.remove('visible');
+        setTimeout(() => modal.remove(), 300);
+        resolve({ country, scale, resources });
+      });
+    });
+  }
+
+  // ─── ROADMAP VIEW RENDERER (Phase 1) ───
+
+  function renderRoadmap(roadmap, container) {
+    if (!roadmap || !container) return;
+
+    const planKey = 'see_roadmap_' + (roadmap.case_study_id || 'x') + '_' + (roadmap.country || 'x') + '_' + (roadmap.scale || 'x');
+    let savedProgress = {};
+    try { savedProgress = JSON.parse(localStorage.getItem(planKey) || '{}'); } catch(e) { console.warn("[SEE]", e); }
+
+    const planSteps = [
+      { id: 'rm_d12', l: 'Day 1\u20132', t: roadmap.week_1.day_1_2 },
+      { id: 'rm_d34', l: 'Day 3\u20134', t: roadmap.week_1.day_3_4 },
+      { id: 'rm_d57', l: 'Day 5\u20137', t: roadmap.week_1.day_5_7 },
+      { id: 'rm_d810', l: 'Day 8\u201310', t: roadmap.week_2.day_8_10 },
+      { id: 'rm_d1112', l: 'Day 11\u201312', t: roadmap.week_2.day_11_12 },
+      { id: 'rm_d1314', l: 'Day 13\u201314', t: roadmap.week_2.day_13_14 },
+    ];
+
+    const completedCount = planSteps.filter(s => savedProgress[s.id]).length;
+    const progressPct = Math.round((completedCount / planSteps.length) * 100);
+
+    const lessons = roadmap.lessons_from || {};
+    const worked = lessons.what_worked || [];
+    const avoid = lessons.what_to_avoid || [];
+
+    let h = `
+      <div class="roadmap-view">
+        <div class="roadmap-header">
+          <div class="roadmap-badge">Adapted from ${escHtml(roadmap.adapted_from || 'case study')}</div>
+          <h3 class="roadmap-title">${escHtml(roadmap.title)}</h3>
+          <div class="roadmap-meta">
+            <span class="roadmap-tag">${escHtml(roadmap.country)}</span>
+            <span class="roadmap-tag">${escHtml(roadmap.scale)}</span>
+            ${(roadmap.resources || []).map(r => `<span class="roadmap-tag">${escHtml(r)}</span>`).join('')}
+          </div>
+        </div>
+
+        <div class="roadmap-progress">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${progressPct}%"></div>
+          </div>
+          <div class="progress-label">${completedCount}/${planSteps.length} phases complete &mdash; ${progressPct}%</div>
+        </div>
+
+        <div class="roadmap-plan">`;
+
+    planSteps.forEach((s) => {
+      const checked = savedProgress[s.id] ? 'checked' : '';
+      h += `<div class="step task-step ${checked ? 'task-done' : ''}">
+        <label class="task-checkbox-wrap">
+          <input type="checkbox" class="task-checkbox roadmap-checkbox" data-plan-key="${planKey}" data-task-id="${s.id}" ${checked}>
+          <span class="task-checkmark"></span>
+        </label>
+        <div class="step-content">
+          <div class="step-label">${s.l}</div>
+          <div class="step-text">${esc(s.t)}</div>
+        </div>
+      </div>`;
+    });
+
+    h += `</div>`;
+
+    // Lessons sidebar
+    if (worked.length > 0 || avoid.length > 0) {
+      h += `<div class="roadmap-lessons">`;
+      if (worked.length > 0) {
+        h += `<div class="roadmap-lesson-card worked">
+          <div class="roadmap-lesson-label">&#x2705; What Worked For Them</div>
+          ${worked.map(w => `<div class="roadmap-lesson-item">${escHtml(w)}</div>`).join('')}
+        </div>`;
+      }
+      if (avoid.length > 0) {
+        h += `<div class="roadmap-lesson-card avoid">
+          <div class="roadmap-lesson-label">&#x26A0;&#xFE0F; What To Avoid</div>
+          ${avoid.map(a => `<div class="roadmap-lesson-item">${escHtml(a)}</div>`).join('')}
+        </div>`;
+      }
+      h += `</div>`;
+    }
+
+    // Success criteria
+    h += `<div class="roadmap-success">
+      <div class="roadmap-success-label">How Do You Know If It Is Working?</div>
+      <div class="roadmap-success-text">${escHtml(roadmap.success_criteria)}</div>
+    </div>`;
+
+    // CTA row
+    h += `<div class="roadmap-ctas">
+      <button class="roadmap-cta-btn save-project" id="roadmapSaveProject">&#x1F4BE; Save as Project</button>
+      <a href="#try" class="roadmap-cta-btn evaluate-link">Evaluate Your Own Idea &#x2192;</a>
+    </div>`;
+
+    h += `</div>`;
+
+    container.innerHTML = h;
+    container.classList.remove('hidden');
+    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Wire checkboxes
+    container.querySelectorAll('.roadmap-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const key = cb.dataset.planKey;
+        const taskId = cb.dataset.taskId;
+        let progress = {};
+        try { progress = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { console.warn("[SEE]", e); }
+        if (cb.checked) { progress[taskId] = true; } else { delete progress[taskId]; }
+        localStorage.setItem(key, JSON.stringify(progress));
+        const step = cb.closest('.task-step');
+        if (step) step.classList.toggle('task-done', cb.checked);
+        const total = container.querySelectorAll('.roadmap-checkbox').length;
+        const done = container.querySelectorAll('.roadmap-checkbox:checked').length;
+        const pct = Math.round((done / total) * 100);
+        const bar = container.querySelector('.progress-bar-fill');
+        const label = container.querySelector('.progress-label');
+        if (bar) bar.style.width = pct + '%';
+        if (label) label.textContent = `${done}/${total} phases complete \u2014 ${pct}%`;
+      });
+    });
+
+    return { planKey, roadmap };
+  }
+
+  // ─── PLANNING TEMPLATES (Phase 1) ───
+
+  function renderPlanningTemplates(caseStudy, userContext, container) {
+    if (!container) return;
+    const cat = caseStudy.category || 'community';
+    const country = userContext?.country || caseStudy.country || 'your area';
+    const scale = userContext?.scale || 'solo';
+
+    const templates = [
+      {
+        icon: '&#x1F4CB;',
+        title: 'Problem Statement Canvas',
+        content: `<strong>Who suffers?</strong> ${escHtml(scale === 'ngo' ? 'Communities' : scale === 'org' ? 'Groups of people' : 'Individuals')} in ${escHtml(country)} facing ${escHtml(cat)} challenges.<br><br><strong>What's the gap?</strong> ${escHtml(caseStudy.problem_statement || 'Existing solutions are not reaching the people who need them most.')}<br><br><strong>Why now?</strong> The problem is growing and no one is addressing it at the grassroots level.`,
+      },
+      {
+        icon: '&#x1F465;',
+        title: 'Stakeholder Map',
+        content: `<strong>Who do you need?</strong><br>\u2022 Community leaders who already have trust<br>\u2022 Local organizations working in ${escHtml(cat)}<br>\u2022 ${scale === 'solo' ? 'At least 1 partner or mentor' : 'Your team members'}<br><br><strong>Who already trusts the community?</strong><br>\u2022 Religious leaders, teachers, health workers<br>\u2022 Existing WhatsApp groups or community networks<br>\u2022 ${escHtml(caseStudy.organization || 'Similar organizations')} in the region`,
+      },
+      {
+        icon: '&#x1F4B0;',
+        title: 'Budget Reality Check',
+        content: `<strong>What does $0 look like for ${escHtml(cat)}?</strong><br><br>\u2022 <strong>Transport:</strong> Walk. Use public routes where people already gather.<br>\u2022 <strong>Materials:</strong> Use what exists. WhatsApp is free. Paper is cheap.<br>\u2022 <strong>Space:</strong> Community centers, temples, mosques, schools — ask to borrow.<br>\u2022 <strong>Food/water:</strong> Ask local businesses to donate in exchange for visibility.<br><br><strong>First real cost:</strong> Probably transport and phone data. Budget: $5\u2013$20 for the first week.`,
+      },
+    ];
+
+    let h = '<div class="templates-grid">';
+    templates.forEach(t => {
+      h += `<div class="template-card">
+        <div class="template-header">
+          <span class="template-icon">${t.icon}</span>
+          <span class="template-title">${t.title}</span>
+          <button class="template-toggle">&#x25BC;</button>
+        </div>
+        <div class="template-body">${t.content}</div>
+      </div>`;
+    });
+    h += '</div>';
+
+    container.innerHTML = h;
+    container.classList.remove('hidden');
+
+    // Toggle handlers
+    container.querySelectorAll('.template-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const card = btn.closest('.template-card');
+        card.classList.toggle('expanded');
+        btn.textContent = card.classList.contains('expanded') ? '\u25B2' : '\u25BC';
+      });
+    });
+  }
+
+  // ─── "START THIS" CTA WIRING (Phase 1) ───
+
+  function wireStartThisButtons() {
+    // Explorer cards
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.start-this-btn');
+      if (!btn) return;
+      e.stopPropagation();
+
+      const csData = {
+        id: btn.dataset.csId || '',
+        title: btn.dataset.csTitle || 'This Project',
+        organization: btn.dataset.csOrg || '',
+        category: btn.dataset.csCat || 'community',
+        country: btn.dataset.csCountry || 'IN',
+        problem_statement: btn.dataset.csProblem || '',
+        what_worked: btn.dataset.csWorked ? JSON.parse(btn.dataset.csWorked) : [],
+        what_didnt: btn.dataset.csFailed ? JSON.parse(btn.dataset.csFailed) : [],
+        key_lesson: btn.dataset.csLesson || '',
+      };
+
+      const intake = await showIntakeModal(csData);
+      if (!intake) return;
+
+      const roadmap = generateRoadmap(csData, intake);
+      const roadmapContainer = document.getElementById('roadmapResult') || document.getElementById('quick-eval-result');
+
+      if (roadmapContainer) {
+        const result = renderRoadmap(roadmap, roadmapContainer);
+        const templatesContainer = document.getElementById('planningTemplates');
+        if (templatesContainer) {
+          renderPlanningTemplates(csData, intake, templatesContainer);
+        }
+        // Store for save-as-project
+        window._lastRoadmap = result;
+        window._lastCaseStudy = csData;
+        window._lastIntake = intake;
+      }
+    });
+
+    // Save as project
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('#roadmapSaveProject');
+      if (!btn) return;
+
+      const token = localStorage.getItem('see_token');
+      if (!token) {
+        showToast('Please log in to save a project.', 'error');
+        return;
+      }
+
+      const roadmap = window._lastRoadmap?.roadmap;
+      const cs = window._lastCaseStudy;
+      const intake = window._lastIntake;
+      if (!roadmap) return;
+
+      try {
+        const resp = await fetch('/api/projects?action=create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            title: roadmap.title,
+            description: `Adapted from ${roadmap.adapted_from}`,
+            case_study_id: cs?.id,
+            case_study_title: cs?.title,
+            intake,
+            roadmap,
+          }),
+        });
+        const data = await resp.json();
+        if (data.id) {
+          showToast('Project saved! Check your dashboard.', 'success');
+          btn.textContent = '\u2705 Saved';
+          btn.disabled = true;
+        } else {
+          showToast(data.error || 'Failed to save project.', 'error');
+        }
+      } catch (e) { console.warn("[SEE]", e);
+        showToast('Failed to save project.', 'error');
+      }
+    });
+  }
+
+  // ─── PROJECT DASHBOARD (Phase 2) ───
+
+  async function showProjectDashboard() {
+    const overlay = document.getElementById('dashboardOverlay');
+    const content = document.getElementById('dashboardContent');
+    if (!overlay || !content) return;
+
+    overlay.style.display = 'flex';
+    content.innerHTML = '<div class="dashboard-loading">Loading your projects…</div>';
+
+    const token = localStorage.getItem('see_token');
+    if (!token) {
+      content.innerHTML = '<div class="dashboard-empty">Please <a href="#" onclick="document.getElementById(\'authModal\').style.display=\'flex\'">log in</a> to see your projects.</div>';
+      return;
+    }
+
+    try {
+      const [projResp, statsResp] = await Promise.all([
+        fetch('/api/projects?action=list', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/api/evaluations?action=list', { headers: { 'Authorization': `Bearer ${token}` } }),
+      ]);
+      const projData = await projResp.json();
+      const evalData = await statsResp.json();
+
+      const projects = projData.projects || [];
+      const evaluations = evalData.evaluations || [];
+
+      let html = '<div class="dashboard-tabs">';
+      html += '<button class="dash-tab active" data-tab="projects">Projects</button>';
+      html += '<button class="dash-tab" data-tab="evaluations">Evaluations</button>';
+      html += '<button class="dash-tab" data-tab="funding">Funding</button>';
+      html += '</div>';
+
+      // Projects tab
+      html += '<div class="dash-panel" id="dashProjects">';
+      if (projects.length > 0) {
+        html += '<div class="dash-projects-grid">';
+        projects.forEach(p => {
+          const streakBadge = p.streak_weeks > 0 ? `<span class="dash-streak">\uD83D\uDD25 ${p.streak_weeks}w streak</span>` : '';
+          const statusBadge = p.status === 'completed' ? '<span class="dash-status completed">Completed</span>' : '<span class="dash-status active">Active</span>';
+          html += `<div class="dash-project-card" data-project-id="${p.id}">
+            <div class="dash-project-top">
+              ${statusBadge}
+              ${streakBadge}
+            </div>
+            <div class="dash-project-title">${escHtml(p.title)}</div>
+            ${p.case_study_title ? `<div class="dash-project-source">Adapted from ${escHtml(p.case_study_title)}</div>` : ''}
+            <div class="dash-project-progress">
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:${p.progress_pct}%"></div>
+              </div>
+              <span class="dash-project-pct">${p.progress_pct}%</span>
+            </div>
+          </div>`;
+        });
+        html += '</div>';
+      } else {
+        html += '<div class="dashboard-empty">No projects yet. Browse <a href="#explorer" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">case studies</a> and click "Start This" to begin.</div>';
+      }
+      html += '</div>';
+
+      // Evaluations tab
+      html += '<div class="dash-panel hidden" id="dashEvaluations">';
+      if (evaluations.length > 0) {
+        const verdictColors = { GO: 'var(--forest)', 'GO WITH EDUCATION': 'var(--amber)', PIVOT: 'var(--terracotta)', SHELVE: '#999' };
+        html += '<div class="dash-evals">';
+        evaluations.forEach(ev => {
+          const score = ev.score || '—';
+          const idea = (ev.idea_text || '').length > 80 ? ev.idea_text.slice(0, 77) + '...' : ev.idea_text;
+          const date = new Date(ev.created_at).toLocaleDateString();
+          html += `<div class="dash-eval-card"><div class="dash-eval-top"><span class="dash-eval-score" style="color:${verdictColors[ev.verdict] || 'var(--ink)'}">${score}</span><span class="dash-eval-verdict">${escHtml(ev.verdict_label || ev.verdict || '')}</span><span class="dash-eval-date">${date}</span></div><div class="dash-eval-idea">${escHtml(idea)}</div></div>`;
+        });
+        html += '</div></div>';
+      } else {
+        html += '<div class="dashboard-empty">No evaluations yet. <a href="#try" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">Evaluate your first idea</a></div>';
+      }
+      html += '</div>';
+
+      // Funding tab
+      html += '<div class="dash-panel hidden" id="dashFunding">';
+      html += '<div class="dashboard-empty">Browse <a href="#funding" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">funding sources</a> matched to your projects.</div>';
+      html += '</div>';
+
+      content.innerHTML = html;
+
+      // Tab switching
+      content.querySelectorAll('.dash-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          content.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          content.querySelectorAll('.dash-panel').forEach(p => p.classList.add('hidden'));
+          const target = content.querySelector('#dash' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1));
+          if (target) target.classList.remove('hidden');
+        });
+      });
+
+      // Project card click
+      content.querySelectorAll('.dash-project-card').forEach(card => {
+        card.addEventListener('click', () => showProjectDetail(card.dataset.projectId, content));
+      });
+
+    } catch (e) { console.warn("[SEE]", e);
+      content.innerHTML = '<div class="dashboard-error">Failed to load dashboard. Please try again.</div>';
+    }
+  }
+
+  async function showProjectDetail(projectId, container) {
+    const token = localStorage.getItem('see_token');
+    if (!token) return;
+
+    container.innerHTML = '<div class="dashboard-loading">Loading project…</div>';
+
+    try {
+      const resp = await fetch(`/api/projects?action=get&id=${projectId}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await resp.json();
+      const p = data.project;
+      if (!p) { container.innerHTML = '<div class="dashboard-error">Project not found.</div>'; return; }
+
+      const milestones = p.milestones || [];
+      const checkIns = p.check_ins || [];
+
+      let html = `<button class="dash-back-btn" id="dashBackBtn">\u2190 Back to projects</button>`;
+
+      html += `<div class="project-detail">
+        <div class="project-detail-header">
+          <h3>${escHtml(p.title)}</h3>
+          <div class="project-detail-meta">
+            ${p.case_study_title ? `<span>Adapted from: ${escHtml(p.case_study_title)}</span>` : ''}
+            <span>Started: ${new Date(p.created_at).toLocaleDateString()}</span>
+            <span>Streak: \uD83D\uDD25 ${p.streak_weeks} weeks</span>
+          </div>
+        </div>
+
+        <div class="project-detail-progress">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${p.progress_pct}%"></div>
+          </div>
+          <span>${p.progress_pct}% complete</span>
+        </div>`;
+
+      // Milestones
+      if (milestones.length > 0) {
+        html += '<div class="project-milestones"><h4>Milestones</h4>';
+        milestones.forEach(m => {
+          const done = m.status === 'completed';
+          html += `<div class="milestone-item ${done ? 'milestone-done' : ''}" data-milestone-id="${m.id}">
+            <button class="milestone-check" data-milestone-id="${m.id}" data-status="${done ? 'pending' : 'completed'}">${done ? '\u2705' : '\u2B1C'}</button>
+            <div class="milestone-content">
+              <div class="milestone-label">${escHtml(m.label)}</div>
+              ${m.description ? `<div class="milestone-desc">${escHtml(m.description)}</div>` : ''}
+            </div>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Check-in form
+      html += `<div class="project-checkin">
+        <h4>Weekly Check-In</h4>
+        <div class="checkin-streak">\uD83D\uDD25 ${p.streak_weeks} week streak — keep it going!</div>
+        <form id="checkinForm" class="checkin-form">
+          <div class="checkin-field">
+            <label>What did you accomplish?</label>
+            <textarea id="checkinAccomplishments" rows="3" placeholder="What went well this week?"></textarea>
+          </div>
+          <div class="checkin-field">
+            <label>What's blocking you?</label>
+            <textarea id="checkinBlockers" rows="2" placeholder="What's stopping you?"></textarea>
+          </div>
+          <div class="checkin-field">
+            <label>Next steps</label>
+            <textarea id="checkinNextSteps" rows="2" placeholder="What will you do next week?"></textarea>
+          </div>
+          <div class="checkin-field">
+            <label>How are you feeling?</label>
+            <div class="checkin-mood">
+              <label class="mood-btn"><input type="radio" name="checkinMood" value="great"><span>\uD83D\uDE0A Great</span></label>
+              <label class="mood-btn"><input type="radio" name="checkinMood" value="ok" checked><span>\uD83D\uDE10 OK</span></label>
+              <label class="mood-btn"><input type="radio" name="checkinMood" value="stuck"><span>\uD83D\uDE15 Stuck</span></label>
+            </div>
+          </div>
+          <button type="submit" class="checkin-submit">Submit Check-In</button>
+        </form>
+      </div>`;
+
+      // Previous check-ins
+      if (checkIns.length > 0) {
+        html += '<div class="project-checkins-history"><h4>Previous Check-Ins</h4>';
+        checkIns.forEach(ci => {
+          const mood = ci.mood === 'great' ? '\uD83D\uDE0A' : ci.mood === 'stuck' ? '\uD83D\uDE15' : '\uD83D\uDE10';
+          html += `<div class="checkin-history-card">
+            <div class="checkin-history-top"><span>Week ${ci.week_number}</span><span>${mood}</span><span>${new Date(ci.created_at).toLocaleDateString()}</span></div>
+            ${ci.accomplishments ? `<div class="checkin-history-field"><strong>Accomplished:</strong> ${escHtml(ci.accomplishments)}</div>` : ''}
+            ${ci.blockers ? `<div class="checkin-history-field"><strong>Blocked:</strong> ${escHtml(ci.blockers)}</div>` : ''}
+            ${ci.next_steps ? `<div class="checkin-history-field"><strong>Next:</strong> ${escHtml(ci.next_steps)}</div>` : ''}
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+
+      // Back button
+      const backBtn = container.querySelector('#dashBackBtn');
+      if (backBtn) backBtn.onclick = () => showProjectDashboard();
+
+      // Milestone toggle
+      container.querySelectorAll('.milestone-check').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const milestoneId = btn.dataset.milestoneId;
+          const newStatus = btn.dataset.status;
+          try {
+            await fetch('/api/projects?action=complete-milestone', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ milestone_id: milestoneId, status: newStatus }),
+            });
+            showProjectDetail(projectId, container);
+          } catch (e) { console.warn("[SEE]", e); showToast('Failed to update milestone.', 'error'); }
+        });
+      });
+
+      // Check-in form
+      const checkinForm = container.querySelector('#checkinForm');
+      if (checkinForm) {
+        checkinForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const mood = (container.querySelector('input[name="checkinMood"]:checked') || {}).value || 'ok';
+          try {
+            const resp = await fetch('/api/projects?action=checkin', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({
+                project_id: projectId,
+                accomplishments: container.querySelector('#checkinAccomplishments').value,
+                blockers: container.querySelector('#checkinBlockers').value,
+                next_steps: container.querySelector('#checkinNextSteps').value,
+                mood,
+              }),
+            });
+            const data = await resp.json();
+            if (data.id) {
+              showToast('Check-in recorded! Week ' + data.week_number, 'success');
+              showProjectDetail(projectId, container);
+            }
+          } catch (e) { console.warn("[SEE]", e); showToast('Failed to save check-in.', 'error'); }
+        });
+      }
+
+    } catch (e) { console.warn("[SEE]", e);
+      container.innerHTML = '<div class="dashboard-error">Failed to load project.</div>';
+    }
+  }
+
+  // ─── FUNDING MATCHER (Phase 3) ───
+
+  async function initFundingMatcher() {
+    const section = document.getElementById('funding');
+    if (!section) return;
+
+    const grid = document.getElementById('fundingGrid');
+    const matchBtn = document.getElementById('fundingMatchBtn');
+    if (!grid) return;
+
+    // Load all sources
+    try {
+      const resp = await fetch('/api/funding?action=list&limit=50');
+      const data = await resp.json();
+      const sources = data.sources || [];
+      renderFundingCards(sources, grid);
+    } catch (e) { console.warn("[SEE]", e);
+      grid.innerHTML = '<div class="funding-empty">Could not load funding sources.</div>';
+    }
+
+    // Match button
+    if (matchBtn) {
+      matchBtn.addEventListener('click', async () => {
+        const country = document.getElementById('fundingCountry')?.value || '';
+        const ideaType = document.getElementById('fundingType')?.value || '';
+        const params = new URLSearchParams();
+        if (country) params.set('country', country);
+        if (ideaType) params.set('idea_type', ideaType);
+        params.set('limit', '10');
+
+        try {
+          const resp = await fetch(`/api/funding?action=match&${params}`);
+          const data = await resp.json();
+          const matches = data.matches || [];
+          renderFundingCards(matches, grid, true);
+        } catch (e) { console.warn("[SEE]", e);
+          grid.innerHTML = '<div class="funding-empty">Match failed. Try again.</div>';
+        }
+      });
+    }
+  }
+
+  function renderFundingCards(sources, container, showScore = false) {
+    if (!sources.length) {
+      container.innerHTML = '<div class="funding-empty">No funding sources found. Try different filters.</div>';
+      return;
+    }
+
+    const typeLabels = { grant: 'Grant', fellowship: 'Fellowship', crowdfunding: 'Crowdfunding', impact_investment: 'Impact Investment', microfinance: 'Microfinance', csr: 'CSR', program: 'Program' };
+
+    container.innerHTML = sources.map(s => {
+      const matchBadge = showScore && s.match_score ? `<div class="funding-match-score">${s.match_score}% match</div>` : '';
+      const amount = s.min_amount && s.max_amount
+        ? `${s.currency} ${s.min_amount.toLocaleString()} — ${s.max_amount.toLocaleString()}`
+        : s.min_amount ? `From ${s.currency} ${s.min_amount.toLocaleString()}`
+        : 'Varies';
+      const countries = (s.countries || []).includes('*') ? 'Global' : (s.countries || []).join(', ');
+
+      return `<div class="funding-card">
+        ${matchBadge}
+        <div class="funding-card-type">${typeLabels[s.type] || s.type}</div>
+        <div class="funding-card-name">${escHtml(s.name)}</div>
+        <div class="funding-card-desc">${escHtml((s.description || '').slice(0, 150))}</div>
+        <div class="funding-card-meta">
+          <span class="funding-amount">${amount}</span>
+          <span class="funding-countries">${escHtml(countries)}</span>
+        </div>
+        ${s.url ? `<a href="${escHtml(s.url)}" target="_blank" rel="noopener" class="funding-card-link">Apply \u2192</a>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // ─── PUBLIC UPDATES FEED (Phase 2) ───
+
+  async function initPublicFeed() {
+    const grid = document.getElementById('communityFeed');
+    if (!grid) return;
+
+    try {
+      const resp = await fetch('/api/projects?action=feed&limit=12');
+      const data = await resp.json();
+      const feed = data.feed || [];
+
+      if (!feed.length) {
+        grid.innerHTML = '<div class="feed-empty">No public projects yet. Be the first to share your journey!</div>';
+        return;
+      }
+
+      grid.innerHTML = feed.map(p => {
+        const streakBadge = p.streak_weeks > 0 ? `<span class="feed-streak">\uD83D\uDD25 ${p.streak_weeks}w</span>` : '';
+        return `<div class="feed-card">
+          <div class="feed-card-top">
+            <span class="feed-progress">${p.progress_pct}%</span>
+            ${streakBadge}
+          </div>
+          <div class="feed-card-title">${escHtml(p.title)}</div>
+          ${p.case_study_title ? `<div class="feed-card-source">Adapted from ${escHtml(p.case_study_title)}</div>` : ''}
+          ${p.user_name ? `<div class="feed-card-user">by ${escHtml(p.user_name)}</div>` : ''}
+        </div>`;
+      }).join('');
+    } catch (e) { console.warn("[SEE]", e);
+      grid.innerHTML = '<div class="feed-empty">Could not load community feed.</div>';
     }
   }
 
@@ -2566,7 +3340,7 @@
           const parsed = JSON.parse(text);
           if (Array.isArray(parsed)) text = parsed.join(', ');
           else if (typeof parsed === 'object') text = Object.entries(parsed).map(([k, v]) => `${k}: ${v}`).join(', ');
-        } catch (_) {}
+        } catch (e) { console.warn("[SEE]", e); }
       }
     } else if (Array.isArray(val)) {
       text = val.join(', ');
@@ -2592,13 +3366,13 @@
         const resp = await fetch('/api/reference?data=cases&limit=200');
         const json = await resp.json();
         _allCaseStudies = json.data || [];
-      } catch (_) {}
+      } catch (e) { console.warn("[SEE]", e); }
       if (!_allCaseStudies.length) {
         try {
           const libResp = await fetch('case-studies/library.json');
           const lib = await libResp.json();
           _allCaseStudies = lib.case_studies || [];
-        } catch (_) {}
+        } catch (e) { console.warn("[SEE]", e); }
       }
     }
 
@@ -2651,6 +3425,17 @@
             ${worked ? `<div class="explorer-expand-section"><div class="explorer-expand-label wLabel">What worked</div><div class="explorer-expand-text">${escHtml(worked)}</div></div>` : ''}
             ${failed ? `<div class="explorer-expand-section"><div class="explorer-expand-label fLabel">What failed</div><div class="explorer-expand-text">${escHtml(failed)}</div></div>` : ''}
             ${impact ? `<div class="explorer-expand-section"><div class="explorer-expand-label iLabel">Impact</div><div class="explorer-expand-text">${escHtml(impact)}</div></div>` : ''}
+            <button class="start-this-btn explorer-start-btn"
+              data-cs-id="${escHtml(cs.id || '')}"
+              data-cs-title="${escHtml(cs.title || cs.organization || '')}"
+              data-cs-org="${escHtml(cs.organization || '')}"
+              data-cs-cat="${escHtml(cs.category || 'community')}"
+              data-cs-country="${escHtml(cs.country || 'IN')}"
+              data-cs-problem="${escHtml(cs.problem_statement || '')}"
+              data-cs-worked='${JSON.stringify(Array.isArray(cs.what_worked) ? cs.what_worked : [])}'
+              data-cs-failed='${JSON.stringify(Array.isArray(cs.what_didnt) ? cs.what_didnt : [])}'
+              data-cs-lesson="${escHtml(cs.key_lesson || '')}"
+            >&#x1F680; Start This</button>
           </div>
         </div>`;
       }).join('');
@@ -2740,7 +3525,7 @@
         opt.textContent = c.name;
         select.appendChild(opt);
       }
-    } catch (_) {}
+    } catch (e) { console.warn("[SEE]", e); }
 
     select.addEventListener('change', async () => {
       const code = select.value;
@@ -2930,7 +3715,7 @@
     if (isLoggedIn()) {
       apiAuthGet('me').then((data) => {
         if (data.error) clearAuth();
-      }).catch(() => {});
+      }).catch(e => console.warn('[SEE]', e));
     }
   }
 
@@ -3003,7 +3788,7 @@
           }).join('')}</div>`;
         }
       }
-    } catch (_) { /* fail silently */ }
+    } catch (e) { console.warn("[SEE]", e); }
   }
 
   // ─── FIGURES GALLERY ───
@@ -3014,12 +3799,13 @@
     if (!grid) return;
 
     if (!_allFigures.length) {
+      grid.innerHTML = '<div class="figures-empty" style="text-align:center;padding:2rem;color:var(--ink-muted)">Loading figures…</div>';
       // Try API first
       try {
         const resp = await fetch('/api/reference?data=figures&limit=100');
         const json = await resp.json();
         _allFigures = json.data || [];
-      } catch (_) {}
+      } catch (e) { console.warn("[SEE]", e); }
 
       // Fallback: load from local JSON files
       if (!_allFigures.length) {
@@ -3045,7 +3831,7 @@
               }
             });
           }
-        } catch (_) {}
+        } catch (e) { console.warn("[SEE]", e); }
       }
 
       if (!_allFigures.length) {
@@ -3115,7 +3901,7 @@
 
       html += '</div></div>';
       container.insertAdjacentHTML('beforeend', html);
-    } catch (_) { /* fail silently */ }
+    } catch (e) { console.warn("[SEE]", e); }
   }
 
   // ─── SDG STORIES CAROUSEL ───
@@ -3168,6 +3954,7 @@
     const prevBtn = $('#sdgCarouselPrev');
     const nextBtn = $('#sdgCarouselNext');
     if (!track) return;
+    track.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--ink-muted)">Loading stories…</div>';
 
     // SDG color map
     const sdgColors = { 1: '#E5243B', 2: '#DDA63A', 3: '#4C9F38', 4: '#C5192D', 5: '#FF3A21', 6: '#26BDE2', 7: '#FCC30B', 8: '#A21942', 9: '#FD6925', 10: '#DD1367', 11: '#FD9D24', 12: '#BF8B2E', 13: '#3F7E44', 14: '#0A97D9', 15: '#56C02B', 16: '#00689D', 17: '#19486A' };
@@ -3181,7 +3968,7 @@
       const resp = await fetch('/api/reference?data=sdg-stories');
       const json = await resp.json();
       stories = json.data || [];
-    } catch (_) {}
+    } catch (e) { console.warn("[SEE]", e); }
 
     // Fallback: load from local case studies
     if (!stories.length) {
@@ -3215,7 +4002,7 @@
             what_worked: Array.isArray(cs.what_worked) ? cs.what_worked[0] : (cs.what_worked || ''),
           };
         });
-      } catch (_) {}
+      } catch (e) { console.warn("[SEE]", e); }
     }
 
     if (!stories.length) {
@@ -3320,13 +4107,13 @@
         const resp = await fetch('/api/reference?data=sdgs');
         const json = await resp.json();
         _sdgData = json.data || [];
-      } catch (_) { /* ignore */ }
+      } catch (e) { console.warn("[SEE]", e); }
       if (!_sdgData.length) _sdgData = SDG_FALLBACK;
     }
 
     const sdg = _sdgData.find(s => s.number === sdgNum);
     if (!sdg) {
-      content.innerHTML = `<div class="sdg-modal-header"><div class="sdg-modal-num" style="background:#888">${sdgNum}</div><h3>SDG ${sdgNum}</h3></div><p style="color:var(--ink-muted)">No detailed data for this SDG yet. Check back soon.</p>`;
+      content.innerHTML = `<div class="sdg-modal-header"><div class="sdg-modal-num" style="background:#888">${sdgNum}</div><h3>SDG ${sdgNum}</h3></div><p class="text-muted">No detailed data for this SDG yet. Check back soon.</p>`;
       modal.style.display = 'flex';
       return;
     }
@@ -3340,7 +4127,7 @@
       const raw = sdg.idea_type_mapping;
       if (typeof raw === 'string') mappings = JSON.parse(raw);
       else if (raw && typeof raw === 'object') mappings = raw;
-    } catch (_) { /* ignore */ }
+    } catch (e) { console.warn("[SEE]", e); }
 
     // Clean description
     const desc = sdg.description || SDG_FALLBACK.find(s => s.number === sdgNum)?.description || '';
@@ -3417,7 +4204,7 @@
           typeBreakdown = data.type_breakdown || [];
           verdictBreakdown = data.verdict_breakdown || [];
         }
-      } catch (_) {}
+      } catch (e) { console.warn("[SEE]", e); }
     }
 
     // Fallback: use localStorage history if no DB data
@@ -3427,7 +4214,7 @@
         if (history.length) {
           evals = history;
         }
-      } catch (_) {}
+      } catch (e) { console.warn("[SEE]", e); }
     }
 
     // Last resort: single evaluation
@@ -3506,7 +4293,7 @@
       }
 
       content.innerHTML = html;
-    } catch (_) {
+    } catch (e) { console.warn("[SEE]", e);
       content.innerHTML = '<div class="dashboard-error">Failed to load dashboard. Please try again.</div>';
     }
   }
@@ -3524,6 +4311,11 @@
     initSDGExplorer();
     initSDGStoriesCarousel();
     initExplorer();
+
+    // Phase 1-3 features
+    wireStartThisButtons();
+    initFundingMatcher();
+    initPublicFeed();
 
     // Restore last evaluation if returning user
     const lastEval = loadLastEvaluation();
@@ -3598,12 +4390,12 @@
           upvoteBtn.dataset.upvotes = data.upvotes;
           upvoteBtn.classList.add('upvoted');
         }
-      } catch (_) { /* ignore */ }
+      } catch (e) { console.warn("[SEE]", e); }
     });
 
     // Dashboard button in nav
     const dashBtn = $('#navMyDashboard');
-    if (dashBtn) dashBtn.addEventListener('click', (e) => { e.preventDefault(); showDashboard(); });
+    if (dashBtn) dashBtn.addEventListener('click', (e) => { e.preventDefault(); showProjectDashboard(); });
     const dashClose = $('#dashboardClose');
     if (dashClose) dashClose.addEventListener('click', () => { $('#dashboardOverlay').style.display = 'none'; });
     const dashOverlay = $('#dashboardOverlay');
