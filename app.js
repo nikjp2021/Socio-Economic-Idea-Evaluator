@@ -177,16 +177,16 @@
     return { valid: true };
   }
 
-  // ─── TOAST ───
-  function showToast(message) {
-    let toast = $('.toast');
+  // ─── TOAST (defined once; auth module adds type-aware version) ───
+  function showToast(message, type) {
+    let toast = document.querySelector('.toast');
     if (!toast) {
       toast = document.createElement('div');
       toast.className = 'toast';
       document.body.appendChild(toast);
     }
     toast.textContent = message;
-    toast.classList.add('visible');
+    toast.className = 'toast visible' + (type ? ' toast-' + type : '');
     setTimeout(() => toast.classList.remove('visible'), 2500);
   }
 
@@ -287,6 +287,7 @@
       showSimilarIdeas(data.idea_type, data.country);
       saveToMarketplace(data);
       saveLastEvaluation(data);
+      saveEvaluationToDB(data);
       tryResults.classList.add('visible');
       hideLoading();
       setTimeout(() => {
@@ -884,6 +885,70 @@
     setTimeout(() => window.print(), 200);
   };
 
+  // ─── CANVAS EXPORT ───
+  window.__exportCanvasPNG = function (canvasId) {
+    const el = document.getElementById(canvasId);
+    if (!el) return;
+    // Use html2canvas if available, otherwise fallback to SVG foreignObject
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const clone = el.cloneNode(true);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+      <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml">${new XMLSerializer().serializeToString(clone).replace(/#/g, '%23')}</div>
+      </foreignObject>
+    </svg>`;
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = w * 2;
+      c.height = h * 2;
+      const ctx = c.getContext('2d');
+      ctx.scale(2, 2);
+      ctx.fillStyle = '#FFFCF7';
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      c.toBlob((pngBlob) => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(pngBlob);
+        a.download = 'lean-canvas.png';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }, 'image/png');
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+    showToast('Downloading Lean Canvas...', 'success');
+  };
+
+  window.__exportCanvasText = function (canvasId) {
+    const el = document.getElementById(canvasId);
+    if (!el) return;
+    const blocks = el.querySelectorAll('.canvas-block');
+    let text = 'SOCIAL IMPACT LEAN CANVAS\n========================\n\n';
+    blocks.forEach((block) => {
+      const title = block.querySelector('.canvas-block-title');
+      if (title) {
+        text += title.textContent.trim().toUpperCase() + '\n';
+        text += '-'.repeat(30) + '\n';
+      }
+      const p = block.querySelectorAll('p');
+      p.forEach((para) => { text += para.textContent.trim() + '\n'; });
+      const ul = block.querySelector('ul');
+      if (ul) {
+        ul.querySelectorAll('li').forEach((li) => { text += '• ' + li.textContent.trim() + '\n'; });
+      }
+      text += '\n';
+    });
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Canvas copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Could not copy. Try again.', 'error');
+    });
+  };
+
   // ─── INNOVATION PANEL ───
   function renderInnovationPanel(d) {
     const panel = $('#innovationPanel');
@@ -959,7 +1024,13 @@
       return `<p>${esc(val || 'Not available')}</p>`;
     }
 
-    return `<div class="canvas-grid">
+    const canvasId = 'canvas-' + Math.random().toString(36).slice(2, 8);
+
+    return `<div class="canvas-actions" style="display:flex;gap:0.5rem;margin-bottom:1rem">
+      <button class="canvas-export-btn" onclick="window.__exportCanvasPNG('${canvasId}')" style="padding:0.4rem 0.8rem;border-radius:99px;border:1.5px solid var(--forest);background:var(--forest);color:white;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font-body)">&#x1F4F8; Save as PNG</button>
+      <button class="canvas-export-btn" onclick="window.__exportCanvasText('${canvasId}')" style="padding:0.4rem 0.8rem;border-radius:99px;border:1.5px solid var(--border);background:white;color:var(--ink);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font-body)">&#x1F4CB; Copy Text</button>
+    </div>
+    <div id="${canvasId}" class="canvas-grid" style="background:white;padding:1.5rem;border-radius:12px;border:1px solid var(--border)">
       <div class="canvas-block">
         <div class="canvas-block-title"><span class="cb-icon">&#x1F4A5;</span> Problem</div>
         ${listOrText(canvas.problem)}
@@ -1410,7 +1481,7 @@
         <div class="marketplace-card-hook">${esc(item.hook || '')}</div>
         ${sdgHtml ? `<div class="marketplace-card-sdgs">${sdgHtml}</div>` : ''}
         ${region ? `<div class="marketplace-card-region">&#x1F4CD; ${esc(region)}</div>` : ''}
-        ${item.upvotes ? `<div class="marketplace-card-upvotes">&#x1F44D; ${item.upvotes}</div>` : ''}
+        <button class="marketplace-card-upvotes" data-listing-id="${item.id}" data-upvotes="${item.upvotes || 0}">&#x1F44D; <span class="upvote-count">${item.upvotes || 0}</span></button>
       </div>`;
     }).join('');
   }
@@ -1460,6 +1531,29 @@
         renderMarketplaceGallery('all');
       }
     } catch (_) { /* ignore */ }
+  }
+
+  // ─── SAVE EVALUATION TO DATABASE ───
+  async function saveEvaluationToDB(data) {
+    if (!isLoggedIn()) return;
+    try {
+      const ideaText = data._input?.problem + '. ' + data._input?.goal;
+      const resp = await fetch('/api/evaluations?action=save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + getAuthToken(),
+        },
+        body: JSON.stringify({
+          idea_text: ideaText,
+          result: data,
+        }),
+      });
+      const result = await resp.json();
+      if (result.error) console.warn('DB save failed:', result.error);
+    } catch (err) {
+      console.warn('DB save failed:', err.message);
+    }
   }
 
   // ─── AUTH MODULE ───
@@ -1611,18 +1705,7 @@
     }
   }
 
-  function showToast(msg, type) {
-    let toast = document.querySelector('.toast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.className = 'toast';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = msg;
-    toast.className = 'toast' + (type === 'success' ? ' toast-success' : type === 'error' ? ' toast-error' : '');
-    toast.classList.add('visible');
-    setTimeout(() => toast.classList.remove('visible'), 3000);
-  }
+  // showToast defined above at line 181; no duplicate needed here
 
   // My Evaluations panel
   async function showMyEvaluations() {
@@ -1895,6 +1978,24 @@
     const myEvals = $('#navMyEvals');
     if (myEvals) myEvals.addEventListener('click', (e) => { e.preventDefault(); showMyEvaluations(); });
 
+    const myDashboard = $('#navMyDashboard');
+    if (myDashboard) myDashboard.addEventListener('click', (e) => {
+      e.preventDefault();
+      showToast('Dashboard coming soon!', 'success');
+    });
+
+    const myFavorites = $('#navMyFavorites');
+    if (myFavorites) myFavorites.addEventListener('click', (e) => {
+      e.preventDefault();
+      showToast('Favorites coming soon!', 'success');
+    });
+
+    const myProfile = $('#navMyProfile');
+    if (myProfile) myProfile.addEventListener('click', (e) => {
+      e.preventDefault();
+      showToast('Profile coming soon!', 'success');
+    });
+
     const logout = $('#navLogout');
     if (logout) logout.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1977,7 +2078,7 @@
             const rankClass = rank <= 3 ? `rank-${rank}` : '';
             const score = item.score ? Number(item.score).toFixed(1) : '?';
             const verdictLabel = item.verdict ? (item.verdict === 'GO' ? 'Ready' : item.verdict === 'GO WITH EDUCATION' ? 'Fix One Thing' : item.verdict === 'PIVOT' ? 'Pivot' : 'Shelve') : '';
-            return `<div class="leaderboard-card ${rankClass}"><div class="leaderboard-rank">${rank <= 3 ? ['&#x1F947;', '&#x1F948;', '&#x1F949;'][rank - 1] : '#' + rank}</div><div class="leaderboard-hook">${escHtml(item.hook || '')}</div><div class="leaderboard-meta"><span class="leaderboard-score">${score}/10</span>${verdictLabel ? `<span class="leaderboard-verdict badge-${item.badge || ''}">${verdictLabel}</span>` : ''}${item.region ? `<span class="leaderboard-region">&#x1F4CD; ${escHtml(item.region)}</span>` : ''}${item.upvotes ? `<span class="leaderboard-upvotes">&#x1F44D; ${item.upvotes}</span>` : ''}</div></div>`;
+            return `<div class="leaderboard-card ${rankClass}"><div class="leaderboard-rank">${rank <= 3 ? ['&#x1F947;', '&#x1F948;', '&#x1F949;'][rank - 1] : '#' + rank}</div><div class="leaderboard-hook">${escHtml(item.hook || '')}</div><div class="leaderboard-meta"><span class="leaderboard-score">${score}/10</span>${verdictLabel ? `<span class="leaderboard-verdict badge-${item.badge || ''}">${verdictLabel}</span>` : ''}${item.region ? `<span class="leaderboard-region">&#x1F4CD; ${escHtml(item.region)}</span>` : ''}<button class="leaderboard-upvotes" data-listing-id="${item.id}" data-upvotes="${item.upvotes || 0}">&#x1F44D; <span class="upvote-count">${item.upvotes || 0}</span></button></div></div>`;
           }).join('')}</div>`;
         }
       }
@@ -2240,7 +2341,7 @@
       renderResult(lastEval);
       renderInnovationPanel(lastEval);
       if (lastEval._input) {
-        const pi = $('#problemInput'), gi = $('#goalInput'), ci = $('#countryInput'), bi = $('#budgetInput'), xi = $('#constraintsInput');
+        const pi = $('#fieldProblem'), gi = $('#fieldGoal'), ci = $('#fieldCountry'), bi = $('#fieldBudget'), xi = $('#fieldConstraints');
         if (pi) pi.value = lastEval._input.problem || '';
         if (gi) gi.value = lastEval._input.goal || '';
         if (ci) ci.value = lastEval._input.country || '';
@@ -2286,6 +2387,29 @@
         renderMarketplaceGallery(btn.dataset.filter);
       });
     }
+
+    // Upvote click delegation
+    document.addEventListener('click', async (e) => {
+      const upvoteBtn = e.target.closest('.marketplace-card-upvotes, .leaderboard-upvotes');
+      if (!upvoteBtn) return;
+      e.preventDefault();
+      const listingId = upvoteBtn.dataset.listingId;
+      if (!listingId) return;
+      try {
+        const resp = await fetch('/api/evaluations?action=upvote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listing_id: parseInt(listingId, 10) }),
+        });
+        const data = await resp.json();
+        if (data.upvotes !== undefined) {
+          const countEl = upvoteBtn.querySelector('.upvote-count');
+          if (countEl) countEl.textContent = data.upvotes;
+          upvoteBtn.dataset.upvotes = data.upvotes;
+          upvoteBtn.classList.add('upvoted');
+        }
+      } catch (_) { /* ignore */ }
+    });
 
     // Dashboard button in nav
     const dashBtn = $('#navMyDashboard');

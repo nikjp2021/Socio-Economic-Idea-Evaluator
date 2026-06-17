@@ -2636,6 +2636,49 @@ body.gate-active {
   color: var(--amber);
   font-weight: 600;
   margin-top: 0.35rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.marketplace-card-upvotes:hover {
+  background: var(--amber);
+  color: white;
+  border-color: var(--amber);
+}
+.marketplace-card-upvotes.upvoted {
+  background: var(--amber);
+  color: white;
+  border-color: var(--amber);
+}
+.leaderboard-upvotes {
+  font-size: 0.75rem;
+  color: var(--amber);
+  font-weight: 600;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.leaderboard-upvotes:hover {
+  background: var(--amber);
+  color: white;
+  border-color: var(--amber);
+}
+.leaderboard-upvotes.upvoted {
+  background: var(--amber);
+  color: white;
+  border-color: var(--amber);
 }
 .marketplace-empty {
   text-align: center;
@@ -3652,7 +3695,7 @@ body.gate-active {
 .leaderboard-score { font-weight: 700; color: var(--forest); font-size: 0.85rem; }
 .leaderboard-verdict { font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 99px; background: var(--forest-dim); color: var(--forest); font-weight: 600; }
 .leaderboard-region { font-size: 0.75rem; color: var(--ink-muted); }
-.leaderboard-upvotes { font-size: 0.75rem; color: var(--amber); font-weight: 600; }
+/* leaderboard-upvotes styled above at line ~2655 */
 .leaderboard-empty { text-align: center; padding: 2rem 1rem; color: var(--ink-muted); }
 .leaderboard-empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
 .leaderboard-empty p { font-size: 0.95rem; line-height: 1.6; }

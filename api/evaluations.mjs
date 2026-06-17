@@ -210,6 +210,19 @@ async function handleListFavorites(req) {
   return json({ favorites: rows });
 }
 
+async function handleUpvote(req) {
+  const body = await readBody(req);
+  const { listing_id } = body;
+  if (!listing_id) return json({ error: 'listing_id is required' }, 400);
+
+  const rows = await query(
+    'UPDATE marketplace_listings SET upvotes = COALESCE(upvotes, 0) + 1 WHERE id = $1 RETURNING upvotes',
+    [listing_id]
+  );
+  if (rows.length === 0) return json({ error: 'Listing not found' }, 404);
+  return json({ upvotes: rows[0].upvotes });
+}
+
 async function handleSubmitToMarketplace(req) {
   const user = await getUserFromRequest(req);
   const body = await readBody(req);
@@ -285,6 +298,8 @@ export default async function handler(req, res) {
       result = await handleToggleFavorite(req);
     } else if (action === 'favorites' && req.method === 'GET') {
       result = await handleListFavorites(req);
+    } else if (action === 'upvote' && req.method === 'POST') {
+      result = await handleUpvote(req);
     } else if (action === 'marketplace-submit' && req.method === 'POST') {
       result = await handleSubmitToMarketplace(req);
     } else if (action === 'marketplace' && req.method === 'GET') {
