@@ -286,6 +286,7 @@
       renderInnovationPanel(data);
       showSimilarIdeas(data.idea_type, data.country);
       saveToMarketplace(data);
+      saveLastEvaluation(data);
       tryResults.classList.add('visible');
       hideLoading();
       setTimeout(() => {
@@ -739,8 +740,13 @@
 
     // First step CTA (always visible, outside collapsible sections)
     c.innerHTML += `<div class="first-step">
-      <div class="first-step-label">Your First Step Today</div>
+      <div class="first-step-icon">&#x1F680;</div>
+      <div class="first-step-label">Do This Today</div>
       <div class="first-step-text">${esc(d.verdict.first_step)}</div>
+      <div class="first-step-actions">
+        <button class="first-step-btn copy-step" onclick="navigator.clipboard.writeText(this.closest('.first-step').querySelector('.first-step-text').textContent).then(()=>{this.textContent='Copied!';setTimeout(()=>{this.innerHTML='&#x1F4CB; Copy Step'},1500)})">&#x1F4CB; Copy Step</button>
+        <button class="first-step-btn whatsapp-step" onclick="window.open('https://wa.me/?text='+encodeURIComponent('My first step from SEE: '+document.querySelector('.first-step-text').textContent),'_blank')">&#x1F4AC; Share on WhatsApp</button>
+      </div>
     </div>`;
 
     // Tab click handlers
@@ -1293,10 +1299,10 @@
   async function loadMentorPersonas() {
     if (_mentorPersonas.length) return _mentorPersonas;
     try {
-      const resp = await fetch('case-studies/mentor-personas.json');
+      const resp = await fetch('/api/reference?data=personas');
       if (!resp.ok) return [];
-      const data = await resp.json();
-      _mentorPersonas = data.personas || data || [];
+      const json = await resp.json();
+      _mentorPersonas = json.data || [];
       return _mentorPersonas;
     } catch (_) { return []; }
   }
@@ -1359,50 +1365,77 @@
   }
 
   // ─── MARKETPLACE GALLERY (Standalone) ───
-  const MARKETPLACE_SEED = [
-    { badge: 'gold', badge_label: 'Ready to Test', hook: 'WhatsApp homework help groups connecting university volunteers with rural Kenyan mothers', idea_type: 'Education', region: 'Kenya', sdg_tags: [{ n: 4, name: 'Quality Education' }, { n: 10, name: 'Reduced Inequalities' }] },
-    { badge: 'gold', badge_label: 'Ready to Test', hook: 'Neighborhood buddy system for elderly wellness checks in rural Japan', idea_type: 'Healthcare', region: 'Japan', sdg_tags: [{ n: 3, name: 'Good Health' }, { n: 11, name: 'Sustainable Cities' }] },
-    { badge: 'silver', badge_label: 'Promising', hook: 'Solar-powered shared cold storage for smallholder farmers in Nigeria', idea_type: 'Agriculture', region: 'Nigeria', sdg_tags: [{ n: 2, name: 'Zero Hunger' }, { n: 7, name: 'Clean Energy' }] },
-    { badge: 'silver', badge_label: 'Promising', hook: 'University mentorship program keeping Bangladeshi girls in secondary school', idea_type: 'Education', region: 'Bangladesh', sdg_tags: [{ n: 4, name: 'Quality Education' }, { n: 5, name: 'Gender Equality' }] },
-    { badge: 'gold', badge_label: 'Ready to Test', hook: 'Community kitchen network reducing food waste and feeding night-shift workers in São Paulo', idea_type: 'Food Security', region: 'Brazil', sdg_tags: [{ n: 2, name: 'Zero Hunger' }, { n: 12, name: 'Responsible Consumption' }] },
-    { badge: 'bronze', badge_label: 'Needs Work', hook: 'AI-powered mental health chatbot for factory workers in Bangladesh', idea_type: 'Healthcare', region: 'Bangladesh', sdg_tags: [{ n: 3, name: 'Good Health' }, { n: 8, name: 'Decent Work' }] },
-    { badge: 'developing', badge_label: 'Developing', hook: 'Peer-to-peer micro-lending circles for women street vendors in India', idea_type: 'Finance', region: 'India', sdg_tags: [{ n: 1, name: 'No Poverty' }, { n: 5, name: 'Gender Equality' }] },
-    { badge: 'gold', badge_label: 'Ready to Test', hook: 'Open a small Indian street food stall serving evening commuters near London Bridge', idea_type: 'Food', region: 'United Kingdom', sdg_tags: [{ n: 8, name: 'Decent Work' }, { n: 2, name: 'Zero Hunger' }] },
-    { badge: 'silver', badge_label: 'Promising', hook: 'Mobile literacy van bringing reading programs to remote villages in Myanmar', idea_type: 'Education', region: 'Myanmar', sdg_tags: [{ n: 4, name: 'Quality Education' }, { n: 10, name: 'Reduced Inequalities' }] },
-  ];
+  let _marketplaceData = null;
 
-  function renderMarketplaceGallery(filter) {
+  async function renderMarketplaceGallery(filter) {
     const grid = $('#marketplaceGrid');
     if (!grid) return;
 
-    const sdgColors = { 1: '#E5243B', 2: '#DDA63A', 3: '#4C9F38', 4: '#C5192D', 5: '#FF3A21', 6: '#26BDE2', 7: '#FCC30B', 8: '#A21942', 9: '#FD6925', 10: '#DD1367', 11: '#FD9D24', 12: '#BF8B2E', 13: '#3F7E44', 14: '#0A97D9', 15: '#56C02B', 16: '#00689D', 17: '#19486A' };
+    // Fetch from database if not cached
+    if (!_marketplaceData) {
+      try {
+        const resp = await fetch('/api/reference?data=leaderboard&limit=50');
+        const json = await resp.json();
+        const listings = json.data || [];
 
-    // Merge seed data with any user-evaluated ideas stored in localStorage
-    let items = [...MARKETPLACE_SEED];
-    try {
-      const stored = JSON.parse(localStorage.getItem('see_marketplace') || '[]');
-      items = [...stored, ...items];
-    } catch (_) { /* ignore */ }
+        // Also merge localStorage user ideas
+        let localItems = [];
+        try { localItems = JSON.parse(localStorage.getItem('see_marketplace') || '[]'); } catch (_) {}
 
-    const filtered = filter === 'all' ? items : items.filter((i) => i.badge === filter);
+        _marketplaceData = [...localItems, ...listings];
+      } catch (_) {
+        // Fallback to localStorage only
+        try { _marketplaceData = JSON.parse(localStorage.getItem('see_marketplace') || '[]'); } catch (_) { _marketplaceData = []; }
+      }
+    }
 
-    if (!filtered.length) {
-      grid.innerHTML = '<div class="marketplace-empty"><div class="marketplace-empty-icon">&#x1F50D;</div>No ideas match this filter yet.</div>';
+    const items = filter === 'all' ? _marketplaceData : _marketplaceData.filter((i) => i.badge === filter);
+
+    if (!items.length) {
+      grid.innerHTML = '<div class="marketplace-empty"><div class="marketplace-empty-icon">&#x1F50D;</div><p>No ideas match this filter yet.</p><p style="font-size:0.85rem;margin-top:0.5rem"><a href="#try">Evaluate your idea</a> to be the first.</p></div>';
       return;
     }
 
-    grid.innerHTML = filtered.map((item) => {
+    const sdgColors = { 1: '#E5243B', 2: '#DDA63A', 3: '#4C9F38', 4: '#C5192D', 5: '#FF3A21', 6: '#26BDE2', 7: '#FCC30B', 8: '#A21942', 9: '#FD6925', 10: '#DD1367', 11: '#FD9D24', 12: '#BF8B2E', 13: '#3F7E44', 14: '#0A97D9', 15: '#56C02B', 16: '#00689D', 17: '#19486A' };
+
+    grid.innerHTML = items.map((item) => {
       const sdgHtml = (item.sdg_tags || []).map((s) =>
-        `<span class="marketplace-sdg-tag" style="background:${sdgColors[s.n || s.number] || '#888'}">SDG ${s.n || s.number}: ${esc(s.name)}</span>`
+        `<span class="marketplace-sdg-tag" style="background:${sdgColors[s.n || s.number] || '#888'}">SDG ${s.n || s.number}: ${esc(s.name || s.n || '')}</span>`
       ).join('');
+      const score = item.score ? Number(item.score).toFixed(1) : null;
+      const region = item.region || item.eval_type || '';
       return `<div class="marketplace-card badge-${item.badge}" data-badge="${item.badge}">
-        <span class="marketplace-badge ${item.badge}">${esc(item.badge_label || item.badge)}</span>
+        <div class="marketplace-card-top"><span class="marketplace-badge ${item.badge}">${esc(item.badge_label || item.badge)}</span>${score ? `<span class="marketplace-card-score">${score}/10</span>` : ''}</div>
         <div class="marketplace-card-type">${esc(item.idea_type || item.idea_type_display || 'Social Impact')}</div>
         <div class="marketplace-card-hook">${esc(item.hook || '')}</div>
         ${sdgHtml ? `<div class="marketplace-card-sdgs">${sdgHtml}</div>` : ''}
-        ${item.region ? `<div class="marketplace-card-region">&#x1F4CD; ${esc(item.region)}</div>` : ''}
+        ${region ? `<div class="marketplace-card-region">&#x1F4CD; ${esc(region)}</div>` : ''}
+        ${item.upvotes ? `<div class="marketplace-card-upvotes">&#x1F44D; ${item.upvotes}</div>` : ''}
       </div>`;
     }).join('');
+  }
+
+  // ─── PERSIST LAST EVALUATION ───
+  function saveLastEvaluation(data) {
+    try {
+      localStorage.setItem('see_last_eval', JSON.stringify(data));
+      localStorage.setItem('see_last_eval_time', Date.now().toString());
+    } catch (_) { /* quota exceeded or private mode */ }
+  }
+
+  function loadLastEvaluation() {
+    try {
+      const raw = localStorage.getItem('see_last_eval');
+      const time = localStorage.getItem('see_last_eval_time');
+      if (!raw || !time) return null;
+      // Expire after 7 days
+      if (Date.now() - parseInt(time) > 7 * 24 * 60 * 60 * 1000) {
+        localStorage.removeItem('see_last_eval');
+        localStorage.removeItem('see_last_eval_time');
+        return null;
+      }
+      return JSON.parse(raw);
+    } catch (_) { return null; }
   }
 
   // ─── SAVE EVALUATION TO MARKETPLACE ───
@@ -1423,6 +1456,7 @@
         });
         // Keep max 20 user entries
         localStorage.setItem('see_marketplace', JSON.stringify(stored.slice(0, 20)));
+        _marketplaceData = null; // invalidate cache
         renderMarketplaceGallery('all');
       }
     } catch (_) { /* ignore */ }
@@ -2199,6 +2233,29 @@
     initCommunity();
     initFiguresGallery();
     initSDGExplorer();
+
+    // Restore last evaluation if returning user
+    const lastEval = loadLastEvaluation();
+    if (lastEval && lastEval.verdict) {
+      renderResult(lastEval);
+      renderInnovationPanel(lastEval);
+      if (lastEval._input) {
+        const pi = $('#problemInput'), gi = $('#goalInput'), ci = $('#countryInput'), bi = $('#budgetInput'), xi = $('#constraintsInput');
+        if (pi) pi.value = lastEval._input.problem || '';
+        if (gi) gi.value = lastEval._input.goal || '';
+        if (ci) ci.value = lastEval._input.country || '';
+        if (bi) bi.value = lastEval._input.budget || '';
+        if (xi) xi.value = lastEval._input.constraints || '';
+      }
+      const tryResults = $('#tryResults');
+      if (tryResults) tryResults.classList.add('visible');
+      // Show a subtle banner
+      const banner = document.createElement('div');
+      banner.className = 'restored-banner';
+      banner.innerHTML = '&#x1F501; Showing your last evaluation from ' + new Date(parseInt(localStorage.getItem('see_last_eval_time'))).toLocaleDateString() + '. <a href="#try" onclick="this.closest(\'.restored-banner\').remove()">Start fresh</a>';
+      const trySection = $('#try');
+      if (trySection) trySection.prepend(banner);
+    }
 
     // Mentors gallery
     renderMentorsGallery('all');
