@@ -50,6 +50,85 @@
     lastScroll = scrollY;
   }, { passive: true });
 
+  // ─── MOBILE MENU ───
+  const mobileToggle = $('.nav-mobile-toggle');
+  const navLinks = $('.nav-links');
+  if (mobileToggle && navLinks) {
+    mobileToggle.addEventListener('click', () => {
+      mobileToggle.classList.toggle('open');
+      navLinks.classList.toggle('open');
+    });
+    // Close menu when a link is clicked
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileToggle.classList.remove('open');
+        navLinks.classList.remove('open');
+      });
+    });
+  }
+
+  // ─── PAGE ROUTER ───
+  function showPage(pageName) {
+    // Hide all sections
+    document.querySelectorAll('[data-page]').forEach(el => {
+      el.classList.remove('page-visible');
+    });
+    // Show sections for this page
+    document.querySelectorAll(`[data-page="${pageName}"]`).forEach(el => {
+      el.classList.add('page-visible');
+    });
+    // Update nav active state
+    document.querySelectorAll('.nav-page-link').forEach(link => {
+      link.classList.toggle('active', link.dataset.page === pageName);
+    });
+    // Always show footer
+    const footer = $('footer');
+    if (footer) footer.style.display = 'block';
+    // Scroll to top
+    window.scrollTo(0, 0);
+  }
+
+  // Wire up nav page links
+  document.querySelectorAll('.nav-page-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = link.dataset.page;
+      showPage(page);
+      // Update URL hash
+      if (page === 'home') {
+        history.pushState(null, '', window.location.pathname);
+      } else {
+        history.pushState(null, '', '#' + page);
+      }
+    });
+  });
+
+  // Handle hash-based routing
+  function handleRoute() {
+    const hash = window.location.hash.slice(1);
+    if (hash === 'explore' || hash === 'community') {
+      showPage(hash);
+    } else {
+      showPage('home');
+    }
+  }
+  window.addEventListener('hashchange', handleRoute);
+
+  // ─── COLLAPSIBLE SECTIONS ───
+  document.querySelectorAll('[data-collapsible="true"]').forEach(section => {
+    const title = section.querySelector('h2, .section-title');
+    if (title) {
+      title.classList.add('section-toggle');
+      title.addEventListener('click', () => {
+        section.classList.toggle('expanded');
+      });
+    }
+  });
+
+  // Show home page by default and enable JS routing
+  document.body.classList.add('js-routed');
+  showPage('home');
+
   // ─── SCROLL REVEAL ───
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -2379,6 +2458,35 @@
       const closeBtn = document.getElementById('myEvalsClose');
       if (closeBtn) closeBtn.onclick = () => { overlay.style.display = 'none'; };
       overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+
+      // Card click → fetch full evaluation and render in main page
+      overlay.querySelectorAll('.my-eval-card').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', async () => {
+          const evalId = card.dataset.id;
+          if (!evalId || evalId === 'local') {
+            overlay.style.display = 'none';
+            const trySection = document.getElementById('try');
+            if (trySection) trySection.scrollIntoView({ behavior: 'smooth' });
+            return;
+          }
+          overlay.style.display = 'none';
+          try {
+            const resp = await fetch('/api/evaluations?action=get&id=' + evalId, {
+              headers: { 'Authorization': 'Bearer ' + getAuthToken() },
+            });
+            const data = await resp.json();
+            if (data.evaluation?.result_json) {
+              const result = typeof data.evaluation.result_json === 'string'
+                ? JSON.parse(data.evaluation.result_json)
+                : data.evaluation.result_json;
+              renderResult(result);
+              const trySection = document.getElementById('try');
+              if (trySection) trySection.scrollIntoView({ behavior: 'smooth' });
+            }
+          } catch (e) { console.warn('[SEE]', e); }
+        });
+      });
     } catch (err) {
       showToast('Failed to load evaluations.', 'error');
     }
@@ -2445,6 +2553,29 @@
     const closeBtn = document.getElementById('myFavsClose');
     if (closeBtn) closeBtn.onclick = () => { overlay.style.display = 'none'; };
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+
+    // Card click → fetch full evaluation and render
+    overlay.querySelectorAll('.my-eval-card').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', async () => {
+        const evalId = card.dataset.id;
+        if (!evalId || evalId === 'local') { overlay.style.display = 'none'; return; }
+        overlay.style.display = 'none';
+        try {
+          const resp = await fetch('/api/evaluations?action=get&id=' + evalId, {
+            headers: { 'Authorization': 'Bearer ' + getAuthToken() },
+          });
+          const data = await resp.json();
+          if (data.evaluation?.result_json) {
+            const result = typeof data.evaluation.result_json === 'string'
+              ? JSON.parse(data.evaluation.result_json) : data.evaluation.result_json;
+            renderResult(result);
+            const trySection = document.getElementById('try');
+            if (trySection) trySection.scrollIntoView({ behavior: 'smooth' });
+          }
+        } catch (e) { console.warn('[SEE]', e); }
+      });
+    });
   }
 
   // ─── PROFILE ───
