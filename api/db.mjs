@@ -371,6 +371,46 @@ export async function initDB() {
     )
   `;
 
+  // ─── Phase 3: Scaling ───
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS scaling_plans (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      target_region VARCHAR(200) NOT NULL,
+      target_country VARCHAR(10),
+      strategy TEXT DEFAULT '',
+      timeline VARCHAR(200) DEFAULT '',
+      budget_estimate INTEGER DEFAULT 0,
+      currency VARCHAR(10) DEFAULT 'USD',
+      status VARCHAR(50) NOT NULL DEFAULT 'planned',
+      readiness_score INTEGER DEFAULT 0,
+      notes TEXT DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS partnerships (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      partner_name VARCHAR(500) NOT NULL,
+      partner_type VARCHAR(100) DEFAULT '',
+      description TEXT DEFAULT '',
+      contact_email VARCHAR(255) DEFAULT '',
+      status VARCHAR(50) NOT NULL DEFAULT 'prospecting',
+      contribution TEXT DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+
+  await sql`CREATE INDEX IF NOT EXISTS idx_scaling_plans_project ON scaling_plans(project_id, created_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_partnerships_project ON partnerships(project_id, created_at DESC)`;
+
   // ─── Phase 2: Decisions ───
 
   await sql`

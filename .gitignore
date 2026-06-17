@@ -7,3 +7,12 @@ output/
 node_modules/
 .vercel
 .env*
+.venv/
+.codex/
+.cursor/
+.gemini/
+.vscode/
+.zed/
+.mcp.json
+opencode.json
+config/

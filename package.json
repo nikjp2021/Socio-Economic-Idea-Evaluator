@@ -6,7 +6,9 @@
   "scripts": {
     "build": "echo 'No build step required'",
     "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:python": "pytest -v"
   },
   "repository": {
     "type": "git",
@@ -25,5 +27,8 @@
     "@neondatabase/serverless": "^1.0.0",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.9"
   }
 }
