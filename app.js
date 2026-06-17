@@ -309,6 +309,53 @@
     setTimeout(() => toast.classList.remove('visible'), 2500);
   }
 
+  // ─── STORY FOLLOW SYSTEM ───
+  function getFollowedStories() {
+    try { return JSON.parse(localStorage.getItem('see_followed_stories') || '[]'); } catch (e) { return []; }
+  }
+  function isFollowing(csId) {
+    return getFollowedStories().some(s => s.id === csId);
+  }
+  function toggleFollow(csId, csTitle) {
+    const stories = getFollowedStories();
+    const idx = stories.findIndex(s => s.id === csId);
+    if (idx >= 0) {
+      stories.splice(idx, 1);
+    } else {
+      stories.push({ id: csId, title: csTitle, followed_at: new Date().toISOString() });
+    }
+    localStorage.setItem('see_followed_stories', JSON.stringify(stories));
+    return idx < 0; // true if now following
+  }
+  function generateStoryTimeline(cs) {
+    const updates = [];
+    if (cs.key_lesson) updates.push({ emoji: '\\u{1F4A1}', title: 'How it started', text: cs.key_lesson });
+    const failed = Array.isArray(cs.what_didnt) ? cs.what_didnt : (cs.what_didnt ? [cs.what_didnt] : []);
+    if (failed.length) updates.push({ emoji: '\\u26A0\\uFE0F', title: 'The first challenge', text: failed[0] });
+    const worked = Array.isArray(cs.what_worked) ? cs.what_worked : (cs.what_worked ? [cs.what_worked] : []);
+    if (worked.length) updates.push({ emoji: '\\u2705', title: 'The breakthrough', text: worked[0] });
+    if (cs.impact) updates.push({ emoji: '\\u{1F4CA}', title: 'The impact', text: typeof cs.impact === 'string' ? cs.impact : JSON.stringify(cs.impact) });
+    if (cs.problem_statement) updates.push({ emoji: '\\u{1F4CB}', title: 'The mission', text: cs.problem_statement });
+    return updates;
+  }
+
+  // ─── CONFETTI BURST ───
+  function burstConfetti(originEl) {
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = ['#2d5a27', '#c47a0a', '#3d8a35', '#e6a817', '#ba5540', '#3b82f6'];
+    for (let i = 0; i < 14; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'confetti-particle';
+      const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.5;
+      const distance = 40 + Math.random() * 60;
+      particle.style.cssText = `left:${cx}px;top:${cy}px;background:${colors[i % colors.length]};--tx:${Math.cos(angle) * distance}px;--ty:${Math.sin(angle) * distance - 20}px;`;
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 900);
+    }
+  }
+
   // ─── LOADING ANIMATION ───
   const loadingOverlay = $('#loadingOverlay');
   const loadingSteps = [
@@ -2986,6 +3033,26 @@
         title: 'Budget Reality Check',
         content: `<strong>What does $0 look like for ${escHtml(cat)}?</strong><br><br>\u2022 <strong>Transport:</strong> Walk. Use public routes where people already gather.<br>\u2022 <strong>Materials:</strong> Use what exists. WhatsApp is free. Paper is cheap.<br>\u2022 <strong>Space:</strong> Community centers, temples, mosques, schools — ask to borrow.<br>\u2022 <strong>Food/water:</strong> Ask local businesses to donate in exchange for visibility.<br><br><strong>First real cost:</strong> Probably transport and phone data. Budget: $5\u2013$20 for the first week.`,
       },
+      {
+        icon: '&#x2699;',
+        title: 'Operations Plan',
+        content: `<strong>How will you deliver ${escHtml(cat)} services daily?</strong><br><br>\u2022 <strong>Delivery method:</strong> ${cat === 'food' ? 'Pickup points, door-to-door, or community kitchens' : cat === 'education' ? 'In-person sessions, WhatsApp groups, or printed materials' : cat === 'health' ? 'Home visits, mobile clinics, or community health workers' : 'Direct outreach through existing community networks'}<br>\u2022 <strong>Daily schedule:</strong> Start with 2\u20133 hours/day. Track what works.<br>\u2022 <strong>Supplies:</strong> ${caseStudy.organization ? `How ${caseStudy.organization} does it: ` + escHtml(caseStudy.what_worked?.[0] || 'start with what you have') : 'Start with what you have. Buy only what you run out of.'}<br>\u2022 <strong>Volunteers:</strong> ${scale === 'solo' ? 'You + 1 reliable person is enough to start' : 'Assign clear roles: who does what, when'}<br><br><strong>Key lesson:</strong> ${escHtml(caseStudy.key_lesson || 'Simple systems that run every day beat complex systems that run sometimes.')}`,
+      },
+      {
+        icon: '&#x1F4B3;',
+        title: 'Funding Proposal Skeleton',
+        content: `<strong>1-page grant application for ${escHtml(cat)} in ${escHtml(country)}</strong><br><br><strong>Problem:</strong> ${escHtml(caseStudy.problem_statement || 'Describe who suffers and what gap you fill.')}<br><br><strong>Solution:</strong> ${escHtml(caseStudy.organization ? 'Adapted from ' + caseStudy.organization + '\'s proven model.' : 'Your approach, adapted from what works in this region.')}<br><br><strong>Impact metrics:</strong> Number of beneficiaries served, cost per beneficiary, retention rate<br><br><strong>Budget:</strong> $0 for pilot. Scale costs: transport, materials, stipends. Show cost-per-person.<br><br><strong>Team:</strong> ${scale === 'ngo' ? 'Your organization\'s track record' : scale === 'org' ? 'Your team\'s relevant experience' : 'Your motivation + mentor support'}<br><br><strong>Timeline:</strong> 14-day pilot \u2192 3-month proof \u2192 6-month scale`,
+      },
+      {
+        icon: '&#x1F4CA;',
+        title: 'Monthly Impact Report',
+        content: `<strong>Track what matters for ${escHtml(cat)}</strong><br><br>\u2022 <strong>Beneficiaries reached:</strong> How many people did you serve this month?<br>\u2022 <strong>Key outcomes:</strong> What changed for them? Be specific: "15 children improved reading scores" not "helped kids"<br>\u2022 <strong>Challenges:</strong> What didn\'t work? What barriers did you hit?<br>\u2022 <strong>Next month goals:</strong> 3 specific, measurable goals<br>\u2022 <strong>Budget spent:</strong> Transport, materials, other costs<br><br><strong>Success benchmark:</strong> ${escHtml(caseStudy.organization ? caseStudy.organization + ' achieved: ' + (caseStudy.impact || 'measurable impact in their first year') : 'Aim for 70%+ of beneficiaries saying they would recommend your service to a friend.')}`,
+      },
+      {
+        icon: '&#x2696;',
+        title: 'Getting Started \u2014 Legal Basics',
+        content: `<strong>What you need for ${escHtml(cat)} in ${escHtml(country)}</strong><br><br>\u2022 <strong>${scale === 'solo' ? 'Solo: No registration needed to start helping people' : scale === 'team' ? 'Team: Consider a simple partnership agreement' : scale === 'org' ? 'Organization: Register as a social enterprise or NGO' : 'NGO: Full registration, board, annual reporting'}</strong><br>\u2022 <strong>Permits:</strong> ${cat === 'food' ? 'Food handling certificate (usually free, local health department)' : cat === 'health' ? 'Health worker certification may be required' : cat === 'education' ? 'No permit needed for informal education' : 'Check with your local government office'}<br>\u2022 <strong>Liability:</strong> ${scale === 'solo' ? 'Personal liability is low for informal community work' : 'Consider liability insurance if handling money or health data'}<br>\u2022 <strong>Money:</strong> ${scale === 'ngo' ? 'Open a dedicated bank account. Track every expense.' : 'Start with personal funds. Open a separate account when you receive your first donation.'}<br><br><strong>Key advice:</strong> Don\'t let legal requirements stop you from starting. Most social enterprises start informally and formalize later.`,
+      },
     ];
 
     let h = '<div class="templates-grid">';
@@ -3134,6 +3201,7 @@
       html += '<button class="dash-tab" data-tab="track">Track</button>';
       html += '<button class="dash-tab" data-tab="funding">Fund</button>';
       html += '<button class="dash-tab" data-tab="scale">Scale</button>';
+      html += '<button class="dash-tab" data-tab="stories">Stories</button>';
       html += '</div>';
 
       // Projects tab
@@ -3198,6 +3266,39 @@
       // Scale tab (M7)
       html += '<div class="dash-panel hidden" id="dashScale"><div class="dashboard-loading">Loading plans…</div></div>';
 
+      // Stories tab
+      const followedStories = getFollowedStories();
+      html += '<div class="dash-panel hidden" id="dashStories">';
+      if (followedStories.length > 0) {
+        html += '<div class="dashboard-section-title">Stories You Follow</div>';
+        html += '<div class="story-follow-list">';
+        followedStories.forEach(s => {
+          const cs = _allCaseStudies.find(c => c.id === s.id);
+          if (!cs) return;
+          const updates = generateStoryTimeline(cs);
+          html += `<div class="story-follow-card">
+            <div class="story-follow-header">
+              <div class="story-follow-title">${escHtml(cs.title || cs.organization || '')}</div>
+              <div class="story-follow-meta">${escHtml(cs.category || '')} · ${escHtml(cs.country || '')}</div>
+            </div>
+            <div class="story-timeline">`;
+          updates.forEach(u => {
+            html += `<div class="story-update">
+              <div class="story-update-emoji">${u.emoji}</div>
+              <div>
+                <div class="story-update-title">${escHtml(u.title)}</div>
+                <div class="story-update-text">${escHtml(u.text.length > 200 ? u.text.slice(0, 197) + '...' : u.text)}</div>
+              </div>
+            </div>`;
+          });
+          html += '</div></div>';
+        });
+        html += '</div>';
+      } else {
+        html += '<div class="dashboard-empty">No stories followed yet. Browse <a href="#explorer" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">case studies</a> and click "Follow" to track stories that inspire you.</div>';
+      }
+      html += '</div>';
+
       content.innerHTML = html;
 
       // Tab switching — lazy-load module panels
@@ -3237,6 +3338,10 @@
       // Project card click
       content.querySelectorAll('.dash-project-card').forEach(card => {
         card.addEventListener('click', () => showProjectDetail(card.dataset.projectId, content));
+      });
+      // Nudge buttons
+      content.querySelectorAll('.nudge-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => { e.stopPropagation(); showProjectDetail(btn.dataset.nudgeProject, content); });
       });
 
     } catch (e) { console.warn("[SEE]", e);
@@ -3280,20 +3385,38 @@
           <span>${p.progress_pct}% complete</span>
         </div>`;
 
-      // Milestones
+      // Milestones \u2014 timeline grouped by phase
       if (milestones.length > 0) {
-        html += '<div class="project-milestones"><h4>Milestones</h4>';
+        const phases = {};
         milestones.forEach(m => {
-          const done = m.status === 'completed';
-          html += `<div class="milestone-item ${done ? 'milestone-done' : ''}" data-milestone-id="${m.id}">
-            <button class="milestone-check" data-milestone-id="${m.id}" data-status="${done ? 'pending' : 'completed'}">${done ? '\u2705' : '\u2B1C'}</button>
-            <div class="milestone-content">
-              <div class="milestone-label">${escHtml(m.label)}</div>
-              ${m.description ? `<div class="milestone-desc">${escHtml(m.description)}</div>` : ''}
-            </div>
-          </div>`;
+          const phase = m.phase || 'general';
+          if (!phases[phase]) phases[phase] = [];
+          phases[phase].push(m);
         });
-        html += '</div>';
+        const phaseLabels = { research: '\\u{1F50D} Research', pilot: '\\u{1F9EA} Pilot', proof: '\\u{1F4CA} Proof', general: '\\u{1F4CB} Tasks' };
+        html += '<div class="project-milestones"><h4>Milestones</h4><div class="milestone-timeline">';
+        Object.entries(phases).forEach(([phase, items], pIdx) => {
+          const allDone = items.every(m => m.status === 'completed');
+          const someActive = items.some(m => m.status !== 'completed');
+          html += `<div class="milestone-phase ${allDone ? 'phase-done' : someActive ? 'phase-active' : ''}">
+            <div class="milestone-phase-label">${phaseLabels[phase] || phase}</div>`;
+          items.forEach((m, mIdx) => {
+            const done = m.status === 'completed';
+            const isLast = mIdx === items.length - 1 && pIdx === Object.keys(phases).length - 1;
+            html += `<div class="milestone-node ${done ? 'completed' : ''}" data-milestone-id="${m.id}">
+              ${!isLast ? '<div class="milestone-connector"></div>' : ''}
+              <div class="milestone-content">
+                <button class="milestone-check" data-milestone-id="${m.id}" data-status="${done ? 'pending' : 'completed'}">${done ? '\\u2705' : '\\u2B1C'}</button>
+                <div>
+                  <div class="milestone-label">${escHtml(m.label)}</div>
+                  ${m.description ? `<div class="milestone-desc">${escHtml(m.description)}</div>` : ''}
+                </div>
+              </div>
+            </div>`;
+          });
+          html += '</div>';
+        });
+        html += '</div></div>';
       }
 
       // Check-in form
@@ -3358,6 +3481,16 @@
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
               body: JSON.stringify({ milestone_id: milestoneId, status: newStatus }),
             });
+            // Celebrate completion
+            if (newStatus === 'completed') {
+              burstConfetti(btn);
+              showToast('\u{1F389} Milestone completed!', 'success');
+              const allChecks = container.querySelectorAll('.milestone-check');
+              const allDone = Array.from(allChecks).every(b => b.dataset.status === 'pending' || b.dataset.milestoneId === milestoneId);
+              if (allDone) {
+                setTimeout(() => showToast('\u{1F680} All milestones complete!', 'success'), 1200);
+              }
+            }
             showProjectDetail(projectId, container);
           } catch (e) { console.warn("[SEE]", e); showToast('Failed to update milestone.', 'error'); }
         });
@@ -3388,6 +3521,22 @@
             }
           } catch (e) { console.warn("[SEE]", e); showToast('Failed to save check-in.', 'error'); }
         });
+      }
+
+      // Stuck mood help panel
+      const stuckRadio = container.querySelector('input[name="checkinMood"][value="stuck"]');
+      const moodContainer = container.querySelector('.checkin-mood');
+      if (stuckRadio && moodContainer) {
+        const helpPanel = document.createElement('div');
+        helpPanel.className = 'stuck-help';
+        helpPanel.style.display = 'none';
+        helpPanel.innerHTML = '<button class="stuck-help-dismiss">&times;</button><strong>\u{1F4A1} Feeling stuck? Here\'s what to try:</strong><ul><li>Pick ONE small thing you can do today</li><li>Ask: "What\'s the smallest possible next step?"</li><li>Re-read your case study\'s "What Failed" section</li><li>Look at your mentor\'s playbook for your stage</li></ul>';
+        moodContainer.parentElement.appendChild(helpPanel);
+        container.querySelectorAll('input[name="checkinMood"]').forEach(radio => {
+          radio.addEventListener('change', () => { helpPanel.style.display = radio.value === 'stuck' && radio.checked ? 'block' : 'none'; });
+        });
+        const dismissBtn = helpPanel.querySelector('.stuck-help-dismiss');
+        if (dismissBtn) dismissBtn.addEventListener('click', () => { helpPanel.style.display = 'none'; });
       }
 
     } catch (e) { console.warn("[SEE]", e);
@@ -4257,6 +4406,7 @@
               data-cs-failed='${JSON.stringify(Array.isArray(cs.what_didnt) ? cs.what_didnt : [])}'
               data-cs-lesson="${escHtml(cs.key_lesson || '')}"
             >&#x1F680; Start This</button>
+            <button class="story-follow-btn${isFollowing(cs.id) ? ' following' : ''}" data-cs-id="${escHtml(cs.id || '')}" data-cs-title="${escHtml(cs.title || cs.organization || '')}">${isFollowing(cs.id) ? '&#x2713; Following' : '&#x1F516; Follow'}</button>
           </div>
         </div>`;
       }).join('');
@@ -4277,6 +4427,19 @@
       const card = e.target.closest('.explorer-card');
       if (!card) return;
       card.classList.toggle('expanded');
+    });
+
+    // Follow button click
+    grid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.story-follow-btn');
+      if (!btn) return;
+      e.stopPropagation();
+      const csId = btn.dataset.csId;
+      const csTitle = btn.dataset.csTitle;
+      const nowFollowing = toggleFollow(csId, csTitle);
+      btn.classList.toggle('following', nowFollowing);
+      btn.innerHTML = nowFollowing ? '&#x2713; Following' : '&#x1F516; Follow';
+      showToast(nowFollowing ? 'Following ' + csTitle : 'Unfollowed ' + csTitle, 'success');
     });
 
     // Filters
