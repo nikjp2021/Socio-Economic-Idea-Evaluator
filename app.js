@@ -2384,6 +2384,116 @@
     }
   }
 
+  // ─── FAVORITES ───
+  async function showFavorites() {
+    const dropdown = $('#navDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    let evals = [];
+
+    if (isLoggedIn()) {
+      try {
+        const data = await apiEvaluationsGet('list');
+        if (data.evaluations) evals = data.evaluations;
+      } catch (e) { console.warn("[SEE]", e); }
+    }
+
+    if (!evals.length) {
+      try {
+        const history = JSON.parse(localStorage.getItem('see_eval_history') || '[]');
+        if (history.length) evals = history;
+      } catch (e) { console.warn("[SEE]", e); }
+    }
+
+    let overlay = document.querySelector('.my-evals-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'my-evals-overlay';
+      document.body.appendChild(overlay);
+    }
+
+    let html = '<div class="my-evals-panel">';
+    html += '<div class="my-evals-header"><h3>&#x2B50; Favorites</h3><button class="my-evals-close" id="myFavsClose">&times;</button></div>';
+
+    const starred = evals.filter(e => e.starred || e.favorited);
+    if (starred.length > 0) {
+      html += `<div class="my-evals-counter">${starred.length} favorite${starred.length !== 1 ? 's' : ''}</div>`;
+      html += '<div class="my-evals-list">';
+      starred.forEach((ev) => {
+        const date = new Date(ev.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const score = ev.score ? Number(ev.score).toFixed(1) : '?';
+        const verdict = ev.verdict_label || ev.verdict || '';
+        const idea = ev.idea_text ? ev.idea_text.slice(0, 80) + (ev.idea_text.length > 80 ? '...' : '') : '';
+        html += `<div class="my-eval-card" data-id="${ev.id}">
+          <div class="my-eval-top">
+            <span class="my-eval-score">${esc(score)}</span>
+            <span class="my-eval-verdict">${esc(verdict)}</span>
+            <span class="my-eval-date">${esc(date)}</span>
+          </div>
+          <div class="my-eval-idea">${esc(idea)}</div>
+        </div>`;
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="my-evals-empty">No favorites yet. Star an evaluation from <a href="#" onclick="this.closest(\'.my-evals-overlay\').style.display=\'none\'; document.querySelector(\'#navMyEvals\')?.click()">My Evaluations</a> to save it here.</div>';
+    }
+
+    html += '</div>';
+    overlay.innerHTML = html;
+    overlay.style.display = 'flex';
+
+    const closeBtn = document.getElementById('myFavsClose');
+    if (closeBtn) closeBtn.onclick = () => { overlay.style.display = 'none'; };
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+  }
+
+  // ─── PROFILE ───
+  async function showProfile() {
+    const dropdown = $('#navDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    const overlay = $('#dashboardOverlay');
+    const content = $('#dashboardContent');
+    if (!overlay || !content) return;
+
+    overlay.style.display = 'flex';
+    content.innerHTML = '<div class="dashboard-loading">Loading profile…</div>';
+
+    const user = getAuthUser();
+    const token = getAuthToken();
+
+    let evalCount = 0;
+    let projectCount = 0;
+    if (token) {
+      try {
+        const evalData = await apiEvaluationsGet('list');
+        evalCount = (evalData.evaluations || []).length;
+      } catch (e) { /* ignore */ }
+      try {
+        const projResp = await fetch('/api/projects?action=list', { headers: { 'Authorization': 'Bearer ' + token } });
+        const projData = await projResp.json();
+        projectCount = (projData.projects || []).length;
+      } catch (e) { /* ignore */ }
+    }
+
+    let html = '<div class="profile-section">';
+    html += '<div class="profile-avatar">' + esc((user?.name || 'U').charAt(0).toUpperCase()) + '</div>';
+    html += '<div class="profile-name">' + escHtml(user?.name || 'User') + '</div>';
+    html += '<div class="profile-email">' + escHtml(user?.email || '') + '</div>';
+    html += '</div>';
+
+    html += '<div class="dashboard-stats">';
+    html += `<div class="dash-stat-card"><div class="dash-stat-val">${evalCount}</div><div class="dash-stat-label">Evaluations</div></div>`;
+    html += `<div class="dash-stat-card"><div class="dash-stat-val">${projectCount}</div><div class="dash-stat-label">Projects</div></div>`;
+    html += '</div>';
+
+    html += '<div class="profile-actions">';
+    html += '<button class="profile-action-btn" onclick="document.getElementById(\'dashboardOverlay\').style.display=\'none\'">Close</button>';
+    html += '</div>';
+
+    content.innerHTML = html;
+  }
+
   // ─── ROADMAP GENERATOR (Phase 1) ───
 
   function generateRoadmap(caseStudy, userContext) {
@@ -3697,10 +3807,10 @@
     if (myDashboard) myDashboard.addEventListener('click', (e) => { e.preventDefault(); showDashboard(); });
 
     const myFavorites = $('#navMyFavorites');
-    if (myFavorites) myFavorites.addEventListener('click', (e) => { e.preventDefault(); showMyEvaluations(); });
+    if (myFavorites) myFavorites.addEventListener('click', (e) => { e.preventDefault(); showFavorites(); });
 
     const myProfile = $('#navMyProfile');
-    if (myProfile) myProfile.addEventListener('click', (e) => { e.preventDefault(); showDashboard(); });
+    if (myProfile) myProfile.addEventListener('click', (e) => { e.preventDefault(); showProfile(); });
 
     const logout = $('#navLogout');
     if (logout) logout.addEventListener('click', (e) => {
@@ -3717,6 +3827,12 @@
         if (data.error) clearAuth();
       }).catch(e => console.warn('[SEE]', e));
     }
+
+    // Dashboard close handlers
+    const dashClose = $('#dashboardClose');
+    if (dashClose) dashClose.addEventListener('click', () => { $('#dashboardOverlay').style.display = 'none'; });
+    const dashOverlay = $('#dashboardOverlay');
+    if (dashOverlay) dashOverlay.addEventListener('click', (e) => { if (e.target === dashOverlay) dashOverlay.style.display = 'none'; });
   }
 
   // ─── COMMUNITY LEADERBOARD + STATS ───
@@ -4400,13 +4516,6 @@
       } catch (e) { console.warn("[SEE]", e); }
     });
 
-    // Dashboard button in nav
-    const dashBtn = $('#navMyDashboard');
-    if (dashBtn) dashBtn.addEventListener('click', (e) => { e.preventDefault(); showProjectDashboard(); });
-    const dashClose = $('#dashboardClose');
-    if (dashClose) dashClose.addEventListener('click', () => { $('#dashboardOverlay').style.display = 'none'; });
-    const dashOverlay = $('#dashboardOverlay');
-    if (dashOverlay) dashOverlay.addEventListener('click', (e) => { if (e.target === dashOverlay) dashOverlay.style.display = 'none'; });
   });
 
 })();

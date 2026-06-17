@@ -3882,6 +3882,15 @@ body.gate-active {
 .dash-eval-date { font-size: 0.7rem; color: var(--ink-faint); margin-left: auto; }
 .dash-eval-idea { font-size: 0.85rem; color: var(--ink-light); line-height: 1.4; }
 
+/* Profile panel */
+.profile-section { text-align: center; padding: 2rem 1rem 1rem; }
+.profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--forest); color: white; font-size: 1.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-family: var(--font-display); }
+.profile-name { font-size: 1.25rem; font-weight: 700; color: var(--ink); font-family: var(--font-display); }
+.profile-email { font-size: 0.85rem; color: var(--ink-muted); margin-top: 0.25rem; }
+.profile-actions { text-align: center; padding: 1.5rem; }
+.profile-action-btn { background: var(--forest); color: white; border: none; border-radius: var(--radius-md); padding: 0.6rem 2rem; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+.profile-action-btn:hover { opacity: 0.9; }
+
 @media (max-width: 768px) {
   .community-stats { grid-template-columns: repeat(2, 1fr); }
   .leaderboard-grid { grid-template-columns: 1fr; }
